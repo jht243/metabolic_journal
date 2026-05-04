@@ -16,51 +16,76 @@
   .section-block:last-of-type { border-bottom: 0; }
   .section-block h2 { font-family: var(--font-serif); font-size: 24px; color: var(--h-navy); margin-bottom: 20px; }
 
-  .targets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-  .target-item {
-    background: var(--h-gray-bg);
-    border-radius: 6px;
-    padding: 16px 18px;
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--h-navy);
+  /* ── Topics list ── */
+  .topics-list { display: flex; flex-direction: column; gap: 0; counter-reset: topic; }
+  .topic-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--h-gray-light);
   }
-  .target-item::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--h-teal); flex-shrink: 0; }
+  .topic-row:last-child { border-bottom: 0; }
+  .topic-num {
+    counter-increment: topic;
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 10px;
+    background: linear-gradient(135deg, var(--h-teal), #14b8a6);
+    color: #fff;
+    font-size: 14px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .topic-num::after { content: counter(topic); }
+  .topic-label { font-size: 15px; font-weight: 500; color: var(--h-navy); line-height: 1.4; }
 
+  /* ── Biomarker tags ── */
   .biomarker-panel {
     background: var(--h-gray-bg);
-    border-radius: 8px;
+    border-radius: 10px;
     padding: 28px;
+    border: 1px solid var(--h-gray-light);
   }
-  .biomarker-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .biomarker-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
   .biomarker-chip {
     font-size: 13px;
     font-weight: 600;
-    padding: 6px 14px;
-    border-radius: 4px;
-    background: var(--white);
+    padding: 7px 16px;
+    border-radius: 100px;
+    background: white;
     border: 1px solid var(--h-gray-light);
-    color: var(--h-dark-text);
+    color: var(--h-navy);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .biomarker-chip:hover {
+    border-color: var(--h-teal);
+    box-shadow: 0 0 0 3px rgba(13,148,136,0.08);
   }
 
-  .who-for-list { list-style: none; padding: 0; }
+  /* ── Who-for checklist ── */
+  .who-for-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0; }
   .who-for-list li {
-    padding: 12px 0;
+    padding: 14px 0;
     border-bottom: 1px solid var(--h-gray-light);
     font-size: 15px;
     display: flex;
     align-items: flex-start;
-    gap: 10px;
+    gap: 12px;
+    line-height: 1.5;
   }
   .who-for-list li:last-child { border-bottom: 0; }
   .who-for-list li::before {
-    content: "✓";
-    color: var(--h-teal);
-    font-weight: 700;
+    content: "";
+    width: 22px; height: 22px;
     flex-shrink: 0;
+    margin-top: 1px;
+    background: linear-gradient(135deg, var(--h-teal), #14b8a6);
+    border-radius: 6px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='3'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 14px;
+    background-color: var(--h-teal);
   }
 
   .faq-item { border-bottom: 1px solid var(--h-gray-light); }
@@ -107,9 +132,12 @@
 
   <div class="section-block">
     <h2>Key Topics Covered</h2>
-    <div class="targets-grid">
+    <div class="topics-list">
       {% for target in program.targets %}
-      <div class="target-item">{{ target }}</div>
+      <div class="topic-row">
+        <span class="topic-num" aria-hidden="true"></span>
+        <span class="topic-label">{{ target }}</span>
+      </div>
       {% endfor %}
     </div>
   </div>
