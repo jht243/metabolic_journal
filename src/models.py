@@ -28,7 +28,6 @@ Base = declarative_base()
 
 
 def _snake_case(name: str) -> str:
-    """SourceType -> source_type"""
     out = []
     for i, ch in enumerate(name):
         if ch.isupper() and i > 0 and not name[i - 1].isupper():
@@ -38,12 +37,6 @@ def _snake_case(name: str) -> str:
 
 
 def _enum_values(enum_cls):
-    """Tell SQLAlchemy to use enum .value (lowercase) instead of .name (uppercase)
-    when serializing to Postgres, and bind to the snake_case Postgres enum type
-    name (e.g. SourceType -> source_type). Without values_callable, inserts send
-    the uppercase Python identifier (e.g. "GDELT") which doesn't match the
-    lowercase Postgres enum values (e.g. "gdelt").
-    """
     return Enum(
         enum_cls,
         values_callable=lambda x: [e.value for e in x],
@@ -51,58 +44,62 @@ def _enum_values(enum_cls):
     )
 
 
-class SourceType(str, enum.Enum):
-    GACETA_OFICIAL = "gaceta_oficial"
-    TU_GACETA = "tu_gaceta"
-    ASAMBLEA_NACIONAL = "asamblea_nacional"
-    TSJ = "tsj"
-    FEDERAL_REGISTER = "federal_register"
-    OFAC_SDN = "ofac_sdn"
-    GDELT = "gdelt"
-    BCV_RATES = "bcv_rates"
-    TRAVEL_ADVISORY = "travel_advisory"
-    NEWSDATA = "newsdata"
-    EIA = "eia"
+# ── Enums ─────────────────────────────────────────────────────────────
+
+
+class ContentSource(str, enum.Enum):
+    PUBMED = "pubmed"
+    CLINICAL_GUIDELINES = "clinical_guidelines"
+    FDA = "fda"
+    NIH = "nih"
     GOOGLE_NEWS = "google_news"
-    ITA_TRADE = "ita_trade"
-    ANSA_LATINA = "ansa_latina"
-    # Cross-project pollution recovery (April 2026): the shared
-    # Postgres enum had `openalex` added by a sister project that
-    # was misconfigured to point at this database. We declare it
-    # here so SQLAlchemy can decode the existing rows without
-    # crashing the report renderer; downstream queries should
-    # filter these out (see report_generator / blog_generator).
-    OPENALEX = "openalex"
+    MANUAL = "manual"
+    LLM_GENERATED = "llm_generated"
 
 
 class CredibilityTier(str, enum.Enum):
-    OFFICIAL = "official"
-    TIER1 = "tier1"
-    TIER2 = "tier2"
-    STATE = "state"
+    PEER_REVIEWED = "peer_reviewed"
+    CLINICAL_GUIDELINE = "clinical_guideline"
+    INSTITUTIONAL = "institutional"
+    EDITORIAL = "editorial"
 
 
-class GazetteStatus(str, enum.Enum):
+class ContentStatus(str, enum.Enum):
     SCRAPED = "scraped"
-    OCR_COMPLETE = "ocr_complete"
-    OCR_FAILED = "ocr_failed"
     ANALYZED = "analyzed"
     APPROVED = "approved"
-    SENT = "sent"
+    PUBLISHED = "published"
+    ARCHIVED = "archived"
 
 
-class GazetteType(str, enum.Enum):
-    ORDINARIA = "ordinaria"
-    EXTRAORDINARIA = "extraordinaria"
+class AssessmentStatus(str, enum.Enum):
+    STARTED = "started"
+    COMPLETED = "completed"
+    REVIEWED = "reviewed"
+    PROTOCOL_SENT = "protocol_sent"
+
+
+class BookingStatus(str, enum.Enum):
+    PENDING = "pending"
+    CONFIRMED = "confirmed"
+    COMPLETED = "completed"
+    CANCELLED = "cancelled"
+    NO_SHOW = "no_show"
+
+
+class HealthCluster(str, enum.Enum):
+    METABOLISM = "metabolism"
+    HORMONES = "hormones"
+    RECOVERY = "recovery"
+    TESTING = "testing"
 
 
 class ProspectCategory(str, enum.Enum):
-    TRAVEL = "travel"
-    SANCTIONS_COMPLIANCE = "sanctions_compliance"
-    INVESTMENT_BUSINESS = "investment_business"
-    POLICY_THINK_TANK = "policy_think_tank"
-    GENERAL_VENEZUELA = "general_venezuela"
-    CORPORATE_EXPOSURE = "corporate_exposure"
+    HEALTH_BLOG = "health_blog"
+    MEDICAL_PRACTICE = "medical_practice"
+    WELLNESS_BRAND = "wellness_brand"
+    FITNESS_NUTRITION = "fitness_nutrition"
+    RESEARCH = "research"
     REJECT = "reject"
 
 
@@ -135,89 +132,40 @@ class BacklinkStatus(str, enum.Enum):
     NOT_FOUND = "not_found"
 
 
-class GazetteEntry(Base):
-    __tablename__ = "gazette_entries"
-    __table_args__ = (UniqueConstraint("source", "source_url", name="uq_source_url"),)
+# ── Content Models ────────────────────────────────────────────────────
+
+
+class Article(Base):
+    """Health articles from external sources (PubMed, FDA, NIH, Google News, etc.)."""
+
+    __tablename__ = "articles"
+    __table_args__ = (UniqueConstraint("source", "source_url", name="uq_article_source_url"),)
 
     id = Column(Integer, primary_key=True, autoincrement=True)
 
-    gazette_number = Column(String(50), nullable=True, index=True)
-    gazette_type = Column(_enum_values(GazetteType), default=GazetteType.ORDINARIA)
-    published_date = Column(Date, nullable=False, index=True)
-    source = Column(_enum_values(SourceType), nullable=False)
-    source_url = Column(String(500), nullable=False)
-
-    title = Column(Text, nullable=True)
-    sumario_raw = Column(Text, nullable=True)
-
-    pdf_path = Column(String(500), nullable=True)
-    pdf_hash = Column(String(64), nullable=True, unique=True)
-    pdf_download_url = Column(String(500), nullable=True)
-
-    ocr_text = Column(Text, nullable=True)
-    ocr_confidence = Column(Integer, nullable=True)
-
-    analysis_json = Column(JSON, nullable=True)
-    status = Column(_enum_values(GazetteStatus), default=GazetteStatus.SCRAPED)
-
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
-class AssemblyNewsEntry(Base):
-    __tablename__ = "assembly_news"
-    __table_args__ = (UniqueConstraint("source_url", name="uq_assembly_url"),)
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    headline = Column(Text, nullable=False)
-    published_date = Column(Date, nullable=False, index=True)
-    source_url = Column(String(500), nullable=False)
-    body_text = Column(Text, nullable=True)
-    commission = Column(String(200), nullable=True)
-
-    analysis_json = Column(JSON, nullable=True)
-    status = Column(_enum_values(GazetteStatus), default=GazetteStatus.SCRAPED)
-
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
-class ExternalArticleEntry(Base):
-    """Articles from external sources (Federal Register, GDELT, OFAC, etc.)."""
-
-    __tablename__ = "external_articles"
-    __table_args__ = (UniqueConstraint("source", "source_url", name="uq_ext_source_url"),)
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    source = Column(_enum_values(SourceType), nullable=False, index=True)
+    source = Column(_enum_values(ContentSource), nullable=False, index=True)
     source_url = Column(String(1000), nullable=False)
     source_name = Column(String(200), nullable=True)
-    credibility = Column(_enum_values(CredibilityTier), default=CredibilityTier.TIER2)
+    credibility = Column(_enum_values(CredibilityTier), default=CredibilityTier.EDITORIAL)
 
     headline = Column(Text, nullable=False)
     published_date = Column(Date, nullable=False, index=True)
     body_text = Column(Text, nullable=True)
     article_type = Column(String(100), nullable=True)
 
-    tone_score = Column(Float, nullable=True)
+    cluster = Column(_enum_values(HealthCluster), nullable=True, index=True)
     extra_metadata = Column(JSON, nullable=True)
 
     analysis_json = Column(JSON, nullable=True)
-    status = Column(_enum_values(GazetteStatus), default=GazetteStatus.SCRAPED)
+    status = Column(_enum_values(ContentStatus), default=ContentStatus.SCRAPED)
 
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class BlogPost(Base):
-    """
-    Long-form LLM-generated analysis post tied to a source entry.
-    One blog post per ExternalArticle or AssemblyNews row that crosses the
-    relevance threshold and has not yet been written about. Generated on
-    a separate budget so the daily report run can stay cheap.
-    """
+    """LLM-generated long-form health content tied to a source article or
+    generated as standalone SEO content."""
 
     __tablename__ = "blog_posts"
     __table_args__ = (
@@ -235,37 +183,13 @@ class BlogPost(Base):
     summary = Column(Text, nullable=True)
     body_html = Column(Text, nullable=False)
 
-    # Conversational, ~180-250 char "social hook" — written from one
-    # analyst to another. Surfaces the tension or insight without
-    # restating the title. Generated in the same LLM call as the post
-    # body for new briefings; backfilled separately for old ones.
-    # Used by social syndication (Bluesky etc.) so posts read like a
-    # human wrote them rather than an RSS bot.
     social_hook = Column(Text, nullable=True)
-
-    # Pre-rendered 1200x630 PNG bytes of the briefing's per-post Open
-    # Graph card. Rendered once at blog-creation time (and backfilled
-    # for old posts via scripts/backfill_og_images.py) so every share
-    # preview shows the briefing's own headline rather than a generic
-    # site-wide tile. Served by /og/briefing/<slug>.png. Typically
-    # ~50-80 KB; well under any DB row limit.
     og_image_bytes = Column(LargeBinary, nullable=True)
 
-    primary_sector = Column(String(80), nullable=True, index=True)
-    sectors_json = Column(JSON, nullable=True)
+    primary_cluster = Column(String(80), nullable=True, index=True)
+    clusters_json = Column(JSON, nullable=True)
     keywords_json = Column(JSON, nullable=True)
     related_slugs_json = Column(JSON, nullable=True)
-
-    # 3-5 short "Key takeaways" bullets rendered as a scannable aside
-    # at the top of /briefing/<slug>. Generated in the same LLM call
-    # as the post body (src/blog_generator.py already emits a
-    # `key_takeaways` array in its JSON schema) and backfilled for
-    # legacy posts via scripts/backfill_takeaways.py. Surfaced on-
-    # page by templates/blog_post.html.j2 and consumed by the
-    # SEO/readability playbook: scannable bullets correlate with
-    # better on-page CTR and time-on-page, both ranking signals
-    # Google uses to decide whether to promote a "crawled - not
-    # indexed" briefing into the index.
     takeaways_json = Column(JSON, nullable=True)
 
     word_count = Column(Integer, nullable=True)
@@ -273,6 +197,11 @@ class BlogPost(Base):
 
     published_date = Column(Date, nullable=False, index=True)
     canonical_source_url = Column(String(1000), nullable=True)
+
+    # Medical review tracking for E-E-A-T
+    reviewed_by = Column(String(200), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+    medical_disclaimer = Column(Boolean, default=True)
 
     llm_model = Column(String(100), nullable=True)
     llm_input_tokens = Column(Integer, nullable=True)
@@ -284,12 +213,9 @@ class BlogPost(Base):
 
 
 class LandingPage(Base):
-    """
-    Evergreen landing pages — the pillar /invest-in-venezuela, the
-    sector pages, the explainers. Generated less frequently than blog
-    posts (e.g. weekly) and with the premium LLM model. Stored as
-    pre-rendered HTML so the request path stays cheap.
-    """
+    """Evergreen SEO landing pages — hub pages, symptom explainers,
+    protocol guides, lab guides, tool pages. Generated with the premium
+    LLM model and stored as pre-rendered HTML."""
 
     __tablename__ = "landing_pages"
 
@@ -303,10 +229,14 @@ class LandingPage(Base):
     body_html = Column(Text, nullable=False)
     keywords_json = Column(JSON, nullable=True)
     sections_json = Column(JSON, nullable=True)
+    faq_json = Column(JSON, nullable=True)
 
-    sector_slug = Column(String(80), nullable=True, index=True)
+    cluster = Column(String(80), nullable=True, index=True)
     canonical_path = Column(String(200), nullable=False)
     word_count = Column(Integer, nullable=True)
+
+    reviewed_by = Column(String(200), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
 
     llm_model = Column(String(120), nullable=True)
     llm_input_tokens = Column(Integer, nullable=True)
@@ -318,23 +248,155 @@ class LandingPage(Base):
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
-class DistributionLog(Base):
-    """
-    Tracks every outbound distribution event (Google Indexing ping,
-    Bluesky post, Mastodon post, Telegram broadcast, etc.). One row per
-    (url, channel) attempt. Used both for idempotency (don't re-ping the
-    same URL on the same channel within a cooldown window) and for
-    operational diagnostics.
+# ── Assessment & Protocol Models ──────────────────────────────────────
 
-    Channels we plan to write into this table:
-      - google_indexing      Google's Indexing API URL_UPDATED notification
-      - bluesky              atproto post
-      - mastodon             status post
-      - telegram             channel broadcast
-      - linkedin             company-page post
-      - threads              Meta Threads post
-      - medium               Medium import / canonical post
-    """
+
+class Assessment(Base):
+    """Multi-step health assessment intake. Captures symptoms, goals,
+    demographics, and health history. Links to optional lab results
+    and protocol delivery."""
+
+    __tablename__ = "assessments"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    token = Column(String(64), nullable=False, unique=True, index=True)
+    email = Column(String(255), nullable=False, index=True)
+    name = Column(String(255), nullable=True)
+    phone = Column(String(50), nullable=True)
+
+    # Structured assessment data saved incrementally
+    demographics_json = Column(JSON, nullable=True)
+    symptoms_json = Column(JSON, nullable=True)
+    goals_json = Column(JSON, nullable=True)
+    health_history_json = Column(JSON, nullable=True)
+    lifestyle_json = Column(JSON, nullable=True)
+    medications_json = Column(JSON, nullable=True)
+
+    # Computed scores from the assessment
+    metabolic_score = Column(Float, nullable=True)
+    hormone_score = Column(Float, nullable=True)
+    recovery_score = Column(Float, nullable=True)
+    overall_score = Column(Float, nullable=True)
+
+    primary_cluster = Column(_enum_values(HealthCluster), nullable=True, index=True)
+    recommended_program = Column(String(120), nullable=True)
+
+    status = Column(_enum_values(AssessmentStatus), default=AssessmentStatus.STARTED, index=True)
+    completed_at = Column(DateTime, nullable=True)
+
+    # UTM / attribution
+    utm_source = Column(String(200), nullable=True)
+    utm_medium = Column(String(200), nullable=True)
+    utm_campaign = Column(String(200), nullable=True)
+    landing_page = Column(String(500), nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class LabResult(Base):
+    """Lab panel results linked to an assessment. Stores individual
+    biomarker values with reference ranges and interpretation."""
+
+    __tablename__ = "lab_results"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    assessment_id = Column(
+        Integer,
+        ForeignKey("assessments.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    panel_type = Column(String(80), nullable=False, index=True)
+    lab_date = Column(Date, nullable=True)
+    lab_provider = Column(String(200), nullable=True)
+
+    results_json = Column(JSON, nullable=False)
+    interpretation_json = Column(JSON, nullable=True)
+    flags_json = Column(JSON, nullable=True)
+
+    reviewed_by = Column(String(200), nullable=True)
+    reviewed_at = Column(DateTime, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class Protocol(Base):
+    """Personalized health protocol generated from assessment + labs.
+    Contains supplement recommendations, lifestyle changes, and
+    optional Rx referrals."""
+
+    __tablename__ = "protocols"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    assessment_id = Column(
+        Integer,
+        ForeignKey("assessments.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+
+    program_type = Column(String(80), nullable=False, index=True)
+    version = Column(Integer, nullable=False, default=1)
+
+    supplements_json = Column(JSON, nullable=True)
+    lifestyle_json = Column(JSON, nullable=True)
+    nutrition_json = Column(JSON, nullable=True)
+    exercise_json = Column(JSON, nullable=True)
+    rx_referrals_json = Column(JSON, nullable=True)
+    monitoring_json = Column(JSON, nullable=True)
+
+    summary_html = Column(Text, nullable=True)
+    notes = Column(Text, nullable=True)
+
+    created_by = Column(String(200), nullable=True)
+    approved_by = Column(String(200), nullable=True)
+    approved_at = Column(DateTime, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class ConsultationBooking(Base):
+    """Tracks consultation bookings from assessment completions or
+    direct booking CTAs."""
+
+    __tablename__ = "consultation_bookings"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    assessment_id = Column(Integer, ForeignKey("assessments.id"), nullable=True, index=True)
+    email = Column(String(255), nullable=False, index=True)
+    name = Column(String(255), nullable=True)
+    phone = Column(String(50), nullable=True)
+
+    booking_type = Column(String(80), nullable=False, index=True)
+    preferred_date = Column(DateTime, nullable=True)
+    scheduled_date = Column(DateTime, nullable=True)
+    notes = Column(Text, nullable=True)
+
+    status = Column(_enum_values(BookingStatus), default=BookingStatus.PENDING, index=True)
+
+    # Stripe payment (if applicable)
+    stripe_session_id = Column(String(255), nullable=True, unique=True)
+    amount_total = Column(Integer, nullable=True)
+    currency = Column(String(10), nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+# ── Distribution & Operations ─────────────────────────────────────────
+
+
+class DistributionLog(Base):
+    """Tracks outbound distribution events (Google Indexing, IndexNow,
+    Bluesky, etc.). One row per (url, channel) attempt."""
 
     __tablename__ = "distribution_logs"
 
@@ -343,7 +405,7 @@ class DistributionLog(Base):
     channel = Column(String(40), nullable=False, index=True)
     url = Column(String(1000), nullable=False, index=True)
 
-    entity_type = Column(String(40), nullable=True)  # blog_post | landing_page | static
+    entity_type = Column(String(40), nullable=True)
     entity_id = Column(Integer, nullable=True)
 
     success = Column(Boolean, nullable=False, default=False, index=True)
@@ -353,80 +415,27 @@ class DistributionLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
 
-class ClimateSnapshot(Base):
-    """One row per calendar quarter. Stores the computed Investment
-    Climate Tracker scorecard for that quarter plus the raw evidence
-    used to derive it. Recomputed weekly by the climate runner; the row
-    for the current quarter is upserted in place (keyed on quarter_label).
-    Older rows are immutable and serve as the QoQ baseline for the next
-    quarter.
+class Subscriber(Base):
+    """Newsletter subscribers collected from the site."""
 
-    The report generator reads the most recent two rows: the latest is
-    rendered as the current scorecard, and the one before it provides
-    the deltas that produce the trend arrows on each bar.
-    """
-
-    __tablename__ = "climate_snapshots"
+    __tablename__ = "subscribers"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-
-    quarter_label = Column(String(16), nullable=False, unique=True, index=True)
-    quarter_start = Column(Date, nullable=False, index=True)
-
-    composite_score = Column(Float, nullable=True)
-    period_label = Column(String(64), nullable=True)
-    methodology = Column(Text, nullable=True)
-
-    bars_json = Column(JSON, nullable=False)
-    evidence_json = Column(JSON, nullable=True)
-
-    computed_at = Column(DateTime, default=datetime.utcnow, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
-class VisaOrder(Base):
-    """Tracks a paid visa-service order from Stripe checkout through intake
-    completion. Created when the webhook fires; the token field provides a
-    unique, unguessable URL the customer uses to fill the intake form.
-    """
-
-    __tablename__ = "visa_orders"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-
-    # Stripe identifiers
-    stripe_session_id = Column(String(255), nullable=False, unique=True, index=True)
-    stripe_payment_intent = Column(String(255), nullable=True)
-    amount_total = Column(Integer, nullable=True)
-    currency = Column(String(10), nullable=True)
-
-    # Customer info from Stripe checkout
-    customer_name = Column(String(255), nullable=True)
-    customer_email = Column(String(255), nullable=False, index=True)
-    customer_phone = Column(String(50), nullable=True)
-
-    # Intake form token — URL-safe, unguessable
-    intake_token = Column(String(64), nullable=False, unique=True, index=True)
-
-    # Intake form data (JSON blob, saved incrementally)
-    intake_data = Column(JSON, nullable=True)
-    intake_completed_at = Column(DateTime, nullable=True)
-
-    # Workflow status: pending_intake | intake_in_progress | intake_complete | submitted | approved | denied
-    status = Column(String(40), nullable=False, default="pending_intake", index=True)
-
+    email = Column(String(255), nullable=False, unique=True, index=True)
+    name = Column(String(255), nullable=True)
+    source = Column(String(80), nullable=True, index=True)
+    interests_json = Column(JSON, nullable=True)
+    confirmed = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
 class ScrapeLog(Base):
-    """Tracks every scrape attempt for diagnostics and retry logic."""
+    """Tracks every content scrape attempt for diagnostics."""
 
     __tablename__ = "scrape_logs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    source = Column(_enum_values(SourceType), nullable=False)
+    source = Column(_enum_values(ContentSource), nullable=False)
     scrape_date = Column(Date, nullable=False)
     success = Column(Boolean, nullable=False)
     entries_found = Column(Integer, default=0)
@@ -435,8 +444,11 @@ class ScrapeLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+# ── Outreach Models (kept from original) ──────────────────────────────
+
+
 class Prospect(Base):
-    """A domain/page that links to a competitor but not yet to Caracas Research."""
+    """A domain/page for backlink outreach."""
 
     __tablename__ = "outreach_prospects"
     __table_args__ = (
@@ -452,7 +464,7 @@ class Prospect(Base):
     source_page_title = Column(Text, nullable=True)
     category = Column(
         _enum_values(ProspectCategory),
-        default=ProspectCategory.GENERAL_VENEZUELA,
+        default=ProspectCategory.HEALTH_BLOG,
         index=True,
     )
     site_type = Column(String(80), nullable=True, index=True)
@@ -469,16 +481,8 @@ class Prospect(Base):
     recommended_target_url = Column(String(1000), nullable=True)
     reason_to_link = Column(Text, nullable=True)
     contact_email = Column(String(255), nullable=True, index=True)
-    email_status = Column(
-        _enum_values(EmailStatus),
-        default=EmailStatus.NOT_FOUND,
-        index=True,
-    )
-    outreach_status = Column(
-        _enum_values(OutreachStatus),
-        default=OutreachStatus.PENDING,
-        index=True,
-    )
+    email_status = Column(_enum_values(EmailStatus), default=EmailStatus.NOT_FOUND, index=True)
+    outreach_status = Column(_enum_values(OutreachStatus), default=OutreachStatus.PENDING, index=True)
     page_text_snippet = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -489,11 +493,7 @@ class OutreachEmail(Base):
 
     __tablename__ = "outreach_emails"
     __table_args__ = (
-        UniqueConstraint(
-            "prospect_id",
-            "sequence_num",
-            name="uq_outreach_email_sequence",
-        ),
+        UniqueConstraint("prospect_id", "sequence_num", name="uq_outreach_email_sequence"),
     )
 
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
@@ -508,11 +508,7 @@ class OutreachEmail(Base):
     body = Column(Text, nullable=False)
     sent_at = Column(DateTime, nullable=True, index=True)
     resend_message_id = Column(String(255), nullable=True)
-    reply_status = Column(
-        _enum_values(ReplyStatus),
-        default=ReplyStatus.PENDING,
-        index=True,
-    )
+    reply_status = Column(_enum_values(ReplyStatus), default=ReplyStatus.PENDING, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -534,15 +530,13 @@ class BacklinkRecord(Base):
     anchor_text = Column(Text, nullable=True)
     rel = Column(String(255), nullable=True)
     first_seen = Column(DateTime, nullable=True)
-    status = Column(
-        _enum_values(BacklinkStatus),
-        default=BacklinkStatus.NOT_FOUND,
-        index=True,
-    )
+    status = Column(_enum_values(BacklinkStatus), default=BacklinkStatus.NOT_FOUND, index=True)
     last_checked_at = Column(DateTime, nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
+
+# ── Engine & Session ──────────────────────────────────────────────────
 
 engine = create_engine(settings.database_url, echo=False)
 SessionLocal = sessionmaker(bind=engine)
@@ -551,51 +545,39 @@ _db_initialized = False
 
 
 def init_db(*, force: bool = False):
-    """Create tables once per process, not once per request.
-
-    Also runs lightweight, idempotent column-additions for ALTERations
-    that can't be expressed by `create_all` on a pre-existing table.
-    We deliberately stop short of a full Alembic setup — for a single-
-    writer schema this stays simpler and safer.
-    """
+    """Create tables once per process. Silently skips if DB is unreachable."""
     global _db_initialized
     if _db_initialized and not force:
         return
     with _init_lock:
         if _db_initialized and not force:
             return
-        Base.metadata.create_all(engine)
-        _ensure_columns()
-        _ensure_enum_values()
-        _db_initialized = True
+        try:
+            Base.metadata.create_all(engine)
+            _ensure_columns()
+            _db_initialized = True
+        except Exception:
+            pass
 
 
 def _ensure_columns() -> None:
-    """Add columns that were introduced after the table was first
-    created. Cross-DB (SQLite + Postgres) safe — uses the SQLAlchemy
-    inspector to check for existence before issuing an ALTER.
-    """
+    """Add columns introduced after initial table creation."""
     insp = sa_inspect(engine)
     dialect = engine.dialect.name
 
-    # Per-dialect column type. SQLite uses BLOB for binary, Postgres BYTEA.
     blob_type = "BYTEA" if dialect == "postgresql" else "BLOB"
-    # SQLAlchemy's JSON type maps to JSONB on Postgres and TEXT on SQLite.
-    # For idempotent ALTERs we mirror that ourselves.
     json_type = "JSONB" if dialect == "postgresql" else "TEXT"
 
     additions = [
         ("blog_posts", "social_hook", "TEXT"),
         ("blog_posts", "og_image_bytes", blob_type),
         ("blog_posts", "takeaways_json", json_type),
-        ("outreach_prospects", "site_type", "VARCHAR(80)"),
-        ("outreach_prospects", "link_opportunity", "VARCHAR(80)"),
-        ("outreach_prospects", "email_angle", "VARCHAR(120)"),
-        ("outreach_prospects", "email_template_key", "VARCHAR(80)"),
-        ("outreach_prospects", "reject_reason", "TEXT"),
-        ("outreach_prospects", "source_page_topic", "VARCHAR(255)"),
-        ("outreach_prospects", "is_resource_page", "BOOLEAN"),
-        ("outreach_prospects", "site_language", "VARCHAR(10)"),
+        ("blog_posts", "reviewed_by", "VARCHAR(200)"),
+        ("blog_posts", "reviewed_at", "TIMESTAMP"),
+        ("blog_posts", "medical_disclaimer", "BOOLEAN"),
+        ("landing_pages", "faq_json", json_type),
+        ("landing_pages", "reviewed_by", "VARCHAR(200)"),
+        ("landing_pages", "reviewed_at", "TIMESTAMP"),
     ]
 
     for table_name, column_name, column_type in additions:
@@ -608,41 +590,3 @@ def _ensure_columns() -> None:
             conn.execute(
                 sa_text(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
             )
-
-
-# ── Enum value additions ───────────────────────────────────────────────
-# Postgres enum types are immutable once created — SQLAlchemy's
-# create_all() will create the enum with the values present at first
-# run, but it WILL NOT add new values when the Python enum grows. We
-# have to ALTER TYPE manually. SQLite stores enum columns as VARCHAR
-# so this is a no-op there — the column already accepts any string.
-#
-# Idempotent via "ADD VALUE IF NOT EXISTS". The ALTER must run outside
-# an explicit transaction on older PG versions, so we use AUTOCOMMIT.
-# Failures are logged but never raise — a missing enum value will surface
-# as a row-insert error downstream and is preferable to a crashed init.
-_SOURCE_TYPE_ENUM_ADDITIONS: tuple[tuple[str, str], ...] = (
-    ("source_type", "google_news"),
-    ("source_type", "ita_trade"),
-    ("source_type", "ansa_latina"),
-)
-
-
-def _ensure_enum_values() -> None:
-    if engine.dialect.name != "postgresql":
-        return
-
-    import logging
-    log = logging.getLogger(__name__)
-
-    with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-        for enum_name, value in _SOURCE_TYPE_ENUM_ADDITIONS:
-            try:
-                conn.execute(
-                    sa_text(f"ALTER TYPE {enum_name} ADD VALUE IF NOT EXISTS '{value}'")
-                )
-            except Exception as exc:
-                log.warning(
-                    "Could not add enum value %r to %s (continuing anyway): %s",
-                    value, enum_name, exc,
-                )

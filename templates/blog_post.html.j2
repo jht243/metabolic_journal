@@ -1,36 +1,76 @@
 {% extends "_base.html.j2" %}
 {% from "_base.html.j2" import share_button %}
-{% from "_card_grid.html.j2" import card_grid_section %}
+{% from "_recent_briefings.html.j2" import recent_briefings %}
+{% from "_cta.html.j2" import cta_assessment, cta_lead_magnet, cta_inline %}
+{% from "_cluster_nav.html.j2" import cluster_nav %}
+{% from "_eeat.html.j2" import reviewer_badge, medical_schema %}
+
+{% block head_extra %}
+{% if post %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": {{ post.title|tojson }},
+  {% if post.subtitle %}"alternativeHeadline": {{ post.subtitle|tojson }},{% endif %}
+  "datePublished": "{{ post.published_date.isoformat() }}",
+  {% if post.updated_at %}"dateModified": "{{ post.updated_at.strftime('%Y-%m-%d') }}",{% endif %}
+  "author": {
+    "@type": "Organization",
+    "name": "{{ site_name|default('REPLACE_ME_SITE_NAME') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "{{ site_name|default('REPLACE_ME_SITE_NAME') }}"
+  },
+  {% if post.summary %}"description": {{ post.summary|tojson }},{% endif %}
+  {% if post.word_count %}"wordCount": {{ post.word_count }},{% endif %}
+  {% if post.canonical_source_url %}"citation": {{ post.canonical_source_url|tojson }},{% endif %}
+  {% if post.reviewed_by %}"reviewedBy": { "@type": "Person", "name": {{ post.reviewed_by|tojson }} },{% endif %}
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ request.url|default('') }}"
+  }
+}
+</script>
+{% endif %}
+{% endblock %}
 
 {% block content %}
 <article class="container">
 
-  <nav class="breadcrumbs" data-no-breadcrumb-share aria-label="Breadcrumb">
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
     <a href="/">Home</a><span>/</span>
-    <a href="/briefing">Analysis</a><span>/</span>
-    <span>{{ post.title }}</span>
+    <a href="/briefing">Articles</a><span>/</span>
+    <span>{{ post.title|truncate(50) }}</span>
   </nav>
 
   <header>
-    {% if post.primary_sector %}
-    <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.4px; color:#cc0000; font-weight:700;">
-      {{ post.primary_sector|replace('_',' ')|title }}
-    </div>
+    {% if post.primary_cluster %}
+    <span class="cluster-pill {{ post.primary_cluster }}">{{ post.primary_cluster|replace('_',' ')|title }}</span>
     {% endif %}
     <h1>{{ post.title }}</h1>
     {% if post.subtitle %}<p class="subtitle">{{ post.subtitle }}</p>{% endif %}
     <div class="meta">
       <span><strong>Published</strong> {{ post.published_date.strftime('%B %d, %Y') }}</span>
       {% if post.reading_minutes %}<span><strong>Read</strong> {{ post.reading_minutes }} min</span>{% endif %}
-      {% if post.word_count %}<span>{{ post.word_count }} words</span>{% endif %}
-      <span><strong>By</strong> Caracas Research</span>
-      <span style="margin-left:auto;">{{ share_button('https://caracasresearch.com/briefing/' ~ post.slug, post.title) }}</span>
+      {% if post.word_count %}<span>{{ post.word_count|int }} words</span>{% endif %}
+      {% if post.primary_cluster %}<span><strong>Topic</strong> {{ post.primary_cluster|replace('_',' ')|title }}</span>{% endif %}
+      <span style="margin-left:auto;">{{ share_button(request.url|default('/briefing/' ~ post.slug), post.title) }}</span>
     </div>
   </header>
 
+  {% if post.reviewed_by %}
+  <div style="font-size:13px; color:var(--h-gray-text); margin-bottom:16px; padding:8px 0; border-bottom:1px solid var(--h-gray-light);">
+    <strong>Reviewed by:</strong> {{ post.reviewed_by }}
+    {% if post.reviewed_at %} · {{ post.reviewed_at.strftime('%B %Y') }}{% endif %}
+  </div>
+  {% endif %}
+
+  {% set takeaways = post.takeaways_json if post.takeaways_json else none %}
   {% if takeaways %}
   <aside class="takeaways" aria-label="Key takeaways">
-    <h3>Key takeaways</h3>
+    <h3>Key Takeaways</h3>
     <ul>
       {% for t in takeaways %}<li>{{ t }}</li>{% endfor %}
     </ul>
@@ -38,66 +78,49 @@
   {% endif %}
 
   <div class="body">
-    {{ post.body_html | link_people | safe }}
+    {{ post.body_html | safe }}
   </div>
 
-  {#
-    Primary source citation. Historical bug (fixed 2026-04): the source
-    URL was rendered as its own anchor text, which for Google News RSS
-    links produced a wall of ~400 opaque base64-looking characters
-    inside the citation box ("horrible UX" — 2026-04 design review).
-    We now render a short, human-readable publisher label (resolved
-    server-side in src/page_renderer.py::_source_display_name) as the
-    anchor text and keep the underlying URL as the href. The full URL
-    is still reachable with one click and still present in the page's
-    JSON-LD `citation` field for structured-data consumers.
-  #}
+  <div class="medical-disclaimer">
+    <strong>Medical Disclaimer:</strong> This content is for informational purposes only and does not constitute medical advice. Always consult a qualified healthcare provider before making changes to your health regimen.
+  </div>
+
   {% if post.canonical_source_url %}
   <div class="source-citation">
     <strong>Primary source:</strong>
-    <a href="{{ post.canonical_source_url }}" rel="nofollow noopener" target="_blank">{{ source_label|default('source') }}</a>
-    — referenced for fact-checking; this analysis is independent commentary by the
-    Caracas Research editorial team.
+    <a href="{{ post.canonical_source_url }}" rel="nofollow noopener" target="_blank">{{ source_label|default('View original source') }}</a>
+    — referenced for fact-checking; this analysis is independent editorial content.
   </div>
   {% endif %}
 
-  <div style="display:flex; align-items:center; gap:14px; margin: 24px 0 8px; padding: 14px 0; border-top: 1px solid var(--sr-gray-light);">
-    <span style="font-size:13px; color: var(--sr-gray-text);">Found this useful?</span>
-    {{ share_button('https://caracasresearch.com/briefing/' ~ post.slug, post.title, label='Share analysis') }}
+  <div style="display:flex; align-items:center; gap:14px; margin:24px 0 8px; padding:14px 0; border-top:1px solid var(--h-gray-light);">
+    <span style="font-size:13px; color:var(--h-gray-text);">Found this useful?</span>
+    {{ share_button(request.url|default('/briefing/' ~ post.slug), post.title, label='Share article') }}
   </div>
 
-  {#
-    "More on this sector" — related briefings from the same primary
-    sector, filled with recency fallbacks when the sector is thin. This
-    block used to be a bullet list; it now uses the canonical 3-card
-    discovery grid so it matches every other "related pages" section on
-    the site (tool-page briefing rails, sanctions surname clusters,
-    etc.). See templates/_card_grid.html.j2 for the shared component.
-  #}
   {% if related %}
-  {% set _related_cards = [] %}
-  {% for r in related %}
-    {% set _eyebrow = (r.primary_sector|replace('_',' ')|upper) if r.primary_sector else 'ANALYSIS' %}
-    {% set _meta_rows = [] %}
-    {% if r.published_date %}{% set _ = _meta_rows.append('<strong>' ~ r.published_date.strftime('%b %d, %Y') ~ '</strong>') %}{% endif %}
-    {% if r.reading_minutes %}{% set _ = _meta_rows.append(r.reading_minutes|string ~ ' min read') %}{% endif %}
-    {% set _ = _related_cards.append({
-        'href': '/briefing/' ~ r.slug,
-        'eyebrow': _eyebrow,
-        'title': r.title,
-        'tagline': r.summary or '',
-        'meta_rows': _meta_rows,
-        'cta': 'Read analysis'
-      }) %}
-  {% endfor %}
-  {{ card_grid_section(
-       heading='More on this sector',
-       cards=_related_cards,
-       aria_label='Related analysis',
-       footer_link={'href': '/briefing', 'label': 'Browse all daily briefings'},
-       footer_mode='always'
-  ) }}
+  <section class="cr-card-section" aria-label="Related articles">
+    <div class="cr-card-header">
+      <h2 class="cr-card-title">Related Articles</h2>
+    </div>
+    <div class="cr-card-grid">
+      {% for r in related %}
+      <a class="cr-card" href="/briefing/{{ r.slug }}">
+        <span class="cr-card-eyebrow">{{ (r.primary_cluster or 'Health')|replace('_',' ')|title }}</span>
+        <h3 class="cr-card-headline">{{ r.title }}</h3>
+        {% if r.summary %}<p class="cr-card-tagline">{{ r.summary|truncate(100) }}</p>{% endif %}
+        <span class="cr-card-cta">Read article</span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
   {% endif %}
+
+  {% if post.cluster %}
+  {{ cluster_nav(post.cluster) }}
+  {% endif %}
+
+  {{ cta_assessment(heading="Understand Your Health Better", subtext="Our free assessment maps your symptoms to the most relevant guides, tools, and product recommendations.") }}
 
 </article>
 {% endblock %}

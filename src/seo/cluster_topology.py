@@ -1,115 +1,115 @@
 """
-Internal-linking topic-cluster topology — the single source of truth for
-which page belongs to which cluster, who the pillar is, and the exact
-anchor text every backlink should use.
+Internal-linking topic-cluster topology for the health optimization site.
 
-Why a dedicated module:
-  • Modern SEO ("topical authority", post-Helpful-Content / SGE-aware
-    Google) rewards comprehensive topic coverage with a clear pillar +
-    a mesh of cluster pages that link to the pillar AND to each other
-    AND down to deeper child pages — with descriptive anchor text.
-    The hub-and-spoke version is dated; mesh is current.
-  • Hardcoding cluster lists in five different templates produces drift
-    (one template gets a new link, the others don't, Google sees an
-    inconsistent signal). Centralising here keeps every backlink
-    coherent — and lets us audit programmatically (e.g. "how many
-    pages link to /tools/ofac-venezuela-general-licenses?").
-  • Anchor text matters for SEO. We canonicalise it here so every
-    inbound link to a cluster member uses the same searchable phrase.
+Single source of truth for which page belongs to which cluster, the hub
+page for each cluster, and the canonical anchor text for every internal link.
 
-Public API (kept tiny on purpose):
-    cluster_for(path)           -> Cluster | None
-    other_members(path)         -> list[ClusterLink]
-    pillar_link_for(path)       -> ClusterLink | None
-    sector_for_program(program) -> str | None  (path)
-    program_to_sector_links()   -> dict[str, ClusterLink]
+Clusters are validated by Semrush keyword data (see output/semrush/):
+  - Metabolism:  599 keywords, 3.1M combined volume
+  - Hormones:   749 keywords, 5.6M combined volume
+  - Recovery:   603 keywords, 8.8M combined volume
+  - Testing:     14 keywords, 110K combined volume (cross-cluster)
 
-Templates use these via _cluster_nav.html.j2 so the rendered nav is
-always in lockstep with the topology defined here.
+Public API:
+    cluster_for(path)       -> Cluster | None
+    other_members(path)     -> list[ClusterLink]
+    pillar_link_for(path)   -> ClusterLink | None
+    build_cluster_ctx(path) -> dict  (for Jinja templates)
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Optional
 
 
-# Map OFAC program code → most-relevant sector landing page slug.
-# These are the four Venezuela-related programs OFAC issues under,
-# matched to the closest sector page in our /sectors/<slug> family.
-# When a profile's program isn't mapped (e.g. plain "VENEZUELA" with
-# no executive-order suffix), we don't surface a sector backlink on
-# that profile — better no link than a wrong link.
-_PROGRAM_TO_SECTOR_SLUG: dict[str, str] = {
-    "VENEZUELA-EO13850": "mining",      # Gold-sector / public officials EO
-    "VENEZUELA-EO13884": "governance",  # Government-of-Venezuela block EO
-    "VENEZUELA-EO13692": "governance",  # Human-rights / corruption EO
-    # Plain "VENEZUELA" intentionally unmapped — too broad to map cleanly.
-}
-
-# Canonical anchor-text phrases for high-traffic pages. Every inbound
-# link from any cluster nav uses these exact strings so Google sees a
-# consistent topical signal (instead of "click here" / "learn more").
+# Canonical anchor text for every page in the cluster topology.
+# Every internal link uses these exact phrases for consistent topical signal.
 _ANCHOR: dict[str, str] = {
-    "/sanctions-tracker": "OFAC Venezuela SDN list — full searchable US Treasury tracker",
-    "/sanctions/individuals": "All sanctioned individuals on the Venezuela SDN list",
-    "/sanctions/entities": "All sanctioned entities (companies and orgs) on the Venezuela SDN list",
-    "/sanctions/vessels": "All sanctioned vessels under Venezuela-related programs",
-    "/sanctions/aircraft": "All sanctioned aircraft under Venezuela-related programs",
-    "/sanctions/by-sector": "OFAC Venezuela SDN list by sector (military, economic, diplomatic, governance)",
-    "/sanctions/sector/military": "Currently sanctioned Venezuelan military officials (FANB, GNB, DGCIM, SEBIN)",
-    "/sanctions/sector/economic": "Sanctioned Venezuelan economic & financial actors (PDVSA, BCV, banks, gold sector)",
-    "/sanctions/sector/diplomatic": "Sanctioned Venezuelan diplomatic officials (foreign-ministry, ambassadors)",
-    "/sanctions/sector/governance": "Sanctioned Venezuelan government & political officials (TSJ, CNE, ministers)",
-    "/tools/ofac-venezuela-sanctions-checker": "OFAC Venezuela sanctions checker (search any name)",
-    "/tools/ofac-venezuela-general-licenses": "OFAC General Licenses for Venezuela (full list)",
-    "/tools/public-company-venezuela-exposure-check": "Public company Venezuela exposure check (S&P 500)",
-    "/tools/sec-edgar-venezuela-impairment-search": "SEC EDGAR Venezuela / PDVSA / impairment / contingent-liability search (S&P 500)",
-    "/tools/venezuela-trade-leads": "Venezuela trade leads for U.S. companies (ITA / trade.gov)",
-    "/tools/venezuela-market-entry-checklist": "Venezuela market-entry checklist for U.S. companies",
-    "/companies": "S&P 500 Venezuela exposure register (every ticker, A-Z)",
-    "/explainers/what-are-ofac-sanctions-on-venezuela": "OFAC Venezuela: sanctions programs & General Licenses (2026 guide)",
+    # ── Metabolism hub + spokes ──
+    "/metabolic-health": "Metabolic health — insulin resistance, blood sugar, body composition",
+    "/insulin-resistance": "What is insulin resistance? Causes, symptoms & how to reverse it",
+    "/metabolic-syndrome": "Metabolic syndrome — diagnosis, risks, and treatment",
+    "/symptoms/insulin-resistance": "Insulin resistance symptoms: 12 warning signs",
+    "/symptoms/blood-sugar-crash": "Blood sugar crash: why it happens and how to stop it",
+    "/symptoms/glucose-spikes": "Glucose spikes after eating: causes and what to do",
+    "/symptoms/fatigue-after-eating": "Fatigue after eating: why food makes you tired",
+    "/symptoms/hypoglycemia": "Hypoglycemia symptoms: low blood sugar warning signs",
+    "/guides/reverse-insulin-resistance": "How to reverse insulin resistance naturally",
+    "/guides/slow-metabolism": "Slow metabolism: myths, causes, and what actually works",
+    "/guides/visceral-fat": "Visceral fat: why it's dangerous and how to lose it",
+    "/guides/lose-belly-fat": "How to lose belly fat: evidence-based approaches",
+    "/guides/glp1-plateau": "GLP-1 weight loss plateau: what to do when Ozempic stops working",
+    "/guides/ozempic-weight-loss": "Ozempic and GLP-1 for weight loss: results, timelines, and what to expect",
+    "/labs/insulin-resistance-testing": "How to test for insulin resistance: labs that matter",
+    "/why-am-i/tired-all-the-time": "Why am I so tired all the time?",
 
-    "/invest-in-venezuela": "How to invest in Venezuela (2026 sanctions-safe guide)",
-    "/sectors/oil-gas": "Venezuela oil & gas sector — regulation, sanctions, deals",
-    "/sectors/mining": "Venezuela mining sector — gold, sanctions, legal framework",
-    "/sectors/banking": "Venezuela banking sector — regulation and OFAC access",
-    "/sectors/energy": "Venezuela energy sector — regulation and deal flow",
-    "/sectors/telecom": "Venezuela telecom sector — regulation and deals",
-    "/sectors/agriculture": "Venezuela agriculture sector — regulation and deals",
-    "/sectors/real-estate": "Venezuela real estate sector — regulation and deals",
-    "/sectors/legal": "Venezuela legal sector — regulatory framework",
-    "/sectors/governance": "Venezuela governance sector — regulatory framework, risks",
-    "/sectors/economic": "Venezuela economic outlook — rules, deal flow, risks",
-    "/sectors/tourism": "Venezuela tourism sector — regulatory framework",
-    "/sectors/diplomatic": "Venezuela diplomatic sector — sanctions and protocol",
-    "/sectors/sanctions": "Venezuela sanctions sector — OFAC licenses and deal flow",
-    "/tools/venezuela-investment-roi-calculator": "Venezuela investment ROI calculator (sector-by-sector)",
-    "/explainers/how-to-buy-venezuelan-bonds": "How to buy Venezuelan sovereign and PDVSA bonds (2026)",
-    "/explainers/doing-business-in-caracas": "Doing business in Caracas — operating manual for foreign investors",
+    # ── Hormones hub + spokes ──
+    "/hormone-optimization": "Hormone optimization — testosterone, thyroid, cortisol, estrogen",
+    "/low-testosterone": "Low testosterone in men: symptoms, causes, and treatment",
+    "/hormone-imbalance": "Hormone imbalance: symptoms, causes, and how to fix it",
+    "/thyroid-symptoms": "Thyroid symptoms: hypothyroidism vs hyperthyroidism and what your labs mean",
+    "/symptoms/high-cortisol": "High cortisol symptoms: signs your stress hormones are too high",
+    "/symptoms/perimenopause": "Perimenopause symptoms: the complete guide",
+    "/symptoms/perimenopause-fatigue": "Perimenopause fatigue: causes and energy solutions",
+    "/symptoms/brain-fog": "Brain fog: hormonal causes and how to clear it",
+    "/causes/low-testosterone": "What causes low testosterone? Root causes explained",
+    "/causes/low-libido": "Low libido: causes in men and women",
+    "/faq/testosterone-myths": "Does X lower testosterone? Common myths debunked",
+    "/guides/increase-testosterone": "How to increase testosterone naturally",
+    "/guides/lower-cortisol": "How to lower cortisol levels naturally",
+    "/guides/menopause-weight-gain": "Menopause weight gain: why it happens and what to do",
+    "/guides/hormonal-weight-gain": "Hormonal weight gain: estrogen, progesterone, and what to do about it",
+    "/guides/balance-hormones": "How to balance hormones naturally: evidence-based guide",
+    "/conditions/hypothyroidism": "Hypothyroidism: causes, symptoms, and treatment guide",
+    "/conditions/cortisol-imbalance": "Cortisol imbalance: testing, symptoms, and protocol",
+    "/conditions/cushings-syndrome": "Cushing's syndrome: symptoms, diagnosis, and treatment",
+    "/conditions/pcos": "PCOS and hormone imbalance: what you need to know",
 
-    "/travel": "Venezuela & Caracas travel — US advisory, safety, hotels, visa",
-    "/travel/emergency-card": "Caracas emergency contact card (printable PDF)",
-    "/tools/venezuela-visa-requirements": "Venezuela visa requirements by passport (2026)",
-    "/tools/caracas-safety-by-neighborhood": "Caracas safety by neighborhood (interactive map)",
+    # ── Recovery hub + spokes ──
+    "/sleep-recovery": "Sleep and recovery — fatigue, sleep quality, HRV, stress recovery",
+    "/chronic-fatigue": "Chronic fatigue: causes beyond just sleep",
+    "/symptoms/sleep-apnea": "Sleep apnea symptoms: signs you're not breathing at night",
+    "/symptoms/waking-up-tired": "Waking up tired every day? Here's why",
+    "/symptoms/sleep-inertia": "Sleep inertia: why you feel groggy when you wake up",
+    "/symptoms/afternoon-energy-crash": "Afternoon energy crash: causes and how to prevent it",
+    "/conditions/chronic-fatigue-syndrome": "Chronic fatigue syndrome (ME/CFS): what we know",
+    "/guides/poor-sleep-quality": "Poor sleep quality: root causes and evidence-based fixes",
+    "/guides/low-hrv": "Low HRV: what it means and how to improve it",
+    "/guides/cortisol-and-sleep": "Cortisol and sleep: how stress hormones wreck your rest",
+    "/compare/sleep-apnea-treatments": "Sleep apnea treatment options compared",
+    "/conditions/upper-airway-resistance": "Upper airway resistance syndrome (UARS): symptoms, diagnosis, and treatment",
+    "/guides/burnout-recovery": "Burnout recovery: signs, stages, and how to bounce back",
+    "/biomarkers/heart-rate-variability": "What is HRV and why does it matter for recovery?",
 
-    "/tools/bolivar-usd-exchange-rate": "Bolívar to USD exchange rate (live BCV + parallel)",
-    "/explainers/venezuelan-bolivar-explained": "The Venezuelan bolívar explained — history and devaluations",
-    "/explainers/what-is-the-banco-central-de-venezuela": "What is the Banco Central de Venezuela (BCV)? — 2026 guide",
+    # ── Testing & Biomarkers hub + spokes ──
+    "/lab-testing": "Lab testing and biomarkers — hormone panels, metabolic labs, optimal ranges",
+    "/labs/hormone-testing": "Hormone testing: which labs to order and what they mean",
+    "/biomarkers/fasting-insulin": "Fasting insulin levels: what's optimal and why it matters",
+    "/biomarkers/free-testosterone": "Free testosterone levels: ranges by age and what's optimal",
+    "/biomarkers/cortisol-levels": "Cortisol levels: normal range and what high or low means",
+    "/biomarkers/shbg": "SHBG (sex hormone binding globulin): what your levels mean",
+    "/biomarkers/testosterone-by-age": "Testosterone levels by age: what's normal and what's optimal",
 
-    "/people": "Venezuelan power figures — who's who in government, PDVSA, military, judiciary, opposition",
-    "/people/by-role/executive": "Venezuela executive & cabinet — Maduro government and ministers",
-    "/people/by-role/energy": "PDVSA & Venezuela energy-sector leadership",
-    "/people/by-role/military": "Venezuela military & security leadership (FANB, GNB, DGCIM, SEBIN)",
-    "/people/by-role/judiciary": "Venezuela judiciary & electoral leadership (TSJ, CNE, Fiscalía)",
-    "/people/by-role/opposition": "Venezuelan opposition & exile leadership",
+    # ── Tools ──
+    "/tools": "Health optimization tools and calculators",
+    "/tools/energy-assessment": "Energy optimization assessment",
+    "/tools/metabolic-score": "Metabolic health score calculator",
+    "/tools/hormone-checker": "Hormone symptom checker",
+    "/tools/sleep-score": "Sleep recovery score",
+    "/tools/insulin-resistance-calculator": "Insulin resistance risk calculator",
+
+    # ── Core product pages ──
+    "/assessment": "Free clinical health assessment",
+    "/programs": "Health optimization programs",
+    "/programs/metabolic": "Metabolic health program",
+    "/programs/hormones": "Hormone optimization program",
+    "/programs/recovery": "Sleep and recovery program",
 }
 
 
 @dataclass(frozen=True)
 class ClusterLink:
-    """One link in a cluster nav block. Path + anchor text + a short
-    description sentence rendered as supporting copy in the nav UI.
-    """
+    """One link in a cluster nav block."""
     path: str
     anchor: str
     description: str = ""
@@ -117,16 +117,16 @@ class ClusterLink:
 
 @dataclass(frozen=True)
 class Cluster:
-    """A topic cluster: one pillar + N cluster members.
+    """A topic cluster: one hub (pillar) + N spoke pages.
 
-    `members` does NOT include the pillar — templates render the pillar
-    distinctly (sticky, top-of-block) and other members alongside.
+    `members` does NOT include the hub — templates render the hub
+    distinctly and other members alongside.
     """
-    key: str            # internal id (e.g. "sanctions")
-    name: str           # human label for the cluster nav title
+    key: str
+    name: str
     pillar: ClusterLink
     members: tuple[ClusterLink, ...]
-    summary: str = ""   # One-sentence elevator pitch for the topic
+    summary: str = ""
 
     def all_paths(self) -> tuple[str, ...]:
         return (self.pillar.path,) + tuple(m.path for m in self.members)
@@ -136,170 +136,233 @@ def _ck(path: str, description: str = "") -> ClusterLink:
     """Construct a ClusterLink from a path using the canonical anchor."""
     return ClusterLink(
         path=path,
-        anchor=_ANCHOR.get(path, path),
+        anchor=_ANCHOR.get(path, path.split("/")[-1].replace("-", " ").title()),
         description=description,
     )
 
 
 # ──────────────────────────────────────────────────────────────────────
-# The four clusters
+# The four Semrush-validated clusters
 # ──────────────────────────────────────────────────────────────────────
 
 CLUSTERS: dict[str, Cluster] = {
-    "sanctions": Cluster(
-        key="sanctions",
-        name="OFAC Venezuela Sanctions",
+    "metabolism": Cluster(
+        key="metabolism",
+        name="Metabolic Health",
         summary=(
-            "The full Caracas Research coverage of US Treasury OFAC "
-            "Venezuela-related sanctions — live SDN tracker, per-name profile "
-            "pages for every individual / entity / vessel / aircraft, the active "
-            "general licenses, and a plain-English explainer."
+            "Insulin resistance, blood sugar regulation, body composition, "
+            "and metabolic syndrome — the root causes of weight gain, energy "
+            "crashes, and metabolic dysfunction."
         ),
         pillar=_ck(
-            "/sanctions-tracker",
-            "Live tracker of all 410 active OFAC Venezuela-program designations.",
+            "/metabolic-health",
+            "Hub page covering insulin resistance, blood sugar, and metabolic optimization.",
         ),
         members=(
-            _ck("/sanctions/by-sector", "Pivot the SDN list by sector: military, economic, diplomatic, governance."),
-            _ck("/sanctions/sector/military",   "All sanctioned Venezuelan military officials (FANB, GNB, DGCIM, SEBIN)."),
-            _ck("/sanctions/sector/economic",   "All sanctioned banks, oil-sector entities, and financial actors."),
-            _ck("/sanctions/sector/diplomatic", "All sanctioned ambassadors and foreign-ministry officials."),
-            _ck("/sanctions/sector/governance", "All sanctioned political and judicial officials."),
-            _ck("/sanctions/individuals", "Browse the 190 sanctioned individuals A-Z, each with a full profile."),
-            _ck("/sanctions/entities",    "Browse the 103 sanctioned companies and organisations A-Z."),
-            _ck("/sanctions/vessels",     "Every blocked vessel — IMO, MMSI, year of build, parent company."),
-            _ck("/sanctions/aircraft",    "Every blocked aircraft — model, MSN, tail number, registered owner."),
-            _ck("/tools/ofac-venezuela-sanctions-checker", "Paste any name to instantly check it against the live SDN list."),
-            _ck("/tools/ofac-venezuela-general-licenses",  "All active OFAC GLs that authorize otherwise-prohibited transactions."),
-            _ck("/tools/public-company-venezuela-exposure-check", "Type any S&P 500 name or ticker to surface OFAC + EDGAR + news exposure."),
-            _ck("/tools/sec-edgar-venezuela-impairment-search",   "Run a pre-canned EDGAR full-text search for Venezuela, PDVSA, CITGO, impairment, or contingent-liability disclosures across any S&P 500 ticker."),
-            _ck("/companies", "A-Z directory of every S&P 500 company with a Venezuela-exposure profile."),
-            _ck("/explainers/what-are-ofac-sanctions-on-venezuela", "Plain-English overview of how Venezuela-related OFAC sanctions work."),
+            _ck("/insulin-resistance", "What insulin resistance is, how to test for it, and how to reverse it."),
+            _ck("/metabolic-syndrome", "The five diagnostic criteria and what they mean for your health."),
+            _ck("/symptoms/insulin-resistance", "12 clinical warning signs, from acanthosis nigricans to post-meal fatigue."),
+            _ck("/symptoms/blood-sugar-crash", "Reactive hypoglycemia: causes, symptoms, and how to stabilize glucose."),
+            _ck("/symptoms/glucose-spikes", "Why blood sugar spikes after eating and what to do about it."),
+            _ck("/symptoms/fatigue-after-eating", "Post-meal fatigue explained — insulin, glucose, and the gut-brain axis."),
+            _ck("/symptoms/hypoglycemia", "Low blood sugar warning signs and when to seek medical attention."),
+            _ck("/guides/reverse-insulin-resistance", "Evidence-based dietary and lifestyle interventions (3-16 week timeline)."),
+            _ck("/guides/slow-metabolism", "Why metabolism slows, what's myth vs reality, and what the evidence says."),
+            _ck("/guides/visceral-fat", "Visceral vs subcutaneous fat — why waist circumference matters more than BMI."),
+            _ck("/guides/lose-belly-fat", "What clinical research says about reducing abdominal adiposity."),
+            _ck("/guides/glp1-plateau", "Why GLP-1 medications plateau and what metabolic factors to address."),
+            _ck("/guides/ozempic-weight-loss", "Ozempic results, timelines, side effects, and what to do when it stops working."),
+            _ck("/labs/insulin-resistance-testing", "Fasting insulin, HOMA-IR, and triglyceride-to-HDL ratio explained."),
+            _ck("/tools/metabolic-score", "Calculate your metabolic health score using AHA/NHLBI criteria."),
+            _ck("/tools/insulin-resistance-calculator", "Estimate insulin resistance risk using HOMA-IR and surrogate markers."),
         ),
     ),
 
-    "investment": Cluster(
-        key="investment",
-        name="Investing in Venezuela",
+    "hormones": Cluster(
+        key="hormones",
+        name="Hormone Optimization",
         summary=(
-            "How institutional investors can take sanctions-safe exposure to "
-            "Venezuela — sector landing pages, ROI math, the bond market, and "
-            "an operating manual for doing business in Caracas."
+            "Testosterone, estrogen, thyroid, and cortisol — comprehensive "
+            "hormone testing and evidence-based protocols for men and women."
         ),
         pillar=_ck(
-            "/invest-in-venezuela",
-            "The 2026 sanctions-safe guide to taking exposure to Venezuela.",
+            "/hormone-optimization",
+            "Hub page covering testosterone, thyroid, cortisol, and reproductive hormones.",
         ),
         members=(
-            _ck("/sectors/oil-gas",      "Energy majors, PDVSA exposure, OFAC pathways for oil-sector deals."),
-            _ck("/sectors/mining",       "Gold mining and OFAC EO 13850 — licenses, blocked actors, deal flow."),
-            _ck("/sectors/banking",      "Banking-sector regulation, OFAC SDN exposure, correspondent access."),
-            _ck("/sectors/energy",       "Power-generation and energy-infrastructure regulation in Venezuela."),
-            _ck("/sectors/telecom",      "Telecom-sector regulation, sanctions-relevant operators, deal flow."),
-            _ck("/sectors/agriculture",  "Venezuela agriculture sector — regulation, exporter rules, deals."),
-            _ck("/sectors/real-estate",  "Real-estate transactions in Venezuela — title, currency, FX risk."),
-            _ck("/sectors/sanctions",    "Sanctions-as-a-sector — OFAC licenses + the compliance ecosystem."),
-            _ck("/tools/venezuela-trade-leads", "ITA trade leads for U.S. companies by sector, equipment, units, and HS code."),
-            _ck("/tools/venezuela-market-entry-checklist", "U.S. exporter workflow for Venezuela: ITA, OFAC, BIS, FX, travel."),
-            _ck("/tools/venezuela-investment-roi-calculator", "Calculate ROI for any Venezuela sector — currency, country-risk premia."),
-            _ck("/explainers/how-to-buy-venezuelan-bonds",     "How institutional investors access Venezuela sovereign and PDVSA bonds."),
-            _ck("/explainers/doing-business-in-caracas",       "On-the-ground operating manual for foreign-investor teams in Caracas."),
+            _ck("/low-testosterone", "Symptoms, causes, and treatment options for low T in men."),
+            _ck("/hormone-imbalance", "How hormonal imbalances present differently in men and women."),
+            _ck("/thyroid-symptoms", "Hypothyroidism vs hyperthyroidism — symptoms and what labs reveal."),
+            _ck("/symptoms/high-cortisol", "Chronic stress signs: weight gain, insomnia, anxiety, impaired recovery."),
+            _ck("/symptoms/perimenopause", "The complete symptom list — hot flashes affect ~80% of women."),
+            _ck("/symptoms/perimenopause-fatigue", "Why perimenopause causes fatigue and what to do about it."),
+            _ck("/symptoms/brain-fog", "Hormonal causes of cognitive sluggishness — thyroid, cortisol, estrogen."),
+            _ck("/causes/low-testosterone", "Root causes: age, obesity, sleep, medications, chronic illness."),
+            _ck("/causes/low-libido", "Hormonal, metabolic, and lifestyle causes of low sex drive."),
+            _ck("/faq/testosterone-myths", "Does masturbation, alcohol, soy, or ejaculation lower testosterone?"),
+            _ck("/guides/increase-testosterone", "Evidence-based lifestyle, nutrition, and supplementation strategies."),
+            _ck("/guides/lower-cortisol", "How to reduce cortisol through targeted interventions."),
+            _ck("/guides/menopause-weight-gain", "Hormonal shifts, metabolic changes, and what the evidence says."),
+            _ck("/guides/hormonal-weight-gain", "How estrogen, progesterone, and cortisol drive weight gain."),
+            _ck("/guides/balance-hormones", "Evidence-based dietary and lifestyle strategies for hormone balance."),
+            _ck("/conditions/hypothyroidism", "Subclinical to overt hypothyroidism — testing beyond TSH alone."),
+            _ck("/conditions/cortisol-imbalance", "AM/PM cortisol patterns, flat curves, and clinical significance."),
+            _ck("/conditions/cushings-syndrome", "Cushing's syndrome: symptoms, diagnosis, and treatment."),
+            _ck("/conditions/pcos", "PCOS, insulin resistance, and the hormonal cascade."),
+            _ck("/biomarkers/cortisol-levels", "Cortisol levels: normal range, AM/PM patterns, and what they mean."),
+            _ck("/tools/hormone-checker", "Map your symptoms to testosterone, thyroid, cortisol, and estrogen pathways."),
         ),
     ),
 
-    "travel": Cluster(
-        key="travel",
-        name="Venezuela Travel & Logistics",
+    "recovery": Cluster(
+        key="recovery",
+        name="Sleep & Recovery",
         summary=(
-            "Travel hub for investors, journalists, and diaspora — embassies, "
-            "vetted hotels, vetted drivers, security, plus visa and "
-            "neighborhood-safety tools."
+            "Chronic fatigue, poor sleep, low HRV, and impaired stress "
+            "recovery — the physiological root causes, not just sleep hygiene."
         ),
         pillar=_ck(
-            "/travel",
-            "The Caracas Research travel hub — embassies, hotels, drivers, safety.",
+            "/sleep-recovery",
+            "Hub page covering sleep quality, fatigue, HRV, and stress recovery.",
         ),
         members=(
-            _ck("/travel/emergency-card",                      "Printable single-page emergency contact card for Caracas trips."),
-            _ck("/tools/venezuela-visa-requirements",          "Visa requirements for Venezuela by passport (live, 2026)."),
-            _ck("/tools/caracas-safety-by-neighborhood",       "Interactive Caracas safety map by neighborhood."),
+            _ck("/chronic-fatigue", "Causes of persistent fatigue beyond sleep — iron, thyroid, inflammation."),
+            _ck("/symptoms/sleep-apnea", "OSA warning signs: snoring, witnessed apneas, daytime sleepiness."),
+            _ck("/symptoms/waking-up-tired", "Why 7-8 hours isn't enough when sleep quality is poor."),
+            _ck("/symptoms/sleep-inertia", "Morning grogginess — circadian, cortisol, and sleep-stage causes."),
+            _ck("/symptoms/afternoon-energy-crash", "The 2-4 PM slump: blood sugar, cortisol, and circadian factors."),
+            _ck("/conditions/chronic-fatigue-syndrome", "ME/CFS: diagnostic criteria, current research, and management."),
+            _ck("/guides/poor-sleep-quality", "Root causes and evidence-based fixes beyond sleep hygiene."),
+            _ck("/guides/low-hrv", "What low HRV means and how to improve autonomic recovery."),
+            _ck("/guides/cortisol-and-sleep", "The cortisol-melatonin axis and 'wired but tired' patterns."),
+            _ck("/compare/sleep-apnea-treatments", "CPAP, oral appliances, positional therapy, surgery — compared."),
+            _ck("/conditions/upper-airway-resistance", "UARS: the missed diagnosis between snoring and sleep apnea."),
+            _ck("/guides/burnout-recovery", "Burnout signs, stages, and evidence-based recovery strategies."),
+            _ck("/biomarkers/heart-rate-variability", "HRV science: what it measures and why it matters for recovery."),
+            _ck("/tools/sleep-score", "Assess sleep quality using elements from PSQI and Epworth scales."),
+            _ck("/tools/energy-assessment", "Evaluate energy across metabolic, hormonal, and recovery domains."),
+            _ck("/why-am-i/tired-all-the-time", "The metabolic, hormonal, and recovery causes of chronic tiredness."),
         ),
     ),
 
-    "people": Cluster(
-        key="people",
-        name="Venezuelan power figures",
+    "testing": Cluster(
+        key="testing",
+        name="Testing & Biomarkers",
         summary=(
-            "Profile pages for the people running Venezuela — Maduro "
-            "cabinet, PDVSA leadership, FANB military command, the "
-            "judiciary and the CNE, and the leaders of the democratic "
-            "opposition. Each profile is cross-linked to OFAC sanctions "
-            "data and to our sector-by-sector investment coverage."
+            "Lab testing guides and biomarker reference pages — which tests "
+            "to order, what optimal ranges look like, and what your results mean."
         ),
         pillar=_ck(
-            "/people",
-            "The Caracas Research directory of Venezuelan power figures.",
+            "/lab-testing",
+            "Hub page for lab testing — panels, biomarkers, and optimal ranges.",
         ),
         members=(
-            _ck("/people/by-role/executive",  "The Maduro cabinet — vice presidents, ministers, and the inner circle."),
-            _ck("/people/by-role/energy",     "PDVSA leadership and the people running Venezuela's oil and energy sector."),
-            _ck("/people/by-role/military",   "FANB, GNB, DGCIM, and SEBIN — Venezuela's armed-forces high command."),
-            _ck("/people/by-role/judiciary",  "Attorney General, TSJ, and CNE — Venezuela's legal and electoral apparatus."),
-            _ck("/people/by-role/opposition", "María Corina Machado, Edmundo González, and the Venezuelan democratic opposition."),
-        ),
-    ),
-
-    "fx": Cluster(
-        key="fx",
-        name="Bolívar / USD & BCV",
-        summary=(
-            "Venezuela's currency and central-bank coverage — the daily BCV "
-            "and parallel rate, the bolívar's history, and a 2026 explainer "
-            "of how the BCV operates."
-        ),
-        pillar=_ck(
-            "/tools/bolivar-usd-exchange-rate",
-            "The bolívar-to-USD rate, live from BCV plus parallel-market sources.",
-        ),
-        members=(
-            _ck("/explainers/venezuelan-bolivar-explained",     "History of the bolívar — devaluations, redenominations, dollarization."),
-            _ck("/explainers/what-is-the-banco-central-de-venezuela", "What the BCV does, who runs it, and why it matters for investors."),
+            _ck("/labs/hormone-testing", "Which hormones to test, when to draw blood, and how to interpret results."),
+            _ck("/labs/insulin-resistance-testing", "Fasting insulin, HOMA-IR, and triglyceride-to-HDL ratio."),
+            _ck("/biomarkers/fasting-insulin", "Optimal <7 μIU/mL vs standard 'normal' <25 — why the gap matters."),
+            _ck("/biomarkers/free-testosterone", "Age-adjusted ranges and why free T matters more than total."),
+            _ck("/biomarkers/shbg", "How SHBG affects bioavailable testosterone and estrogen."),
+            _ck("/biomarkers/testosterone-by-age", "Reference ranges by decade and the difference between normal and optimal."),
+            _ck("/biomarkers/heart-rate-variability", "HRV as a recovery and autonomic health marker."),
         ),
     ),
 }
 
 
-# Path-prefix → cluster key. Order matters — most-specific prefix first.
+# Cross-cluster links: pages that bridge two clusters
+_CROSS_CLUSTER: dict[str, list[str]] = {
+    "/why-am-i/tired-all-the-time": ["recovery", "metabolism", "hormones"],
+    "/guides/cortisol-and-sleep": ["recovery", "hormones"],
+    "/symptoms/brain-fog": ["hormones", "metabolism"],
+    "/labs/insulin-resistance-testing": ["testing", "metabolism"],
+    "/biomarkers/heart-rate-variability": ["testing", "recovery"],
+    "/conditions/cortisol-imbalance": ["hormones", "recovery"],
+}
+
+
+# Path-prefix → cluster key. Most-specific prefix first.
 _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
-    ("/sanctions-tracker",     "sanctions"),
-    ("/sanctions/by-sector",   "sanctions"),
-    ("/sanctions/sector/",     "sanctions"),
-    ("/sanctions/",            "sanctions"),
-    ("/tools/ofac-venezuela-sanctions-checker", "sanctions"),
-    ("/tools/ofac-venezuela-general-licenses",  "sanctions"),
-    ("/tools/public-company-venezuela-exposure-check", "sanctions"),
-    ("/tools/sec-edgar-venezuela-impairment-search",   "sanctions"),
-    ("/companies",             "sanctions"),
-    ("/explainers/what-are-ofac-sanctions-on-venezuela", "sanctions"),
+    # Metabolism
+    ("/metabolic-health", "metabolism"),
+    ("/insulin-resistance", "metabolism"),
+    ("/metabolic-syndrome", "metabolism"),
+    ("/symptoms/insulin-resistance", "metabolism"),
+    ("/symptoms/blood-sugar-crash", "metabolism"),
+    ("/symptoms/glucose-spikes", "metabolism"),
+    ("/symptoms/fatigue-after-eating", "metabolism"),
+    ("/symptoms/hypoglycemia", "metabolism"),
+    ("/guides/reverse-insulin-resistance", "metabolism"),
+    ("/guides/slow-metabolism", "metabolism"),
+    ("/guides/visceral-fat", "metabolism"),
+    ("/guides/lose-belly-fat", "metabolism"),
+    ("/guides/glp1-plateau", "metabolism"),
+    ("/guides/ozempic-weight-loss", "metabolism"),
+    ("/labs/insulin-resistance-testing", "metabolism"),
+    ("/why-am-i/tired-all-the-time", "recovery"),
+    ("/tools/metabolic-score", "metabolism"),
+    ("/tools/insulin-resistance-calculator", "metabolism"),
 
-    ("/invest-in-venezuela",   "investment"),
-    ("/sectors/",              "investment"),
-    ("/tools/venezuela-trade-leads", "investment"),
-    ("/tools/venezuela-market-entry-checklist", "investment"),
-    ("/tools/venezuela-investment-roi-calculator", "investment"),
-    ("/explainers/how-to-buy-venezuelan-bonds",     "investment"),
-    ("/explainers/doing-business-in-caracas",       "investment"),
+    # Hormones
+    ("/hormone-optimization", "hormones"),
+    ("/low-testosterone", "hormones"),
+    ("/hormone-imbalance", "hormones"),
+    ("/thyroid-symptoms", "hormones"),
+    ("/symptoms/high-cortisol", "hormones"),
+    ("/symptoms/perimenopause", "hormones"),
+    ("/symptoms/perimenopause-fatigue", "hormones"),
+    ("/symptoms/brain-fog", "hormones"),
+    ("/causes/low-testosterone", "hormones"),
+    ("/causes/low-libido", "hormones"),
+    ("/faq/testosterone-myths", "hormones"),
+    ("/guides/increase-testosterone", "hormones"),
+    ("/guides/lower-cortisol", "hormones"),
+    ("/guides/menopause-weight-gain", "hormones"),
+    ("/guides/hormonal-weight-gain", "hormones"),
+    ("/guides/balance-hormones", "hormones"),
+    ("/conditions/hypothyroidism", "hormones"),
+    ("/conditions/cortisol-imbalance", "hormones"),
+    ("/conditions/cushings-syndrome", "hormones"),
+    ("/conditions/pcos", "hormones"),
+    ("/biomarkers/cortisol-levels", "hormones"),
+    ("/tools/hormone-checker", "hormones"),
 
-    ("/people/by-role/",       "people"),
-    ("/people",                "people"),
+    # Recovery
+    ("/sleep-recovery", "recovery"),
+    ("/chronic-fatigue", "recovery"),
+    ("/symptoms/sleep-apnea", "recovery"),
+    ("/symptoms/waking-up-tired", "recovery"),
+    ("/symptoms/sleep-inertia", "recovery"),
+    ("/symptoms/afternoon-energy-crash", "recovery"),
+    ("/conditions/chronic-fatigue-syndrome", "recovery"),
+    ("/guides/poor-sleep-quality", "recovery"),
+    ("/guides/low-hrv", "recovery"),
+    ("/guides/cortisol-and-sleep", "recovery"),
+    ("/compare/sleep-apnea-treatments", "recovery"),
+    ("/conditions/upper-airway-resistance", "recovery"),
+    ("/guides/burnout-recovery", "recovery"),
+    ("/biomarkers/heart-rate-variability", "recovery"),
+    ("/tools/sleep-score", "recovery"),
+    ("/tools/energy-assessment", "recovery"),
 
-    ("/travel",                "travel"),
-    ("/tools/venezuela-visa-requirements",   "travel"),
-    ("/tools/caracas-safety-by-neighborhood", "travel"),
+    # Testing & Biomarkers
+    ("/lab-testing", "testing"),
+    ("/labs/hormone-testing", "testing"),
+    ("/biomarkers/fasting-insulin", "testing"),
+    ("/biomarkers/free-testosterone", "testing"),
+    ("/biomarkers/cortisol-levels", "hormones"),
+    ("/biomarkers/shbg", "testing"),
+    ("/biomarkers/testosterone-by-age", "testing"),
 
-    ("/tools/bolivar-usd-exchange-rate",     "fx"),
-    ("/explainers/venezuelan-bolivar-explained",   "fx"),
-    ("/explainers/what-is-the-banco-central-de-venezuela", "fx"),
+    # Broad prefix fallbacks (last resort)
+    ("/symptoms/", "metabolism"),
+    ("/guides/", "metabolism"),
+    ("/conditions/", "hormones"),
+    ("/causes/", "hormones"),
+    ("/faq/", "hormones"),
+    ("/compare/", "recovery"),
+    ("/biomarkers/", "testing"),
+    ("/labs/", "testing"),
+    ("/why-am-i/", "metabolism"),
 )
 
 
@@ -309,11 +372,7 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
 
 
 def cluster_for(path: str) -> Optional[Cluster]:
-    """Return the Cluster a given URL path belongs to, or None.
-
-    Strips trailing slash and treats prefix matches as the most-specific
-    match per the _PATH_TO_CLUSTER order.
-    """
+    """Return the Cluster a given URL path belongs to, or None."""
     if not path:
         return None
     norm = "/" + path.lstrip("/").rstrip("/")
@@ -325,12 +384,8 @@ def cluster_for(path: str) -> Optional[Cluster]:
     return None
 
 
-def other_members(path: str, *, limit: int = 12) -> list[ClusterLink]:
-    """Return the cluster's other members (excluding `path` itself).
-
-    Used to render "Continue exploring this topic →" lists. Caps at
-    `limit` so the nav block stays scannable on mobile.
-    """
+def other_members(path: str, *, limit: int = 10) -> list[ClusterLink]:
+    """Return the cluster's other members (excluding `path` itself)."""
     cluster = cluster_for(path)
     if cluster is None:
         return []
@@ -345,12 +400,24 @@ def other_members(path: str, *, limit: int = 12) -> list[ClusterLink]:
     return out
 
 
-def pillar_link_for(path: str) -> Optional[ClusterLink]:
-    """Return the pillar link for the given page's cluster, or None.
+def cross_cluster_links(path: str) -> list[ClusterLink]:
+    """Return links from other clusters for pages that bridge topics."""
+    norm = "/" + path.lstrip("/").rstrip("/")
+    cluster_keys = _CROSS_CLUSTER.get(norm, [])
+    primary = cluster_for(path)
+    links: list[ClusterLink] = []
+    for key in cluster_keys:
+        if primary and key == primary.key:
+            continue
+        cluster = CLUSTERS.get(key)
+        if cluster:
+            links.append(cluster.pillar)
+    return links
 
-    If `path` IS the pillar, returns None (templates use this to decide
-    whether to render the "back to pillar" callout).
-    """
+
+def pillar_link_for(path: str) -> Optional[ClusterLink]:
+    """Return the hub link for the given page's cluster, or None if
+    the page IS the hub."""
     cluster = cluster_for(path)
     if cluster is None:
         return None
@@ -360,58 +427,27 @@ def pillar_link_for(path: str) -> Optional[ClusterLink]:
     return cluster.pillar
 
 
-def sector_for_program(program: str) -> Optional[ClusterLink]:
-    """Map an OFAC program code to its most-relevant sector landing
-    page, returned as a ClusterLink (so templates get the canonical
-    anchor text for free).
-
-    Used by the SDN profile page to surface a "this {entity} operates
-    in {sector}" backlink — which both serves the reader (one click to
-    sector context) and serves SEO (descriptive anchor + reciprocal
-    cluster signal between the sanctions and investment clusters).
-    """
-    if not program:
-        return None
-    slug = _PROGRAM_TO_SECTOR_SLUG.get(program.upper())
-    if not slug:
-        return None
-    path = f"/sectors/{slug}"
-    return ClusterLink(
-        path=path,
-        anchor=_ANCHOR.get(path, path),
-        description="",
-    )
-
-
-def program_to_sector_links() -> dict[str, ClusterLink]:
-    """Programmatic access to the full mapping (for tests / audits)."""
-    out: dict[str, ClusterLink] = {}
-    for prog, slug in _PROGRAM_TO_SECTOR_SLUG.items():
-        path = f"/sectors/{slug}"
-        out[prog] = ClusterLink(path=path, anchor=_ANCHOR.get(path, path))
-    return out
-
-
-def build_cluster_ctx(path: str, *, limit: int = 12) -> dict:
-    """One-shot helper: returns the dict every template needs to render
-    `_cluster_nav.html.j2`'s cluster_nav() macro.
-
-    Returning a plain dict (rather than a dataclass) is intentional —
-    Jinja's autoescape + attribute access work uniformly on dicts, and
-    we don't need Python-side typing for a pure render-time payload.
-
-    Returns empty-ish ctx (cluster=None) when the path is not in any
-    registered cluster, which causes the macro to render nothing.
-    Templates can therefore unconditionally `{{ cluster_nav(ctx) }}`
-    without guards.
-    """
+def build_cluster_ctx(path: str, *, limit: int = 10) -> dict:
+    """One-shot helper returning the dict templates need for cluster nav."""
     cluster = cluster_for(path)
     if cluster is None:
-        return {"cluster": None, "pillar": None, "others": [], "is_pillar": False}
+        return {"cluster": None, "pillar": None, "others": [], "is_pillar": False, "cross_links": []}
     pillar = pillar_link_for(path)
     return {
         "cluster": cluster,
         "pillar": pillar,
         "others": other_members(path, limit=limit),
         "is_pillar": pillar is None,
+        "cross_links": cross_cluster_links(path),
     }
+
+
+def all_seo_paths() -> list[str]:
+    """Return every path registered in the cluster topology — useful for
+    sitemap generation and link auditing."""
+    paths: list[str] = []
+    for cluster in CLUSTERS.values():
+        paths.append(cluster.pillar.path)
+        for m in cluster.members:
+            paths.append(m.path)
+    return sorted(set(paths))

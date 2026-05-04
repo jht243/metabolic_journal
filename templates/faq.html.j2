@@ -1,0 +1,230 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+{% if faqs %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for group in faqs %}{% for item in group.items %}{
+      "@type": "Question",
+      "name": {{ item.q|tojson }},
+      "acceptedAnswer": { "@type": "Answer", "text": {{ item.a|tojson }} }
+    }{% if not loop.last or not loop.parent.last %},{% endif %}
+    {% endfor %}{% endfor %}
+  ]
+}
+</script>
+{% endif %}
+<style>
+  .page-hero {
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 56px 24px 48px;
+    text-align: center;
+  }
+  .page-hero h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin-bottom: 14px; }
+  .page-hero p { color: rgba(255,255,255,0.7); max-width: 520px; margin: 0 auto; font-size: 17px; line-height: 1.55; }
+
+  .faq-nav {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 32px 0 8px;
+  }
+  .faq-nav a {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 4px;
+    background: var(--h-gray-bg);
+    color: var(--h-dark-text);
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .faq-nav a:hover { background: var(--h-teal); color: var(--white); }
+
+  .faq-category { margin-bottom: 40px; }
+  .faq-category h2 {
+    font-family: var(--font-serif);
+    font-size: 22px;
+    color: var(--h-navy);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--h-teal);
+    margin-bottom: 4px;
+  }
+
+  .faq-item { border-bottom: 1px solid var(--h-gray-light); }
+  .faq-item:last-child { border-bottom: 0; }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 18px 0;
+    background: none;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--h-navy);
+    gap: 12px;
+  }
+  .faq-q::after { content: "+"; font-size: 22px; color: var(--h-teal); flex-shrink: 0; transition: transform 0.15s; }
+  .faq-item.is-open .faq-q::after { content: "−"; }
+  .faq-a { display: none; padding: 0 0 18px; font-size: 15px; color: var(--h-dark-text); line-height: 1.65; }
+  .faq-a p { margin-bottom: 10px; }
+  .faq-a p:last-child { margin-bottom: 0; }
+  .faq-item.is-open .faq-a { display: block; }
+
+  .faq-cta {
+    text-align: center;
+    padding: 40px 24px;
+    background: var(--h-gray-bg);
+    border-radius: 8px;
+    margin: 16px 0 48px;
+  }
+  .faq-cta h3 { font-family: var(--font-serif); color: var(--h-navy); font-size: 20px; margin-bottom: 10px; }
+  .faq-cta p { color: var(--h-gray-text); margin-bottom: 16px; font-size: 14.5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1>Frequently Asked Questions</h1>
+  <p>Common questions about our assessment, programs, labs, and approach.</p>
+</section>
+
+<div class="container">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> FAQ
+  </nav>
+
+  {% if faqs %}
+  <div class="faq-nav">
+    {% for group in faqs %}
+    <a href="#faq-{{ group.category|lower|replace(' ', '-') }}">{{ group.category }}</a>
+    {% endfor %}
+  </div>
+
+  {% for group in faqs %}
+  <div class="faq-category" id="faq-{{ group.category|lower|replace(' ', '-') }}">
+    <h2>{{ group.category }}</h2>
+    {% for item in group.items %}
+    <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+      <button class="faq-q" type="button" aria-expanded="false" itemprop="name">{{ item.q }}</button>
+      <div class="faq-a" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+        <div itemprop="text">{{ item.a|safe }}</div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  {% else %}
+  {# Fallback static FAQs when no variable is provided #}
+  <div class="faq-nav">
+    <a href="#faq-general">General</a>
+    <a href="#faq-assessment">Assessment</a>
+    <a href="#faq-labs">Labs &amp; Testing</a>
+    <a href="#faq-programs">Programs</a>
+    <a href="#faq-pricing">Pricing</a>
+  </div>
+
+  <div class="faq-category" id="faq-general">
+    <h2>General</h2>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">What is metabolic health?</button>
+      <div class="faq-a"><p>Metabolic health is defined by five clinical criteria established by the ADA and AHA: blood sugar, blood pressure, triglycerides, HDL cholesterol, and waist circumference. Meeting optimal levels across all five markers indicates healthy metabolic function. According to research published in the <em>Journal of the American College of Cardiology</em> (2022), only about 7% of US adults are metabolically healthy by all five criteria — meaning the vast majority have at least one risk factor, often without knowing it.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">How is this different from seeing my regular doctor?</button>
+      <div class="faq-a"><p>Standard medical labs test for disease — they flag values only when they cross pathological thresholds. We test markers like fasting insulin, HOMA-IR, and free T3 that aren't part of routine checkups, and we interpret all results against optimal functional ranges. This allows us to identify subclinical dysfunction — the gap between "not sick" and "actually healthy" — where early intervention has the highest impact.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Is this medical advice?</button>
+      <div class="faq-a"><p>No. Our services are educational and informational, not a substitute for medical advice, diagnosis, or treatment from a licensed healthcare provider. We are designed to work alongside your existing healthcare providers — not replace them. Always consult your doctor before making changes to your health regimen, especially if you have existing conditions or are taking medications.</p></div>
+    </div>
+  </div>
+
+  <div class="faq-category" id="faq-assessment">
+    <h2>Assessment</h2>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">How long does the assessment take?</button>
+      <div class="faq-a"><p>The clinical symptom assessment takes 5–10 minutes. It covers energy levels, metabolism, hormonal symptoms, sleep quality, recovery, health history, and goals.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">What happens after I complete the assessment?</button>
+      <div class="faq-a"><p>You receive a personalized risk profile identifying which domains (metabolic, hormonal, recovery) are most likely contributing to your symptoms, along with a recommended lab panel tailored to your specific assessment results.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Do I need to pay for the assessment?</button>
+      <div class="faq-a"><p>No. The health assessment is completely free. You only pay if you choose to purchase recommended products through our affiliate links, or book a consultation with one of our vetted specialists.</p></div>
+    </div>
+  </div>
+
+  <div class="faq-category" id="faq-labs">
+    <h2>Labs &amp; Testing</h2>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Which labs do you order?</button>
+      <div class="faq-a"><p>The specific panel depends on your assessment results. Common panels include:</p><ul><li><strong>Metabolic:</strong> fasting insulin, HbA1c, HOMA-IR, complete lipid panel (including triglyceride-to-HDL ratio)</li><li><strong>Hormones:</strong> total and free testosterone, full thyroid panel (TSH, free T3, free T4), cortisol, DHEA-S, SHBG</li><li><strong>Recovery:</strong> ferritin, vitamin D (25-OH), RBC magnesium, cortisol</li></ul><p>Most clients have 15–25 biomarkers tested depending on their symptom profile.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Does insurance cover the labs?</button>
+      <div class="faq-a"><p>Most standard panels are covered by insurance. We use standard CPT codes recognized by major insurers. Out-of-pocket costs vary by location, insurance plan, and the specific markers ordered. We provide a cost estimate before you commit to any lab work.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Why test fasting insulin if my glucose is normal?</button>
+      <div class="faq-a"><p>Because insulin rises years before glucose does in the progression of insulin resistance. Your body compensates for declining insulin sensitivity by producing more insulin — so glucose stays "normal" while insulin is already elevated. HOMA-IR (calculated from fasting insulin and glucose together) catches this problem at a much earlier, more reversible stage than glucose or HbA1c alone.</p></div>
+    </div>
+  </div>
+
+  <div class="faq-category" id="faq-programs">
+    <h2>Programs</h2>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">How long until I see results?</button>
+      <div class="faq-a"><p>Timelines vary by domain and individual factors. Clinical evidence shows that insulin sensitivity can improve measurably within 3–16 weeks of targeted dietary and lifestyle intervention. Hormone optimization typically shows measurable changes at the 8–12 week re-test. We use objective biomarker data — not subjective feelings alone — to track progress.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Do you prescribe medications?</button>
+      <div class="faq-a"><p>We do not prescribe medications directly. If your lab results indicate that hormone replacement therapy (HRT), GLP-1 receptor agonists, or other prescription interventions may be beneficial, we provide a detailed clinical summary and refer you to a qualified prescriber who can evaluate and manage medication if appropriate.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Can I do multiple programs?</button>
+      <div class="faq-a"><p>Yes, and there is significant overlap in biomarkers across programs. Many clients have both metabolic and hormonal dysfunction — for example, insulin resistance and suboptimal thyroid function frequently co-occur. We typically recommend starting with the highest-impact domain and expanding as initial improvements are established.</p></div>
+    </div>
+  </div>
+
+  <div class="faq-category" id="faq-pricing">
+    <h2>Pricing</h2>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">What does the $499 Comprehensive Analysis include?</button>
+      <div class="faq-a"><p>Our platform provides: a free symptom-based health assessment, evidence-based guides covering metabolic, hormonal, and recovery health, interactive tools and calculators, vetted product recommendations (lab test kits, supplements, devices) reviewed by our medical advisory board, and the option to connect with a specialist doctor matched to your needs.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button" aria-expanded="false">Are there hidden fees?</button>
+      <div class="faq-a"><p>No. The price listed is the price you pay for our service. Lab costs may vary by location and insurance coverage, and we provide a cost estimate upfront so there are no surprises. There are no recurring charges unless you opt into an Ongoing Optimization plan.</p></div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="faq-cta">
+    <h3>Still have questions?</h3>
+    <p>The fastest way to get answers specific to your situation is to take the assessment.</p>
+    <a class="btn-primary" href="/assessment">Start Free Assessment →</a>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var item = btn.closest('.faq-item');
+    var open = item.classList.contains('is-open');
+    item.classList.toggle('is-open', !open);
+    btn.setAttribute('aria-expanded', !open);
+  });
+});
+</script>
+{% endblock %}

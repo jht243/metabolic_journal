@@ -1,0 +1,183 @@
+{% extends "_base.html.j2" %}
+{% from "_cta.html.j2" import cta_assessment, cta_doctor %}
+
+{% block head_extra %}
+<style>
+  .program-hero {
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 56px 24px 48px;
+  }
+  .program-hero .container-wide { max-width: 800px; }
+  .program-hero h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin-bottom: 16px; }
+  .program-hero p { color: rgba(255,255,255,0.75); font-size: 17px; line-height: 1.6; max-width: 640px; }
+
+  .section-block { padding: 48px 0; border-bottom: 1px solid var(--h-gray-light); }
+  .section-block:last-of-type { border-bottom: 0; }
+  .section-block h2 { font-family: var(--font-serif); font-size: 24px; color: var(--h-navy); margin-bottom: 20px; }
+
+  .targets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+  .target-item {
+    background: var(--h-gray-bg);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--h-navy);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .target-item::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--h-teal); flex-shrink: 0; }
+
+  .biomarker-panel {
+    background: var(--h-gray-bg);
+    border-radius: 8px;
+    padding: 28px;
+  }
+  .biomarker-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+  .biomarker-chip {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 4px;
+    background: var(--white);
+    border: 1px solid var(--h-gray-light);
+    color: var(--h-dark-text);
+  }
+
+  .who-for-list { list-style: none; padding: 0; }
+  .who-for-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--h-gray-light);
+    font-size: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .who-for-list li:last-child { border-bottom: 0; }
+  .who-for-list li::before {
+    content: "✓";
+    color: var(--h-teal);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .faq-item { border-bottom: 1px solid var(--h-gray-light); }
+  .faq-item:last-child { border-bottom: 0; }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 18px 0;
+    background: none;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--h-navy);
+    gap: 12px;
+  }
+  .faq-q::after { content: "+"; font-size: 22px; color: var(--h-teal); flex-shrink: 0; transition: transform 0.2s; }
+  .faq-item.is-open .faq-q::after { content: "−"; }
+  .faq-a { display: none; padding: 0 0 18px; font-size: 15px; color: var(--h-dark-text); line-height: 1.6; }
+  .faq-item.is-open .faq-a { display: block; }
+
+  .detail-cta { text-align: center; padding: 56px 0; }
+  .detail-cta h2 { font-family: var(--font-serif); color: var(--h-navy); font-size: 26px; margin-bottom: 14px; }
+  .detail-cta p { color: var(--h-gray-text); max-width: 480px; margin: 0 auto 24px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="program-hero">
+  <div class="container-wide">
+    <h1>{{ program.name }}</h1>
+    <p>{{ program.description }}</p>
+  </div>
+</section>
+
+<div class="container">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> <a href="/guides">Guides</a> <span>/</span> {{ program.name }}
+  </nav>
+
+  <div class="section-block">
+    <h2>Key Topics Covered</h2>
+    <div class="targets-grid">
+      {% for target in program.targets %}
+      <div class="target-item">{{ target }}</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if program.process %}
+  <div class="section-block">
+    <h2>What You'll Learn</h2>
+    <ul class="who-for-list">
+      {% for step in program.process %}
+      <li>{{ step }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="section-block">
+    <h2>Biomarkers Explained</h2>
+    <div class="biomarker-panel">
+      <p style="font-size:14.5px; color:var(--h-gray-text); margin:0;">These are the key markers covered in this guide — with optimal ranges and what your numbers actually mean.</p>
+      <div class="biomarker-list">
+        {% for marker in program.biomarkers %}
+        <span class="biomarker-chip">{{ marker }}</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="section-block">
+    <h2>Is This Guide For You?</h2>
+    <p style="margin-bottom:16px;">This guide is most useful if you're dealing with:</p>
+    <ul class="who-for-list">
+      {% for item in program.who_for %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  {% if program.faq %}
+  <div class="section-block">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-list">
+      {% for item in program.faq %}
+      <div class="faq-item">
+        <button class="faq-q" type="button" aria-expanded="false">{{ item.q }}</button>
+        <div class="faq-a">{{ item.a }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="medical-disclaimer">
+    This guide provides health education based on peer-reviewed clinical evidence. It is not a substitute for medical diagnosis or treatment. Always consult a qualified healthcare provider.
+  </div>
+
+  {{ cta_assessment(heading="Want a Personalized Snapshot?", subtext="Our free assessment maps your symptoms to the most relevant guides, tools, and recommendations.") }}
+
+  {{ cta_doctor(heading="Need a Specialist?", subtext="We can match you with a vetted doctor who specializes in this area — no marketplace, just a direct match.") }}
+</div>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var item = btn.closest('.faq-item');
+    var open = item.classList.contains('is-open');
+    item.classList.toggle('is-open', !open);
+    btn.setAttribute('aria-expanded', !open);
+  });
+});
+</script>
+{% endblock %}

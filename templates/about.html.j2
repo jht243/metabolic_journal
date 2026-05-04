@@ -1,0 +1,211 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .page-hero {
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 56px 24px 48px;
+    text-align: center;
+  }
+  .page-hero h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin-bottom: 14px; }
+  .page-hero p { color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto; font-size: 17px; line-height: 1.55; }
+
+  .about-section {
+    padding: 48px 0;
+    border-bottom: 1px solid var(--h-gray-light);
+  }
+  .about-section:last-of-type { border-bottom: 0; }
+  .about-section h2 {
+    font-family: var(--font-serif);
+    font-size: 24px;
+    color: var(--h-navy);
+    margin-bottom: 16px;
+  }
+  .about-section p { margin-bottom: 14px; line-height: 1.65; }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .pillar {
+    background: var(--h-gray-bg);
+    border-radius: 6px;
+    padding: 24px 22px;
+  }
+  .pillar h3 { font-family: var(--font-serif); font-size: 17px; color: var(--h-navy); margin-bottom: 8px; }
+  .pillar p { font-size: 14px; color: var(--h-dark-text); line-height: 1.6; margin: 0; }
+
+  .team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    margin-top: 24px;
+  }
+  .team-card {
+    border: 1px solid var(--h-gray-light);
+    border-radius: 6px;
+    padding: 24px;
+    text-align: center;
+  }
+  .team-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: var(--h-gray-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 28px;
+    color: var(--h-teal);
+  }
+  .team-card h3 { font-family: var(--font-serif); font-size: 17px; color: var(--h-navy); margin-bottom: 4px; }
+  .team-card .role { font-size: 13px; color: var(--h-teal); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+  .team-card p { font-size: 14px; color: var(--h-gray-text); line-height: 1.5; margin: 0; }
+
+  .method-steps { counter-reset: method; margin-top: 20px; }
+  .method-step {
+    counter-increment: method;
+    padding: 16px 0 16px 48px;
+    border-bottom: 1px solid var(--h-gray-light);
+    position: relative;
+  }
+  .method-step:last-child { border-bottom: 0; }
+  .method-step::before {
+    content: counter(method);
+    position: absolute;
+    left: 0;
+    top: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--h-teal);
+    color: var(--white);
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .method-step h3 { font-family: var(--font-serif); font-size: 16px; color: var(--h-navy); margin-bottom: 4px; }
+  .method-step p { font-size: 14.5px; color: var(--h-dark-text); line-height: 1.6; margin: 0; }
+
+  .trust-citations {
+    background: var(--h-gray-bg);
+    border-radius: 6px;
+    padding: 24px;
+    margin-top: 32px;
+  }
+  .trust-citations h3 { font-family: var(--font-serif); font-size: 16px; color: var(--h-navy); margin-bottom: 12px; }
+  .trust-citations ul { margin-left: 18px; }
+  .trust-citations li { font-size: 13.5px; color: var(--h-gray-text); margin-bottom: 6px; line-height: 1.5; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1>Our Methodology</h1>
+  <p>Research-first health intelligence — tools, guides, and recommendations grounded in clinical evidence, not wellness trends.</p>
+</section>
+
+<div class="container">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> About
+  </nav>
+
+  <div class="about-section">
+    <h2>What We Do</h2>
+    <p>We build tools and publish guides that help people understand their metabolic, hormonal, and recovery health. Our content uses the same biomarkers and diagnostic frameworks referenced by the American Diabetes Association, the Endocrine Society, and current clinical guidelines — but we translate them into language you can actually use.</p>
+    <p>Standard lab reference ranges are derived from population averages that include a large percentage of metabolically unhealthy individuals. A fasting insulin of 20 μIU/mL is "normal" by lab standards but far from optimal. We show you what optimal looks like, explain why it matters, and recommend what to do about it.</p>
+    <p>We are not a clinic, and we don't prescribe treatments. We're a health intelligence platform that helps you make informed decisions — whether that means buying the right supplement, ordering the right lab test, or finding the right doctor.</p>
+  </div>
+
+  <div class="about-section">
+    <h2>Three Pillars of Focus</h2>
+    <div class="pillars">
+      <div class="pillar">
+        <h3>Metabolic Health</h3>
+        <p>Insulin resistance affects an estimated 40% of US adults aged 18–44 (per NHANES data). Our tools and guides cover fasting insulin, HOMA-IR, triglyceride-to-HDL ratio, and more — catching dysfunction years before standard blood sugar tests flag anything.</p>
+      </div>
+      <div class="pillar">
+        <h3>Hormonal Health</h3>
+        <p>Comprehensive hormone panels (total/free testosterone, thyroid panel with free T3/T4, cortisol, DHEA-S, SHBG) reveal dysfunction that single-marker screening misses. A "normal" TSH doesn't rule out subclinical hypothyroidism.</p>
+      </div>
+      <div class="pillar">
+        <h3>Recovery Science</h3>
+        <p>Ferritin, vitamin D, RBC magnesium, and cortisol patterns identify the physiological root causes of fatigue and poor sleep — not just sleep hygiene deficits.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-section">
+    <h2>Medical Advisory Board</h2>
+    <p>All content, tools, and product recommendations are reviewed by our medical advisory board — clinicians with expertise in endocrinology, metabolic medicine, and functional health.</p>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">👨‍⚕️</div>
+        <h3>Medical Director</h3>
+        <div class="role">Endocrinology &amp; Metabolic Medicine</div>
+        <p>Oversees all medical content and ensures recommendations meet clinical evidence standards. Reviews product recommendations and tool algorithms.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👩‍🔬</div>
+        <h3>Research Director</h3>
+        <div class="role">Nutritional Biochemistry</div>
+        <p>Translates current research into actionable content. Maintains our evidence library and ensures all guides cite peer-reviewed sources.</p>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👨‍💻</div>
+        <h3>Product Lead</h3>
+        <div class="role">Health Tools &amp; Data</div>
+        <p>Builds the assessment tools, calculators, and data systems that power the platform's recommendations and risk scoring.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="about-section">
+    <h2>Our Standards</h2>
+    <div class="method-steps">
+      <div class="method-step">
+        <h3>Evidence-Based Content</h3>
+        <p>All guides and tools are grounded in peer-reviewed research from journals including <em>Diabetes Care</em>, <em>The Journal of Clinical Endocrinology &amp; Metabolism</em>, and <em>The Lancet Diabetes &amp; Endocrinology</em>.</p>
+      </div>
+      <div class="method-step">
+        <h3>Optimal Functional Ranges</h3>
+        <p>Our reference ranges are calibrated from clinical outcomes data — not population averages. We show what "optimal" looks like alongside "normal" so you can see the difference.</p>
+      </div>
+      <div class="method-step">
+        <h3>Honest Product Reviews</h3>
+        <p>Every product recommendation includes what works, what doesn't, who it's for, and who it's not for. We disclose affiliate relationships and never let them influence ratings.</p>
+      </div>
+      <div class="method-step">
+        <h3>Transparent Scope</h3>
+        <p>We're clear about what online tools can and can't tell you. When you need a real doctor — for lab interpretation, hormone therapy, or sleep studies — we say so and help you find one.</p>
+      </div>
+      <div class="method-step">
+        <h3>Regular Updates</h3>
+        <p>Content is reviewed and updated as new research is published. Every guide shows a "last reviewed" date so you know it's current.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="trust-citations">
+    <h3>Sources &amp; Standards</h3>
+    <p style="font-size:14px; color:var(--h-gray-text); margin-bottom:12px;">Our content references guidelines and data from:</p>
+    <ul>
+      <li><a href="https://diabetes.org/about-diabetes/diagnosis" rel="noopener" target="_blank">American Diabetes Association (ADA)</a> — Standards of Care in Diabetes</li>
+      <li><a href="https://www.endocrine.org/clinical-practice-guidelines" rel="noopener" target="_blank">Endocrine Society</a> — Clinical Practice Guidelines for hormone evaluation</li>
+      <li><a href="https://www.niddk.nih.gov/health-information/diabetes" rel="noopener" target="_blank">National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)</a></li>
+      <li><a href="https://my.clevelandclinic.org/health/diagnostics/16792-insulin-resistance" rel="noopener" target="_blank">Cleveland Clinic</a> — Insulin resistance diagnostics and management</li>
+      <li>Supplement recommendations are limited to compounds with robust clinical trial evidence</li>
+      <li>All content is regularly updated as new peer-reviewed evidence becomes available</li>
+    </ul>
+  </div>
+
+  <div class="medical-disclaimer" style="margin-top:32px;">
+    <strong>Disclaimer:</strong> The information provided through this platform is for educational purposes only and does not constitute medical advice, diagnosis, or treatment. Our tools and content are designed to help you have more informed conversations with your healthcare provider — not to replace them. Always consult a qualified medical professional before making changes to your health regimen. If you are experiencing a medical emergency, call 911.
+  </div>
+</div>
+{% endblock %}

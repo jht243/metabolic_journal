@@ -1,9 +1,11 @@
+{# Google Analytics — replace PLACEHOLDER_GA_ID with your GA4 measurement ID #}
+{% if ga_id is defined and ga_id %}
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-YQKLKXYCJB"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id={{ ga_id }}"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
-  gtag('config', 'G-YQKLKXYCJB');
+  gtag('config', '{{ ga_id }}');
 </script>
+{% endif %}

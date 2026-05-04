@@ -1,10 +1,11 @@
-# Auto-deploy verification: this comment exists only to force no-op
-# commits that prove the GitHub -> Render webhook is firing on git push.
-# If you see deploys appearing with trigger=git after this commit, the
-# autoDeploy chain is wired up correctly end-to-end.
+# =====================================================================
+# RENDER BLUEPRINT — PLACEHOLDER (old project services removed)
+# Replace service names, env vars, and schedules for the NEW project
+# before connecting this repo to a new Render workspace.
+# =====================================================================
 services:
   - type: web
-    name: venezuela-investment-journal
+    name: REPLACE-ME-web
     runtime: python
     plan: starter
     buildCommand: "pip install -r requirements.txt"
@@ -18,41 +19,17 @@ services:
         sync: false
       - key: OPENAI_MODEL
         value: gpt-4o
-      - key: BUTTONDOWN_API_KEY
-        sync: false
-      - key: NEWSLETTER_PROVIDER
-        value: buttondown
-      - key: NEWSLETTER_FROM_EMAIL
-        value: briefing@venezuelanbusiness.net
-      - key: NEWSLETTER_API_KEY
-        sync: false
-      - key: STRIPE_WEBHOOK_SECRET
-        sync: false
-      - key: STRIPE_VISA_PAYMENT_LINK_ID
-        value: plink_1TS1T2GWYDLBQAio3Z6tN9N2
       - key: SITE_URL
-        value: https://www.caracasresearch.com
-      - key: VISA_ORDER_NOTIFICATION_EMAIL
-        sync: false
-      - key: VISA_ORDER_EMAIL_PROVIDER
-        value: resend
+        value: https://REPLACE_ME_DOMAIN.com
       - key: RESEND_API_KEY
-        sync: false
-      - key: GOOGLE_INDEXING_SA_JSON
-        sync: false
-      - key: BLUESKY_HANDLE
-        sync: false
-      - key: BLUESKY_APP_PASSWORD
         sync: false
       - key: LOG_LEVEL
         value: INFO
     healthCheckPath: /health
 
   - type: cron
-    name: vij-daily-pipeline
+    name: REPLACE-ME-daily-pipeline
     runtime: python
-    # Render schedules cron in UTC. We want 10:00 and 17:00 in Medellín
-    # (America/Bogota, UTC-5), which is 15:00 and 22:00 UTC.
     schedule: "0 15,22 * * *"
     plan: starter
     buildCommand: "pip install -r requirements.txt"
@@ -66,28 +43,12 @@ services:
         sync: false
       - key: OPENAI_MODEL
         value: gpt-4o
-      - key: NEWSLETTER_PROVIDER
-        value: buttondown
-      - key: NEWSLETTER_FROM_EMAIL
-        value: briefing@venezuelanbusiness.net
-      - key: NEWSLETTER_API_KEY
-        sync: false
-      - key: BUTTONDOWN_API_KEY
-        sync: false
-      - key: GOOGLE_INDEXING_SA_JSON
-        sync: false
-      - key: BLUESKY_HANDLE
-        sync: false
-      - key: BLUESKY_APP_PASSWORD
-        sync: false
       - key: LOG_LEVEL
         value: INFO
 
   - type: cron
-    name: vij-daily-seo-email
+    name: REPLACE-ME-daily-seo-email
     runtime: python
-    # 11:00 EST = 16:00 UTC. If you want fixed New York wall-clock time
-    # year-round, adjust to 15:00 UTC during EDT or use Render timezone support.
     schedule: "0 16 * * *"
     plan: starter
     buildCommand: "pip install -r requirements.txt"
@@ -95,27 +56,13 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
-      - key: GOOGLE_REPORTING_SA_JSON
-        sync: false
-      - key: GOOGLE_REPORTING_GA4_PROPERTY_ID
-        sync: false
-      - key: GOOGLE_REPORTING_GSC_SITE_URL
-        sync: false
-      - key: SEO_EMAIL_PROVIDER
-        value: resend
-      - key: SEO_EMAIL_RECIPIENT
-        sync: false
-      - key: SEO_EMAIL_SUBJECT
-        value: SEO Updates <SITE_NAME>
       - key: RESEND_API_KEY
         sync: false
-      - key: NEWSLETTER_FROM_EMAIL
-        value: onboarding@resend.dev
       - key: LOG_LEVEL
         value: INFO
 
   - type: cron
-    name: vij-weekly-linkcheck
+    name: REPLACE-ME-weekly-linkcheck
     runtime: python
     schedule: "0 8 * * 1"
     plan: starter

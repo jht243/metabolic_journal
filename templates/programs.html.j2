@@ -1,0 +1,100 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .page-hero {
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 56px 24px 48px;
+    text-align: center;
+  }
+  .page-hero h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin-bottom: 14px; }
+  .page-hero p { color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto; font-size: 17px; line-height: 1.55; }
+
+  .programs-grid { margin: 48px 0 64px; }
+  .program-block {
+    border: 1px solid var(--h-gray-light);
+    border-radius: 8px;
+    padding: 36px 32px;
+    margin-bottom: 28px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .program-block:hover { border-color: var(--h-teal); box-shadow: 0 4px 20px rgba(13, 148, 136, 0.08); }
+  .program-tag { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 3px; margin-bottom: 14px; }
+  .program-tag.metabolism { background: #dbeafe; color: #1e40af; }
+  .program-tag.hormones { background: #fef3c7; color: #92400e; }
+  .program-tag.recovery { background: #d1fae5; color: #065f46; }
+  .program-block h2 { font-family: var(--font-serif); font-size: 22px; color: var(--h-navy); margin-bottom: 12px; }
+  .program-block p { color: var(--h-dark-text); line-height: 1.6; margin-bottom: 16px; }
+  .targets { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .target-pill { font-size: 12.5px; font-weight: 600; padding: 5px 12px; background: var(--h-gray-bg); border-radius: 3px; color: var(--h-dark-text); }
+
+  .not-sure { text-align: center; padding: 48px 24px; background: var(--h-gray-bg); border-radius: 8px; margin-bottom: 48px; }
+  .not-sure h3 { font-family: var(--font-serif); color: var(--h-navy); font-size: 22px; margin-bottom: 12px; }
+  .not-sure p { color: var(--h-gray-text); margin-bottom: 20px; max-width: 480px; margin-left: auto; margin-right: auto; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1>Health Guides</h1>
+  <p>In-depth, evidence-based guides for understanding your metabolism, hormones, and recovery — with the research to back it up.</p>
+</section>
+
+<div class="container-wide">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> Guides
+  </nav>
+
+  <div class="programs-grid">
+    <div class="program-block">
+      <span class="program-tag metabolism">Metabolism</span>
+      <h2>Metabolic Health Guide</h2>
+      <p>Understand insulin resistance, blood sugar dysregulation, and metabolic dysfunction. Learn which biomarkers matter, what optimal ranges look like, and what the research says about the most effective interventions.</p>
+      <div class="targets">
+        <span class="target-pill">Insulin sensitivity</span>
+        <span class="target-pill">Weight management</span>
+        <span class="target-pill">Blood sugar stability</span>
+        <span class="target-pill">Body composition</span>
+      </div>
+      <a class="btn-primary" href="/guides/metabolic">Read the Guide →</a>
+    </div>
+
+    <div class="program-block">
+      <span class="program-tag hormones">Hormones</span>
+      <h2>Hormone Health Guide</h2>
+      <p>Learn how testosterone, estrogen, thyroid, and cortisol work together — and what to do when they don't. Covers lab testing, optimal ranges, common misdiagnoses, and evidence-based approaches.</p>
+      <div class="targets">
+        <span class="target-pill">Testosterone</span>
+        <span class="target-pill">Estrogen balance</span>
+        <span class="target-pill">Thyroid function</span>
+        <span class="target-pill">Cortisol regulation</span>
+      </div>
+      <a class="btn-primary" href="/guides/hormones">Read the Guide →</a>
+    </div>
+
+    <div class="program-block">
+      <span class="program-tag recovery">Recovery</span>
+      <h2>Sleep &amp; Recovery Guide</h2>
+      <p>Go beyond sleep hygiene tips. This guide covers the physiological root causes of poor sleep, chronic fatigue, and low HRV — including nutrient deficiencies, cortisol dysregulation, and thyroid dysfunction.</p>
+      <div class="targets">
+        <span class="target-pill">Sleep quality</span>
+        <span class="target-pill">HRV optimization</span>
+        <span class="target-pill">Fatigue resolution</span>
+        <span class="target-pill">Stress resilience</span>
+      </div>
+      <a class="btn-primary" href="/guides/recovery">Read the Guide →</a>
+    </div>
+  </div>
+
+  <div class="not-sure">
+    <h3>Not sure where to start?</h3>
+    <p>Take our free health assessment. We'll surface the guides, tools, and recommendations most relevant to your situation.</p>
+    <a class="btn-primary" href="/assessment">Take the Assessment →</a>
+  </div>
+
+  <div class="medical-disclaimer">
+    These guides provide health education based on peer-reviewed clinical evidence. They are not medical advice. Always consult a qualified healthcare provider before making changes to your health regimen.
+  </div>
+</div>
+{% endblock %}

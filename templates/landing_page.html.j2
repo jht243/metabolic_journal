@@ -1,0 +1,142 @@
+{% extends "_base.html.j2" %}
+{% from "_cluster_nav.html.j2" import cluster_nav, cluster_nav_css %}
+{% from "_recent_briefings.html.j2" import recent_briefings %}
+{% from "_cta.html.j2" import cta_assessment, cta_lead_magnet, cta_sticky %}
+{% from "_eeat.html.j2" import reviewer_badge, last_reviewed, medical_schema %}
+
+{% block head_extra %}
+{{ cluster_nav_css() }}
+{{ medical_schema(page.title, page.summary or '', page.reviewed_at|default('', true)|string, page.reviewed_by|default('', true), '', page.canonical_path|default('', true)) }}
+
+{% if page.faq_json %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for item in page.faq_json %}
+    {
+      "@type": "Question",
+      "name": {{ item.question|tojson }},
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": {{ item.answer|tojson }}
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<article class="container">
+
+  {# Breadcrumbs derived from canonical_path #}
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    {% set path_parts = page.canonical_path.strip('/').split('/') %}
+    {% if path_parts|length > 1 %}
+    {% for part in path_parts[:-1] %}
+    <span>/</span>
+    <a href="/{{ path_parts[:loop.index]|join('/') }}">{{ part|replace('-',' ')|title }}</a>
+    {% endfor %}
+    {% endif %}
+    <span>/</span>
+    <span>{{ page.title|truncate(50) }}</span>
+  </nav>
+
+  {% if page.cluster %}
+  {{ cluster_nav(page.cluster) }}
+  {% endif %}
+
+  <header style="margin-bottom:32px;">
+    {% if page.cluster %}
+    <span class="cluster-pill {{ page.cluster }}">{{ page.cluster|replace('_',' ')|title }}</span>
+    {% endif %}
+    <h1 style="font-family:var(--font-serif); font-size:36px; color:var(--h-navy); margin:12px 0 10px; line-height:1.2;">{{ page.title }}</h1>
+    {% if page.subtitle %}
+    <p style="font-family:var(--font-serif); font-style:italic; color:var(--h-gray-text); font-size:18px; margin-bottom:16px;">{{ page.subtitle }}</p>
+    {% endif %}
+    {% if page.summary %}
+    <p style="font-size:16px; color:var(--h-dark-text); line-height:1.6; max-width:680px;">{{ page.summary }}</p>
+    {% endif %}
+  </header>
+
+  <div class="body">
+    {{ page.body_html | safe }}
+  </div>
+
+  {% if page.sections_json %}
+  {% for section in page.sections_json %}
+  <section style="margin:32px 0;">
+    {% if section.heading %}<h2 style="font-family:var(--font-serif); font-size:24px; color:var(--h-navy); margin-bottom:12px;">{{ section.heading }}</h2>{% endif %}
+    {% if section.content %}{{ section.content | safe }}{% endif %}
+  </section>
+  {% endfor %}
+  {% endif %}
+
+  {% if page.faq_json %}
+  <section style="margin:48px 0 32px;" aria-label="Frequently asked questions">
+    <h2 style="font-family:var(--font-serif); font-size:24px; color:var(--h-navy); margin-bottom:20px;">Frequently Asked Questions</h2>
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      {% for item in page.faq_json %}
+      <details style="border:1px solid var(--h-gray-light); border-radius:6px; padding:16px 20px;">
+        <summary style="font-weight:600; color:var(--h-navy); cursor:pointer; font-size:16px;">{{ item.question }}</summary>
+        <p style="margin-top:10px; color:var(--h-dark-text); line-height:1.6; font-size:15px;">{{ item.answer }}</p>
+      </details>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+  {% if page.reviewed_by %}
+  {{ reviewer_badge(name=page.reviewed_by, date=page.reviewed_at|default('', true)|string) }}
+  {% endif %}
+
+  <div class="medical-disclaimer">
+    <strong>Medical Disclaimer:</strong> This content is for informational purposes only and does not constitute medical advice. Always consult a qualified healthcare provider before making changes to your health regimen.
+  </div>
+
+  {{ cta_assessment(variant="highlighted") }}
+  {{ cta_sticky() }}
+
+  {# Related pages from cluster topology #}
+  {% if cluster_ctx and cluster_ctx.others %}
+  <section style="margin:40px 0 24px; padding:24px; background:var(--h-gray-bg); border-radius:8px;">
+    <h2 style="font-family:var(--font-serif); font-size:20px; color:var(--h-navy); margin-bottom:16px;">
+      {% if cluster_ctx.is_pillar %}Explore This Topic{% else %}Continue Reading{% endif %}
+    </h2>
+    {% if cluster_ctx.pillar %}
+    <p style="margin-bottom:12px;">
+      <a href="{{ cluster_ctx.pillar.path }}" style="font-weight:600; color:var(--h-teal);">← Back to {{ cluster_ctx.cluster.name }}</a>
+    </p>
+    {% endif %}
+    <ul style="list-style:none; padding:0; display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:10px;">
+      {% for link in cluster_ctx.others %}
+      <li style="padding:8px 12px; background:white; border-radius:4px; border:1px solid var(--h-gray-light);">
+        <a href="{{ link.path }}" style="color:var(--h-navy); text-decoration:none; font-size:14px; font-weight:500;">{{ link.anchor }}</a>
+        {% if link.description %}
+        <p style="margin:4px 0 0; font-size:12px; color:var(--h-gray-text); line-height:1.4;">{{ link.description }}</p>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+    {% if cluster_ctx.cross_links %}
+    <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--h-gray-light);">
+      <p style="font-size:13px; font-weight:600; color:var(--h-gray-text); margin-bottom:8px;">Related Topics</p>
+      {% for link in cluster_ctx.cross_links %}
+      <a href="{{ link.path }}" style="display:inline-block; margin-right:12px; color:var(--h-teal); font-size:14px;">{{ link.anchor }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  {% if related_posts %}
+  {{ recent_briefings(related_posts, limit=3) }}
+  {% endif %}
+
+</article>
+{% endblock %}

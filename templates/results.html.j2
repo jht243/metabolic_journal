@@ -1,0 +1,165 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .page-hero {
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 56px 24px 48px;
+    text-align: center;
+  }
+  .page-hero h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin-bottom: 14px; }
+  .page-hero p { color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto; font-size: 17px; line-height: 1.55; }
+
+  .results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 24px;
+    margin: 48px 0 56px;
+  }
+  .case-card {
+    border: 1px solid var(--h-gray-light);
+    border-radius: 8px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .case-card:hover { border-color: var(--h-teal); box-shadow: 0 4px 16px rgba(13, 148, 136, 0.08); }
+
+  .case-program { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 4px 10px; border-radius: 3px; }
+  .case-program.metabolism { background: #dbeafe; color: #1e40af; }
+  .case-program.hormones { background: #fef3c7; color: #92400e; }
+  .case-program.recovery { background: #d1fae5; color: #065f46; }
+
+  .case-card h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin: 0; line-height: 1.3; }
+  .case-summary { font-size: 14.5px; color: var(--h-dark-text); line-height: 1.6; flex: 1; }
+
+  .case-metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .metric {
+    background: var(--h-gray-bg);
+    border-radius: 4px;
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+  }
+  .metric-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--h-teal);
+    display: block;
+  }
+  .metric-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--h-gray-text);
+    margin-top: 2px;
+    display: block;
+  }
+
+  .before-after {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    font-size: 13px;
+  }
+  .ba-col { padding: 10px 12px; border-radius: 4px; }
+  .ba-col.before { background: #fef2f2; }
+  .ba-col.after { background: #f0fdf4; }
+  .ba-label { font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; font-size: 10px; margin-bottom: 6px; }
+  .ba-col.before .ba-label { color: #991b1b; }
+  .ba-col.after .ba-label { color: #166534; }
+  .ba-col ul { margin: 0 0 0 14px; padding: 0; }
+  .ba-col li { margin-bottom: 3px; line-height: 1.4; }
+
+  .results-cta {
+    text-align: center;
+    padding: 48px 24px;
+    background: var(--h-gray-bg);
+    border-radius: 8px;
+    margin-bottom: 48px;
+  }
+  .results-cta h2 { font-family: var(--font-serif); color: var(--h-navy); font-size: 24px; margin-bottom: 12px; }
+  .results-cta p { color: var(--h-gray-text); max-width: 480px; margin: 0 auto 20px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1>Case Studies</h1>
+  <p>Anonymized results from real participants showing measurable improvements through data-driven protocols.</p>
+</section>
+
+<div class="container-wide">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> Results
+  </nav>
+
+  {% if case_studies %}
+  <div class="results-grid">
+    {% for study in case_studies %}
+    <div class="case-card">
+      <div>
+        <span class="case-program {{ study.program|lower }}">{{ study.program }}</span>
+      </div>
+      <h3>{{ study.title }}</h3>
+      <p class="case-summary">{{ study.summary }}</p>
+
+      {% if study.metrics %}
+      <div class="case-metrics">
+        {% for metric in study.metrics %}
+        <div class="metric">
+          <span class="metric-value">{{ metric.value }}</span>
+          <span class="metric-label">{{ metric.label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      {% if study.before_after %}
+      <div class="before-after">
+        <div class="ba-col before">
+          <div class="ba-label">Before</div>
+          <ul>
+            {% for item in study.before_after.before %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+        <div class="ba-col after">
+          <div class="ba-label">After</div>
+          <ul>
+            {% for item in study.before_after.after %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center; padding:64px 24px; color:var(--h-gray-text);">
+    <p>Case studies are being compiled. Check back soon for anonymized results data.</p>
+  </div>
+  {% endif %}
+
+  <div class="results-cta">
+    <h2>Curious about your own health?</h2>
+    <p>Start with our free assessment to understand your metabolic, hormonal, and recovery risk factors — then explore the guides and tools most relevant to your results.</p>
+    <a class="btn-primary" href="/assessment">Take the Free Assessment →</a>
+  </div>
+
+  <div class="medical-disclaimer">
+    All case studies are anonymized and represent individual results. Individual outcomes vary based on health status, adherence, and biological factors. Past results do not guarantee future outcomes. These case studies are presented for educational purposes and do not constitute medical claims.
+  </div>
+</div>
+{% endblock %}

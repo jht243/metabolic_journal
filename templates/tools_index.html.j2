@@ -1,44 +1,63 @@
 {% extends "_base.html.j2" %}
 
 {% block content %}
-<section class="container">
+<section class="container-wide">
 
   <nav class="breadcrumbs" aria-label="Breadcrumb">
     <a href="/">Home</a><span>/</span>
     <span>Tools</span>
   </nav>
 
-  <header style="margin: 16px 0 24px;">
-    <div style="font-size:12px; text-transform:uppercase; letter-spacing:1.4px; color:#cc0000; font-weight:700;">
-      Tools & services · Built on our live data
-    </div>
-    <h1 style="font-family:var(--font-serif); font-size:36px; color:var(--sr-blue-dark); margin:8px 0 12px;">
-      Venezuela Investor Tools & Services
-    </h1>
-    <p style="font-family:var(--font-serif); font-style:italic; color:var(--sr-gray-text); font-size:18px;">
-      A growing toolkit for anyone evaluating Venezuelan exposure: live OFAC
-      screening, the official BCV exchange rate, sector ROI modelling, visa
-      filing help, travel context, and on-the-ground safety data for Caracas.
+  <header style="margin:16px 0 32px;">
+    <h1 style="font-family:var(--font-serif); font-size:36px; color:var(--h-navy); margin:0 0 10px;">Health Optimization Tools</h1>
+    <p style="font-family:var(--font-serif); font-style:italic; color:var(--h-gray-text); font-size:18px; max-width:680px;">
+      Free clinical calculators to help you understand your metabolic health, hormone status, and recovery capacity.
     </p>
   </header>
 
-  <div class="index-grid">
-    {% for t in tools %}
-    <article class="index-card">
-      <a class="card-link" href="{{ t.url }}" aria-label="{{ t.name }}"></a>
-      <a class="title-link" href="{{ t.url }}">{{ t.name }}</a>
-      <div class="meta">{{ t.category }}</div>
-      <p class="summary">{{ t.summary }}</p>
-    </article>
+  {% set tools = [
+    {
+      'slug': 'energy-assessment',
+      'name': 'Energy Assessment',
+      'description': 'Evaluate your daily energy patterns to identify metabolic bottlenecks and fatigue triggers. Get a personalized energy score with actionable recommendations.'
+    },
+    {
+      'slug': 'metabolic-score',
+      'name': 'Metabolic Score Calculator',
+      'description': 'Calculate your metabolic efficiency score based on key biomarkers — fasting glucose, insulin, triglycerides, and waist circumference.'
+    },
+    {
+      'slug': 'hormone-symptom-checker',
+      'name': 'Hormone Symptom Checker',
+      'description': 'Map your symptoms to potential hormonal imbalances. Covers thyroid, cortisol, testosterone, estrogen, and insulin dysregulation patterns.'
+    },
+    {
+      'slug': 'sleep-recovery-score',
+      'name': 'Sleep Recovery Score',
+      'description': 'Assess your sleep quality and recovery capacity. Identifies sleep architecture issues and provides evidence-based improvement strategies.'
+    },
+    {
+      'slug': 'insulin-resistance-calculator',
+      'name': 'Insulin Resistance Calculator',
+      'description': 'Estimate your insulin resistance risk using the HOMA-IR model and additional metabolic markers. Early detection enables early intervention.'
+    }
+  ] %}
+
+  <div class="cr-card-grid">
+    {% for tool in tools %}
+    <a class="cr-card" href="/tools/{{ tool.slug }}">
+      <span class="cr-card-eyebrow">Free Tool</span>
+      <h2 class="cr-card-headline">{{ tool.name }}</h2>
+      <p class="cr-card-tagline">{{ tool.description }}</p>
+      <span class="cr-card-cta">Use calculator</span>
+    </a>
     {% endfor %}
   </div>
 
-  {% from "_recent_briefings.html.j2" import recent_briefings_rail %}
-  {{ recent_briefings_rail(
-       recent_briefings,
-       heading="Latest analysis",
-       intro="Recent investor briefings on Venezuelan markets, sanctions, and policy moves.",
-  ) }}
+  <div style="text-align:center; margin:48px 0 32px;">
+    <p style="color:var(--h-gray-text); margin-bottom:16px; font-size:15px;">Want a comprehensive analysis that combines all these metrics?</p>
+    <a href="/assessment" class="btn-primary">Get Your Full Assessment →</a>
+  </div>
 
 </section>
 {% endblock %}

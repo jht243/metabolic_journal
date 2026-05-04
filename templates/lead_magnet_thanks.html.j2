@@ -1,0 +1,46 @@
+{% extends "_base.html.j2" %}
+
+{% block content %}
+<article class="container" style="text-align:center; padding:60px 20px;">
+
+  <div style="font-size:48px; margin-bottom:16px;">✓</div>
+  <h1 style="font-family:var(--font-serif); font-size:32px; color:var(--h-navy); margin-bottom:12px;">Check Your Inbox</h1>
+  <p style="font-size:18px; color:var(--h-dark-text); max-width:480px; margin:0 auto 8px;">
+    <strong>{{ magnet.name }}</strong> is on its way to your email.
+  </p>
+  {% if magnet.description %}
+  <p style="font-size:15px; color:var(--h-gray-text); max-width:480px; margin:0 auto 32px;">{{ magnet.description }}</p>
+  {% endif %}
+
+  <div style="background:var(--h-gray-bg); border:1px solid var(--h-gray-light); border-radius:8px; padding:28px 24px; max-width:520px; margin:0 auto 40px;">
+    <h2 style="font-family:var(--font-serif); font-size:20px; color:var(--h-navy); margin-bottom:12px;">While You Wait...</h2>
+    <p style="font-size:15px; color:var(--h-dark-text); line-height:1.6; margin-bottom:20px;">
+      Want to go deeper? Our free health assessment takes 5 minutes and gives you personalized recommendations based on your symptoms and goals.
+    </p>
+    <a href="/assessment" class="btn-primary">Start Your Free Assessment →</a>
+  </div>
+
+  <div style="max-width:520px; margin:0 auto;">
+    <h3 style="font-family:var(--font-serif); font-size:18px; color:var(--h-navy); margin-bottom:16px;">Explore More</h3>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; text-align:left;">
+      <a href="/metabolic-health" style="padding:16px; background:white; border:1px solid var(--h-gray-light); border-radius:6px; text-decoration:none;">
+        <strong style="color:var(--h-navy); font-size:14px; display:block; margin-bottom:4px;">Metabolic Health</strong>
+        <span style="color:var(--h-gray-text); font-size:13px;">Insulin resistance, blood sugar, body composition</span>
+      </a>
+      <a href="/hormone-optimization" style="padding:16px; background:white; border:1px solid var(--h-gray-light); border-radius:6px; text-decoration:none;">
+        <strong style="color:var(--h-navy); font-size:14px; display:block; margin-bottom:4px;">Hormones</strong>
+        <span style="color:var(--h-gray-text); font-size:13px;">Testosterone, thyroid, cortisol, estrogen</span>
+      </a>
+      <a href="/sleep-recovery" style="padding:16px; background:white; border:1px solid var(--h-gray-light); border-radius:6px; text-decoration:none;">
+        <strong style="color:var(--h-navy); font-size:14px; display:block; margin-bottom:4px;">Sleep & Recovery</strong>
+        <span style="color:var(--h-gray-text); font-size:13px;">Fatigue, HRV, sleep quality, stress recovery</span>
+      </a>
+      <a href="/tools" style="padding:16px; background:white; border:1px solid var(--h-gray-light); border-radius:6px; text-decoration:none;">
+        <strong style="color:var(--h-navy); font-size:14px; display:block; margin-bottom:4px;">Free Tools</strong>
+        <span style="color:var(--h-gray-text); font-size:13px;">Calculators, checkers, and assessments</span>
+      </a>
+    </div>
+  </div>
+
+</article>
+{% endblock %}

@@ -1,0 +1,432 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .tool-form-area { background: var(--h-gray-bg); border: 1px solid var(--h-gray-light); border-radius: 8px; padding: 32px; margin: 24px 0 32px; }
+  .tool-form-area label { display: block; font-size: 14px; font-weight: 600; color: var(--h-navy); margin-bottom: 6px; margin-top: 16px; }
+  .tool-form-area label:first-child { margin-top: 0; }
+  .tool-form-area input, .tool-form-area select { width: 100%; padding: 10px 12px; border: 1px solid var(--h-gray-light); border-radius: 6px; font-size: 15px; color: var(--h-dark-text); background: white; box-sizing: border-box; }
+  .tool-form-area input:focus, .tool-form-area select:focus { outline: none; border-color: var(--h-teal); box-shadow: 0 0 0 3px rgba(0,169,157,0.1); }
+  .tool-form-area .hint { font-size: 12px; color: var(--h-gray-text); margin-top: 4px; }
+  .tool-form-area .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:580px){ .tool-form-area .field-row { grid-template-columns: 1fr; } }
+  .tool-btn { display: inline-block; padding: 12px 32px; background: var(--h-teal); color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: background 0.15s; }
+  .tool-btn:hover { background: var(--h-navy); }
+  .tool-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .tool-result { margin-top: 24px; padding: 24px; background: white; border: 2px solid var(--h-teal); border-radius: 8px; display: none; }
+  .tool-result.show { display: block; }
+  .tool-result h3 { font-family: var(--font-serif); font-size: 20px; color: var(--h-navy); margin-bottom: 12px; }
+  .result-score { font-size: 48px; font-weight: 700; color: var(--h-teal); margin: 8px 0; }
+  .result-label { font-size: 16px; color: var(--h-gray-text); }
+  .result-bar { height: 12px; background: #e5e7eb; border-radius: 6px; margin: 12px 0; overflow: hidden; }
+  .result-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; }
+  .result-item { padding: 12px 0; border-bottom: 1px solid var(--h-gray-light); }
+  .result-item:last-child { border-bottom: 0; }
+  .result-item .ri-label { font-size: 14px; color: var(--h-gray-text); }
+  .result-item .ri-value { font-size: 16px; font-weight: 600; color: var(--h-navy); }
+  .risk-low { color: #059669; } .risk-moderate { color: #d97706; } .risk-high { color: #dc2626; }
+  .tool-outputs { background: var(--white); border: 1px solid var(--h-gray-light); border-radius: 6px; padding: 20px 24px; margin: 16px 0; }
+  .tool-outputs h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 12px; }
+  .tool-outputs ul { margin-left: 20px; color: var(--h-dark-text); }
+  .tool-outputs li { margin-bottom: 8px; font-size: 15px; }
+  .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  @media(max-width:580px){ .symptom-grid { grid-template-columns: 1fr; } }
+  .symptom-grid label { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: white; border-radius: 4px; border: 1px solid var(--h-gray-light); cursor: pointer; font-size: 14px; font-weight: 400; margin: 0; }
+  .symptom-grid label:hover { border-color: var(--h-teal); }
+  .symptom-grid input[type="checkbox"] { accent-color: var(--h-teal); }
+</style>
+{% endblock %}
+
+{% block content %}
+<article class="container">
+
+  <nav class="breadcrumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a><span>/</span>
+    <a href="/tools">Tools</a><span>/</span>
+    <span>{{ tool.name }}</span>
+  </nav>
+
+  <header style="margin-bottom:24px;">
+    <h1 style="font-family:var(--font-serif); font-size:32px; color:var(--h-navy); margin:12px 0 10px; line-height:1.2;">{{ tool.name }}</h1>
+    <p style="font-size:16px; color:var(--h-dark-text); line-height:1.6; max-width:640px;">{{ tool.description }}</p>
+  </header>
+
+  <div class="tool-form-area" id="tool-calculator">
+
+    {# ── Metabolic Health Score Calculator ── #}
+    {% if tool.slug == 'metabolic-score' %}
+    <form id="metabolic-form" onsubmit="return calcMetabolic(event)">
+      <div class="field-row">
+        <div><label for="ms-sex">Biological Sex</label>
+        <select id="ms-sex"><option value="male">Male</option><option value="female">Female</option></select></div>
+        <div><label for="ms-age">Age</label>
+        <input type="number" id="ms-age" placeholder="e.g. 42" min="18" max="100"></div>
+      </div>
+      <label for="ms-waist">Waist Circumference (inches)</label>
+      <input type="number" id="ms-waist" step="0.1" placeholder="e.g. 36">
+      <div class="hint">Measure at the navel while standing, after exhaling normally</div>
+      <div class="field-row">
+        <div><label for="ms-trig">Triglycerides (mg/dL)</label>
+        <input type="number" id="ms-trig" placeholder="e.g. 120"><div class="hint">Leave blank if unknown</div></div>
+        <div><label for="ms-hdl">HDL Cholesterol (mg/dL)</label>
+        <input type="number" id="ms-hdl" placeholder="e.g. 55"><div class="hint">Leave blank if unknown</div></div>
+      </div>
+      <div class="field-row">
+        <div><label for="ms-sbp">Systolic BP (mmHg)</label>
+        <input type="number" id="ms-sbp" placeholder="e.g. 125"></div>
+        <div><label for="ms-dbp">Diastolic BP (mmHg)</label>
+        <input type="number" id="ms-dbp" placeholder="e.g. 82"></div>
+      </div>
+      <label for="ms-glucose">Fasting Glucose (mg/dL)</label>
+      <input type="number" id="ms-glucose" placeholder="e.g. 95">
+      <div class="hint">Leave blank if unknown</div>
+      <button type="submit" class="tool-btn">Calculate Metabolic Score</button>
+    </form>
+    <div id="metabolic-result" class="tool-result"></div>
+
+    {# ── Insulin Resistance Risk Calculator ── #}
+    {% elif tool.slug == 'insulin-resistance-calculator' %}
+    <form id="ir-form" onsubmit="return calcIR(event)">
+      <div class="field-row">
+        <div><label for="ir-insulin">Fasting Insulin (μIU/mL)</label>
+        <input type="number" id="ir-insulin" step="0.1" placeholder="e.g. 8.5"></div>
+        <div><label for="ir-glucose">Fasting Glucose (mg/dL)</label>
+        <input type="number" id="ir-glucose" placeholder="e.g. 92"></div>
+      </div>
+      <label for="ir-trig">Triglycerides (mg/dL) — optional</label>
+      <input type="number" id="ir-trig" placeholder="e.g. 145">
+      <label for="ir-hdl">HDL Cholesterol (mg/dL) — optional</label>
+      <input type="number" id="ir-hdl" placeholder="e.g. 48">
+      <label for="ir-waist">Waist Circumference (inches) — optional</label>
+      <input type="number" id="ir-waist" step="0.1" placeholder="e.g. 38">
+      <button type="submit" class="tool-btn">Calculate Insulin Resistance Risk</button>
+    </form>
+    <div id="ir-result" class="tool-result"></div>
+
+    {# ── Hormone Symptom Checker ── #}
+    {% elif tool.slug == 'hormone-checker' %}
+    <form id="hormone-form" onsubmit="return calcHormone(event)">
+      <div class="field-row">
+        <div><label for="hc-sex">Biological Sex</label>
+        <select id="hc-sex"><option value="male">Male</option><option value="female">Female</option></select></div>
+        <div><label for="hc-age">Age</label>
+        <input type="number" id="hc-age" placeholder="e.g. 45" min="18" max="100"></div>
+      </div>
+      <p style="font-weight:600; color:var(--h-navy); margin:20px 0 10px; font-size:15px;">Check all symptoms you experience regularly:</p>
+      <div class="symptom-grid" id="hc-symptoms">
+        <label><input type="checkbox" data-h="t,c" value="fatigue"> Persistent fatigue</label>
+        <label><input type="checkbox" data-h="t" value="muscle_loss"> Loss of muscle mass</label>
+        <label><input type="checkbox" data-h="t" value="low_libido"> Reduced sex drive</label>
+        <label><input type="checkbox" data-h="t" value="ed"> Erectile difficulties (men)</label>
+        <label><input type="checkbox" data-h="th" value="weight_gain"> Unexplained weight gain</label>
+        <label><input type="checkbox" data-h="th" value="cold"> Cold intolerance</label>
+        <label><input type="checkbox" data-h="th" value="hair_loss"> Hair thinning/loss</label>
+        <label><input type="checkbox" data-h="th" value="dry_skin"> Dry skin</label>
+        <label><input type="checkbox" data-h="th" value="constipation"> Constipation</label>
+        <label><input type="checkbox" data-h="c" value="anxiety"> Anxiety or irritability</label>
+        <label><input type="checkbox" data-h="c" value="sleep"> Difficulty sleeping</label>
+        <label><input type="checkbox" data-h="c" value="belly_fat"> Belly fat accumulation</label>
+        <label><input type="checkbox" data-h="c" value="brain_fog"> Brain fog</label>
+        <label><input type="checkbox" data-h="e" value="hot_flashes"> Hot flashes</label>
+        <label><input type="checkbox" data-h="e" value="night_sweats"> Night sweats</label>
+        <label><input type="checkbox" data-h="e" value="mood_swings"> Mood swings</label>
+        <label><input type="checkbox" data-h="e" value="irregular_periods"> Irregular periods (women)</label>
+        <label><input type="checkbox" data-h="t" value="depression"> Low mood / depression</label>
+        <label><input type="checkbox" data-h="th" value="fatigue_morning"> Morning fatigue despite sleep</label>
+        <label><input type="checkbox" data-h="c" value="wired"> Feeling wired but tired at night</label>
+      </div>
+      <button type="submit" class="tool-btn">Analyze Hormone Symptoms</button>
+    </form>
+    <div id="hormone-result" class="tool-result"></div>
+
+    {# ── Sleep Recovery Score ── #}
+    {% elif tool.slug == 'sleep-score' %}
+    <form id="sleep-form" onsubmit="return calcSleep(event)">
+      <label for="sl-hours">Average hours of sleep per night</label>
+      <input type="number" id="sl-hours" step="0.5" min="0" max="16" placeholder="e.g. 7">
+      <label for="sl-quality">How would you rate your sleep quality?</label>
+      <select id="sl-quality"><option value="3">Very good</option><option value="2" selected>Fairly good</option><option value="1">Fairly bad</option><option value="0">Very bad</option></select>
+      <label for="sl-latency">How long does it typically take to fall asleep?</label>
+      <select id="sl-latency"><option value="3">Less than 15 minutes</option><option value="2">15-30 minutes</option><option value="1">31-60 minutes</option><option value="0">More than 60 minutes</option></select>
+      <label for="sl-wakeups">How often do you wake during the night?</label>
+      <select id="sl-wakeups"><option value="3">Rarely (0-1 times)</option><option value="2">Sometimes (2-3 times)</option><option value="1">Often (4+ times)</option><option value="0">Almost every hour</option></select>
+      <label for="sl-daytime">How often do you feel excessively sleepy during the day?</label>
+      <select id="sl-daytime"><option value="3">Never</option><option value="2">Rarely</option><option value="1">Sometimes</option><option value="0">Almost daily</option></select>
+      <label for="sl-snore">Do you snore or has anyone noticed you stop breathing while sleeping?</label>
+      <select id="sl-snore"><option value="3">No</option><option value="2">Occasional light snoring</option><option value="1">Regular loud snoring</option><option value="0">Snoring with witnessed breathing pauses</option></select>
+      <label for="sl-refresh">Do you feel refreshed when you wake up?</label>
+      <select id="sl-refresh"><option value="3">Yes, almost always</option><option value="2" selected>Sometimes</option><option value="1">Rarely</option><option value="0">Almost never</option></select>
+      <button type="submit" class="tool-btn">Calculate Sleep Score</button>
+    </form>
+    <div id="sleep-result" class="tool-result"></div>
+
+    {# ── Energy Optimization Assessment ── #}
+    {% elif tool.slug == 'energy-assessment' %}
+    <form id="energy-form" onsubmit="return calcEnergy(event)">
+      <div class="field-row">
+        <div><label for="ea-age">Age</label>
+        <input type="number" id="ea-age" min="18" max="100" placeholder="e.g. 38"></div>
+        <div><label for="ea-sex">Biological Sex</label>
+        <select id="ea-sex"><option value="male">Male</option><option value="female">Female</option></select></div>
+      </div>
+      <p style="font-weight:600; color:var(--h-navy); margin:20px 0 8px;">Rate each area from 1 (very poor) to 5 (excellent):</p>
+      <label for="ea-morning">Morning energy level</label>
+      <select id="ea-morning"><option value="1">1 — Very poor</option><option value="2">2 — Poor</option><option value="3" selected>3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select>
+      <label for="ea-afternoon">Afternoon energy level</label>
+      <select id="ea-afternoon"><option value="1">1 — Very poor</option><option value="2">2 — Poor</option><option value="3" selected>3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select>
+      <label for="ea-exercise">Post-exercise recovery</label>
+      <select id="ea-exercise"><option value="1">1 — Very poor</option><option value="2">2 — Poor</option><option value="3" selected>3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select>
+      <label for="ea-mental">Mental clarity & focus</label>
+      <select id="ea-mental"><option value="1">1 — Very poor</option><option value="2">2 — Poor</option><option value="3" selected>3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select>
+      <label for="ea-sleep">Sleep quality</label>
+      <select id="ea-sleep"><option value="1">1 — Very poor</option><option value="2">2 — Poor</option><option value="3" selected>3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select>
+      <label for="ea-stress">Stress management</label>
+      <select id="ea-stress"><option value="1">1 — Very poor</option><option value="2">2 — Poor</option><option value="3" selected>3 — Average</option><option value="4">4 — Good</option><option value="5">5 — Excellent</option></select>
+      <button type="submit" class="tool-btn">Calculate Energy Score</button>
+    </form>
+    <div id="energy-result" class="tool-result"></div>
+
+    {% else %}
+    <div class="placeholder">
+      <h3>{{ tool.name }}</h3>
+      <p>Interactive calculator coming soon.</p>
+    </div>
+    {% endif %}
+  </div>
+
+  {% if tool.outputs %}
+  <div class="tool-outputs">
+    <h3>What You'll Get</h3>
+    <ul>
+      {% for output in tool.outputs %}
+      <li>{{ output }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <div class="medical-disclaimer">
+    <strong>Medical Disclaimer:</strong> This tool provides estimates for educational purposes only. Results are not a diagnosis. Consult a healthcare provider for clinical interpretation of your results.
+  </div>
+
+  <div style="text-align:center; margin:40px 0 16px; padding:24px; background:var(--h-gray-bg); border-radius:8px;">
+    <h3 style="font-family:var(--font-serif); color:var(--h-navy); margin-bottom:8px;">Want a personalized analysis?</h3>
+    <p style="color:var(--h-gray-text); margin-bottom:16px; font-size:15px;">Our free assessment combines your symptom profile with metabolic and hormonal risk factors for a more complete picture.</p>
+    <a href="/assessment" class="btn-primary">Get a Personalized Analysis →</a>
+  </div>
+
+</article>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+function _$(id){return document.getElementById(id)}
+function _v(id){var e=_$(id);return e?parseFloat(e.value):NaN}
+function _sv(id){var e=_$(id);return e?e.value:''}
+function _show(id,html){var el=_$(id);el.innerHTML=html;el.classList.add('show');el.scrollIntoView({behavior:'smooth',block:'nearest'})}
+function _bar(pct,color){return '<div class="result-bar"><div class="result-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'}
+function _riskClass(level){return level==='low'?'risk-low':level==='moderate'?'risk-moderate':'risk-high'}
+function _riskColor(level){return level==='low'?'#059669':level==='moderate'?'#d97706':'#dc2626'}
+
+/* ── Metabolic Health Score Calculator ── */
+function calcMetabolic(e){
+  e.preventDefault();
+  var sex=_sv('ms-sex'),waist=_v('ms-waist'),trig=_v('ms-trig'),hdl=_v('ms-hdl'),
+      sbp=_v('ms-sbp'),dbp=_v('ms-dbp'),glucose=_v('ms-glucose');
+  var score=0,total=0,details=[];
+  if(!isNaN(waist)){total++;
+    var ok=sex==='female'?waist<35:waist<40;
+    if(ok){score++;details.push({label:'Waist Circumference',val:waist+'"',status:'Optimal',risk:'low'})}
+    else{details.push({label:'Waist Circumference',val:waist+'"',status:'Above threshold ('+(sex==='female'?'≥35"':'≥40"')+')',risk:'high'})}
+  }
+  if(!isNaN(trig)){total++;
+    if(trig<150){score++;details.push({label:'Triglycerides',val:trig+' mg/dL',status:'Optimal (<150)',risk:'low'})}
+    else{details.push({label:'Triglycerides',val:trig+' mg/dL',status:'Elevated (≥150)',risk:trig>=200?'high':'moderate'})}
+  }
+  if(!isNaN(hdl)){total++;
+    var hdlOk=sex==='female'?hdl>=50:hdl>=40;
+    if(hdlOk){score++;details.push({label:'HDL Cholesterol',val:hdl+' mg/dL',status:'Optimal',risk:'low'})}
+    else{details.push({label:'HDL Cholesterol',val:hdl+' mg/dL',status:'Below threshold ('+(sex==='female'?'<50':'<40')+')',risk:'high'})}
+  }
+  if(!isNaN(sbp)&&!isNaN(dbp)){total++;
+    if(sbp<120&&dbp<80){score++;details.push({label:'Blood Pressure',val:sbp+'/'+dbp+' mmHg',status:'Optimal',risk:'low'})}
+    else{details.push({label:'Blood Pressure',val:sbp+'/'+dbp+' mmHg',status:sbp>=140||dbp>=90?'High':'Elevated',risk:sbp>=140||dbp>=90?'high':'moderate'})}
+  }
+  if(!isNaN(glucose)){total++;
+    if(glucose<100){score++;details.push({label:'Fasting Glucose',val:glucose+' mg/dL',status:glucose<90?'Optimal':'Normal (borderline)',risk:glucose<90?'low':'moderate'})}
+    else{details.push({label:'Fasting Glucose',val:glucose+' mg/dL',status:glucose>=126?'Diabetic range':'Pre-diabetic range',risk:glucose>=126?'high':'moderate'})}
+  }
+  if(total===0){alert('Please enter at least one measurement.');return false}
+  var pct=Math.round(score/total*100);
+  var risk=pct>=80?'low':pct>=50?'moderate':'high';
+  var html='<h3>Your Metabolic Health Score</h3>';
+  html+='<div class="result-score" style="color:'+_riskColor(risk)+'">'+score+' / '+total+'</div>';
+  html+='<div class="result-label">criteria met ('+pct+'%)</div>';
+  html+=_bar(pct,_riskColor(risk));
+  html+='<p style="margin:16px 0;font-size:15px;color:var(--h-dark-text);">';
+  if(score===total) html+='All measured criteria are optimal. A 2022 JACC study found only 6.8% of US adults meet all five criteria.';
+  else if(score>=total-1) html+='You meet most criteria. Focus on the flagged marker(s) below to reach full metabolic health.';
+  else html+='Multiple markers need attention. A comprehensive metabolic panel with fasting insulin and HOMA-IR can reveal the root cause.';
+  html+='</p>';
+  for(var i=0;i<details.length;i++){
+    var d=details[i];
+    html+='<div class="result-item"><div class="ri-label">'+d.label+'</div><div class="ri-value '+_riskClass(d.risk)+'">'+d.val+' — '+d.status+'</div></div>';
+  }
+  if(total<5) html+='<p style="margin-top:16px;font-size:13px;color:var(--h-gray-text);">You left '+(5-total)+' marker(s) blank. Enter all five for the most complete picture.</p>';
+  _show('metabolic-result',html);
+  return false;
+}
+
+/* ── Insulin Resistance Risk Calculator ── */
+function calcIR(e){
+  e.preventDefault();
+  var insulin=_v('ir-insulin'),glucose=_v('ir-glucose');
+  if(isNaN(insulin)||isNaN(glucose)){alert('Fasting insulin and fasting glucose are required.');return false}
+  var homa=(insulin*glucose)/405;
+  var details=[];
+  var irRisk=homa<1.0?'low':homa<1.5?'low':homa<2.5?'moderate':'high';
+  details.push({label:'HOMA-IR',val:homa.toFixed(2),status:homa<1.0?'Optimal (<1.0)':homa<1.5?'Low risk (1.0-1.5)':homa<2.5?'Moderate IR (1.5-2.5)':homa<3.0?'Significant IR (2.5-3.0)':'Consistent with metabolic syndrome (>3.0)',risk:irRisk});
+  details.push({label:'Fasting Insulin',val:insulin+' μIU/mL',status:insulin<5?'Optimal (<5)':insulin<7?'Good (5-7)':insulin<10?'Mild IR (7-10)':insulin<15?'Moderate IR (10-15)':'Significant IR (>15)',risk:insulin<7?'low':insulin<10?'moderate':'high'});
+  details.push({label:'Fasting Glucose',val:glucose+' mg/dL',status:glucose<90?'Optimal':glucose<100?'Normal (borderline)':glucose<126?'Pre-diabetic range':'Diabetic range',risk:glucose<100?'low':glucose<126?'moderate':'high'});
+  var trig=_v('ir-trig'),hdl=_v('ir-hdl');
+  if(!isNaN(trig)&&!isNaN(hdl)&&hdl>0){
+    var ratio=(trig/hdl).toFixed(1);
+    details.push({label:'Triglyceride/HDL Ratio',val:ratio,status:ratio<1.5?'Optimal (<1.5)':ratio<2.0?'Good (1.5-2.0)':ratio<3.0?'Elevated (2.0-3.0)':'High IR risk (>3.0)',risk:ratio<2.0?'low':ratio<3.0?'moderate':'high'});
+  }
+  var waist=_v('ir-waist');
+  if(!isNaN(waist)){
+    details.push({label:'Waist Circumference',val:waist+'"',status:waist>40?'High risk (>40")':waist>35?'Elevated risk (>35")':'Lower risk',risk:waist>40?'high':waist>35?'moderate':'low'});
+  }
+  var pct=Math.min(100,Math.round(homa/4*100));
+  var html='<h3>Insulin Resistance Assessment</h3>';
+  html+='<div class="result-score" style="color:'+_riskColor(irRisk)+'">HOMA-IR: '+homa.toFixed(2)+'</div>';
+  html+=_bar(pct,_riskColor(irRisk));
+  html+='<p style="margin:12px 0;font-size:15px;">';
+  if(homa<1.0) html+='Your HOMA-IR indicates excellent insulin sensitivity. Continue your current health practices.';
+  else if(homa<1.5) html+='Mild elevation. Lifestyle optimization (diet, exercise, sleep) can keep this in the optimal range.';
+  else if(homa<2.5) html+='Moderate insulin resistance. Targeted dietary and exercise interventions typically improve HOMA-IR within 8-12 weeks.';
+  else html+='Significant insulin resistance detected. We recommend reviewing our metabolic health guide and considering a comprehensive lab panel.';
+  html+='</p>';
+  for(var i=0;i<details.length;i++){
+    var d=details[i];
+    html+='<div class="result-item"><div class="ri-label">'+d.label+'</div><div class="ri-value '+_riskClass(d.risk)+'">'+d.val+' — '+d.status+'</div></div>';
+  }
+  _show('ir-result',html);
+  return false;
+}
+
+/* ── Hormone Symptom Checker ── */
+function calcHormone(e){
+  e.preventDefault();
+  var sex=_sv('hc-sex'),age=_v('hc-age');
+  var checks=document.querySelectorAll('#hc-symptoms input[type=checkbox]:checked');
+  if(checks.length===0){alert('Please select at least one symptom.');return false}
+  var scores={t:0,th:0,c:0,e:0};
+  var names={t:'Low Testosterone',th:'Thyroid Dysfunction',c:'Cortisol Dysregulation',e:'Estrogen Imbalance'};
+  var colors={t:'#2563eb',th:'#7c3aed',c:'#d97706',e:'#ec4899'};
+  checks.forEach(function(cb){
+    var h=cb.getAttribute('data-h').split(',');
+    h.forEach(function(k){if(scores[k]!==undefined)scores[k]++});
+  });
+  var maxPossible={t:5,th:5,c:5,e:4};
+  var html='<h3>Hormone Symptom Analysis</h3>';
+  html+='<p style="margin-bottom:16px;font-size:15px;">Based on '+checks.length+' reported symptom(s), here is the likelihood that each hormonal pathway is involved:</p>';
+  var sorted=Object.keys(scores).sort(function(a,b){return scores[b]-scores[a]});
+  sorted.forEach(function(k){
+    var pct=Math.round(scores[k]/maxPossible[k]*100);
+    var risk=pct>=60?'high':pct>=30?'moderate':'low';
+    html+='<div style="margin-bottom:16px;">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:baseline;"><strong style="color:'+colors[k]+'">'+names[k]+'</strong><span class="'+_riskClass(risk)+'" style="font-weight:600">'+scores[k]+'/'+maxPossible[k]+' symptoms</span></div>';
+    html+=_bar(pct,colors[k]);
+    html+='</div>';
+  });
+  html+='<div style="padding:16px;background:var(--h-gray-bg);border-radius:6px;margin-top:16px;">';
+  html+='<strong>Recommended Lab Panel:</strong><ul style="margin:8px 0 0 20px;font-size:14px;">';
+  if(scores.t>=2) html+='<li>Total testosterone, free testosterone, SHBG, LH, FSH'+(sex==='male'?', estradiol, prolactin':'')+'</li>';
+  if(scores.th>=2) html+='<li>TSH, free T3, free T4, reverse T3, TPO antibodies</li>';
+  if(scores.c>=2) html+='<li>AM cortisol (serum) or 4-point salivary cortisol, DHEA-S</li>';
+  if(scores.e>=2) html+='<li>Estradiol, progesterone'+(sex==='female'?' (cycle day 21 if premenopausal)':'')+', SHBG</li>';
+  if(scores.t<2&&scores.th<2&&scores.c<2&&scores.e<2) html+='<li>Comprehensive hormone panel (few strong symptom clusters — broad testing recommended)</li>';
+  html+='</ul></div>';
+  _show('hormone-result',html);
+  return false;
+}
+
+/* ── Sleep Recovery Score ── */
+function calcSleep(e){
+  e.preventDefault();
+  var hours=_v('sl-hours');
+  if(isNaN(hours)){alert('Please enter your average sleep hours.');return false}
+  var quality=parseInt(_sv('sl-quality')),latency=parseInt(_sv('sl-latency')),wakeups=parseInt(_sv('sl-wakeups')),
+      daytime=parseInt(_sv('sl-daytime')),snore=parseInt(_sv('sl-snore')),refresh=parseInt(_sv('sl-refresh'));
+  var durationScore=hours>=7&&hours<=9?3:hours>=6?2:hours>=5?1:0;
+  var raw=durationScore+quality+latency+wakeups+daytime+snore+refresh;
+  var maxScore=21;
+  var pct=Math.round(raw/maxScore*100);
+  var risk=pct>=75?'low':pct>=50?'moderate':'high';
+  var html='<h3>Sleep Recovery Score</h3>';
+  html+='<div class="result-score" style="color:'+_riskColor(risk)+'">'+pct+'<span style="font-size:20px;color:var(--h-gray-text)"> / 100</span></div>';
+  html+='<div class="result-label">'+(pct>=75?'Good recovery — room for optimization':pct>=50?'Moderate — sleep quality is impacting your recovery':'Poor — sleep is significantly impacting your health')+'</div>';
+  html+=_bar(pct,_riskColor(risk));
+  var flags=[];
+  if(durationScore<2) flags.push('Sleep duration is below the recommended 7-9 hours for adults (AASM guidelines).');
+  if(latency<2) flags.push('Taking more than 30 minutes to fall asleep (sleep onset latency) may indicate hyperarousal, anxiety, or circadian disruption.');
+  if(wakeups<2) flags.push('Frequent nighttime awakenings fragment sleep architecture, reducing restorative deep sleep and REM.');
+  if(snore<2) flags.push('<strong>Snoring with breathing pauses is the hallmark symptom of obstructive sleep apnea (OSA).</strong> Consider a sleep study — OSA affects 15-30% of men and 10-15% of women, and many are undiagnosed.');
+  if(refresh<2) flags.push('Not feeling refreshed despite adequate sleep time suggests poor sleep quality — possibly fragmented deep sleep, sleep apnea, or cortisol dysregulation.');
+  if(daytime<2) flags.push('Excessive daytime sleepiness (Epworth-style indicator) suggests either insufficient sleep quality or an underlying sleep disorder.');
+  if(flags.length>0){
+    html+='<div style="margin-top:20px;"><strong>Key Findings:</strong><ul style="margin:8px 0 0 20px;font-size:14px;line-height:1.6;">';
+    flags.forEach(function(f){html+='<li style="margin-bottom:8px;">'+f+'</li>'});
+    html+='</ul></div>';
+  }
+  if(pct<60){
+    html+='<div style="padding:16px;background:var(--h-gray-bg);border-radius:6px;margin-top:16px;"><strong>Recommended Testing:</strong><ul style="margin:8px 0 0 20px;font-size:14px;"><li>4-point salivary cortisol (assess cortisol rhythm)</li><li>Thyroid panel (TSH, free T3, free T4)</li><li>Iron/ferritin (ferritin below 50 impairs sleep quality)</li><li>Sleep study referral if snoring/apnea symptoms present</li></ul></div>';
+  }
+  _show('sleep-result',html);
+  return false;
+}
+
+/* ── Energy Optimization Assessment ── */
+function calcEnergy(e){
+  e.preventDefault();
+  var morning=parseInt(_sv('ea-morning')),afternoon=parseInt(_sv('ea-afternoon')),
+      exercise=parseInt(_sv('ea-exercise')),mental=parseInt(_sv('ea-mental')),
+      sleep=parseInt(_sv('ea-sleep')),stress=parseInt(_sv('ea-stress'));
+  var domains={
+    metabolic:{score:(morning+afternoon)/2,label:'Metabolic Energy',desc:'Blood sugar regulation, mitochondrial function, body composition'},
+    hormonal:{score:(exercise+mental)/2,label:'Hormonal Health',desc:'Testosterone, thyroid, cortisol, recovery hormones'},
+    recovery:{score:(sleep+stress)/2,label:'Recovery Quality',desc:'Sleep architecture, stress response, autonomic balance'}
+  };
+  var total=morning+afternoon+exercise+mental+sleep+stress;
+  var pct=Math.round(total/30*100);
+  var risk=pct>=70?'low':pct>=45?'moderate':'high';
+  var html='<h3>Energy Optimization Score</h3>';
+  html+='<div class="result-score" style="color:'+_riskColor(risk)+'">'+pct+'<span style="font-size:20px;color:var(--h-gray-text)"> / 100</span></div>';
+  html+=_bar(pct,_riskColor(risk));
+  html+='<div style="margin-top:20px;">';
+  var dkeys=['metabolic','hormonal','recovery'];
+  var dcolors=['#059669','#2563eb','#7c3aed'];
+  dkeys.forEach(function(k,i){
+    var d=domains[k];
+    var dpct=Math.round(d.score/5*100);
+    var dr=dpct>=60?'low':dpct>=40?'moderate':'high';
+    html+='<div style="margin-bottom:16px;">';
+    html+='<div style="display:flex;justify-content:space-between;"><strong style="color:'+dcolors[i]+'">'+d.label+'</strong><span class="'+_riskClass(dr)+'" style="font-weight:600">'+d.score.toFixed(1)+' / 5.0</span></div>';
+    html+='<div class="result-bar"><div class="result-bar-fill" style="width:'+dpct+'%;background:'+dcolors[i]+'"></div></div>';
+    html+='<div style="font-size:12px;color:var(--h-gray-text);">'+d.desc+'</div>';
+    html+='</div>';
+  });
+  html+='</div>';
+  var weakest=dkeys.reduce(function(a,b){return domains[a].score<domains[b].score?a:b});
+  var recs={
+    metabolic:'Your metabolic energy domain scored lowest. This may indicate blood sugar dysregulation, insulin resistance, or suboptimal body composition. Recommended labs: fasting insulin, HOMA-IR, HbA1c, lipid panel, hs-CRP.',
+    hormonal:'Your hormonal health domain scored lowest. This may indicate testosterone deficiency, thyroid dysfunction, or cortisol dysregulation. Recommended labs: total and free testosterone, TSH/free T3/free T4, AM cortisol, DHEA-S.',
+    recovery:'Your recovery domain scored lowest. This may indicate poor sleep quality, chronic stress, or autonomic dysfunction. Recommended: 4-point salivary cortisol, iron/ferritin, sleep study if snoring is present, HRV tracking.'
+  };
+  html+='<div style="padding:16px;background:var(--h-gray-bg);border-radius:6px;margin-top:16px;"><strong>Primary Focus Area:</strong><p style="margin-top:8px;font-size:14px;line-height:1.6;">'+recs[weakest]+'</p></div>';
+  _show('energy-result',html);
+  return false;
+}
+</script>
+{% endblock %}

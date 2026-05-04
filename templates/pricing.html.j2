@@ -1,0 +1,194 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .page-hero {
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 56px 24px 48px;
+    text-align: center;
+  }
+  .page-hero h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin-bottom: 14px; }
+  .page-hero p { color: rgba(255,255,255,0.7); max-width: 520px; margin: 0 auto; font-size: 17px; line-height: 1.55; }
+
+  .pricing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin: 48px 0 56px;
+  }
+  .price-card {
+    border: 1px solid var(--h-gray-light);
+    border-radius: 8px;
+    padding: 32px 28px;
+    display: flex;
+    flex-direction: column;
+  }
+  .price-card.featured {
+    border-color: var(--h-teal);
+    box-shadow: 0 4px 24px rgba(13, 148, 136, 0.12);
+    position: relative;
+  }
+  .featured-badge {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--h-teal);
+    color: var(--white);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 4px 14px;
+    border-radius: 3px;
+  }
+  .price-card h3 { font-family: var(--font-serif); font-size: 20px; color: var(--h-navy); margin-bottom: 8px; }
+  .price-amount {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--h-navy);
+    margin-bottom: 4px;
+  }
+  .price-amount .period { font-size: 16px; font-weight: 400; color: var(--h-gray-text); }
+  .price-desc { font-size: 14px; color: var(--h-gray-text); margin-bottom: 20px; line-height: 1.5; }
+  .price-features { list-style: none; padding: 0; margin: 0 0 24px; flex: 1; }
+  .price-features li {
+    padding: 8px 0;
+    font-size: 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    border-bottom: 1px solid var(--h-gray-light);
+  }
+  .price-features li:last-child { border-bottom: 0; }
+  .price-features li::before {
+    content: "✓";
+    color: var(--h-teal);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .price-card .btn-primary, .price-card .btn-secondary { width: 100%; text-align: center; }
+
+  .pricing-faq { margin-bottom: 56px; }
+  .pricing-faq h2 { font-family: var(--font-serif); font-size: 24px; color: var(--h-navy); margin-bottom: 20px; }
+  .faq-item { border-bottom: 1px solid var(--h-gray-light); }
+  .faq-q {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 16px 0;
+    background: none;
+    border: 0;
+    text-align: left;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--h-navy);
+    gap: 12px;
+  }
+  .faq-q::after { content: "+"; font-size: 20px; color: var(--h-teal); flex-shrink: 0; }
+  .faq-item.is-open .faq-q::after { content: "−"; }
+  .faq-a { display: none; padding: 0 0 16px; font-size: 14.5px; color: var(--h-dark-text); line-height: 1.6; }
+  .faq-item.is-open .faq-a { display: block; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1>Simple, Transparent Pricing</h1>
+  <p>Start with a free assessment. Upgrade when you're ready for lab analysis and a full protocol.</p>
+</section>
+
+<div class="container-wide">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> Pricing
+  </nav>
+
+  <div class="pricing-grid">
+    <div class="price-card">
+      <h3>Free Assessment</h3>
+      <div class="price-amount">Free</div>
+      <p class="price-desc">A comprehensive symptom assessment (5–10 minutes) to identify metabolic, hormonal, and recovery risk factors — no payment required.</p>
+      <ul class="price-features">
+        <li>Comprehensive symptom questionnaire</li>
+        <li>Personalized risk score for metabolic, hormonal, and recovery health</li>
+        <li>Recommended lab panel based on your symptoms</li>
+        <li>Program recommendation tailored to your profile</li>
+      </ul>
+      <a class="btn-secondary" href="/assessment">Start Free Assessment</a>
+    </div>
+
+    <div class="price-card featured">
+      <span class="featured-badge">Most Popular</span>
+      <h3>Comprehensive Analysis</h3>
+      <div class="price-amount">$499</div>
+      <p class="price-desc">Full lab work, clinician-reviewed analysis, and a personalized protocol — comparable to programs like InsideTracker Ultimate ($589) and Parsley Health.</p>
+      <ul class="price-features">
+        <li>Everything in Free Assessment</li>
+        <li>Comprehensive lab panel (15–25 biomarkers depending on program)</li>
+        <li>Clinician review using optimal functional ranges</li>
+        <li>Personalized protocol (nutrition, supplements, lifestyle)</li>
+        <li>Detailed written report with biomarker interpretations</li>
+        <li>One follow-up consultation</li>
+      </ul>
+      <a class="btn-primary" href="/assessment">Get Started →</a>
+    </div>
+
+    <div class="price-card">
+      <h3>Ongoing Optimization</h3>
+      <div class="price-amount">$199<span class="period">/mo</span></div>
+      <p class="price-desc">Continuous monitoring, quarterly re-testing, and protocol adjustments — so your plan evolves with your data.</p>
+      <ul class="price-features">
+        <li>Everything in Comprehensive Analysis</li>
+        <li>Quarterly lab re-testing included</li>
+        <li>Monthly protocol adjustments based on symptoms and progress</li>
+        <li>Direct clinician messaging</li>
+        <li>Wearable data integration and trend analysis</li>
+        <li>Priority scheduling</li>
+      </ul>
+      <a class="btn-primary" href="/assessment">Start with Assessment →</a>
+    </div>
+  </div>
+
+  <p style="text-align:center; font-size:14px; color:var(--h-gray-text); margin:-24px 0 48px; max-width:600px; margin-left:auto; margin-right:auto; line-height:1.6;">
+    Transparent pricing with no hidden fees. Lab costs may vary by location; most insurance covers standard panels. HSA/FSA eligible.
+  </p>
+
+  <div class="pricing-faq">
+    <h2>Common Questions</h2>
+
+    <div class="faq-item">
+      <button class="faq-q" type="button">What's included in the lab panel?</button>
+      <div class="faq-a">The specific markers depend on your assessment results, but typically include metabolic markers (fasting insulin, HbA1c, lipid panel), hormonal markers (testosterone, estradiol, thyroid panel, cortisol), and recovery markers (vitamin D, B12, ferritin). We order only what's clinically relevant to your profile.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button">Can I use my own lab results?</button>
+      <div class="faq-a">Yes. If you have recent lab work (within 6 months), we can incorporate those results into your analysis. We may recommend additional markers if your existing panel doesn't cover everything relevant to your symptoms.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button">How is this different from a regular doctor visit?</button>
+      <div class="faq-a">We use functional reference ranges rather than standard pathology thresholds, which means we identify suboptimal levels before they become diagnosable conditions. Our protocols are also more specific — targeting root causes rather than managing symptoms with medication.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button">Is there a commitment for the $199/month plan?</button>
+      <div class="faq-a">No long-term commitment. You can cancel the Ongoing Optimization plan at any time. We recommend at least 3 months to see meaningful biomarker improvements, but the decision is yours.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" type="button">Do you accept insurance?</button>
+      <div class="faq-a">We don't bill insurance directly, but we provide detailed invoices that you can submit to your insurance provider for potential reimbursement. Many HSA/FSA accounts cover our services.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.querySelectorAll('.faq-q').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    var item = btn.closest('.faq-item');
+    item.classList.toggle('is-open');
+  });
+});
+</script>
+{% endblock %}

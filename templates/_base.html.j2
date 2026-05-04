@@ -1,9 +1,7 @@
 {#
-  Shared base layout for non-report pages (blog posts, blog index,
-  pillar / sector / sanctions / tools). Inherits the visual identity of
-  the home report — Libre Baskerville + Open Sans + the navy/red palette
-  — but slim, server-side rendered, and gzip-friendly (no embedded report
-  CSS bloat).
+  Shared base layout for the health optimization site. Inherits the visual
+  identity from the original project — Libre Baskerville + Open Sans + a
+  clinical navy/teal palette — but rebranded for metabolic & hormonal health.
 #}
 <!DOCTYPE html>
 <html lang="en">
@@ -14,18 +12,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   {% set _seo = seo|default({}) %}
-  <title>{{ _seo.title|default('Caracas Research') }}</title>
+  <title>{{ _seo.title|default(site_name|default('REPLACE_ME_SITE_NAME')) }}</title>
   <meta name="description" content="{{ _seo.description|default('') }}">
   {% if _seo.keywords %}<meta name="keywords" content="{{ _seo.keywords }}">{% endif %}
-  {% if _seo.news_keywords %}<meta name="news_keywords" content="{{ _seo.news_keywords }}">{% endif %}
-  <meta name="author" content="{{ _seo.site_name|default('Caracas Research') }}">
+  <meta name="author" content="{{ _seo.site_name|default(site_name|default('REPLACE_ME_SITE_NAME')) }}">
   <meta name="robots" content="{{ _seo.robots|default('index, follow, max-image-preview:large, max-snippet:-1') }}">
   <link rel="canonical" href="{{ _seo.canonical|default('') }}">
   <link rel="alternate" hreflang="en" href="{{ _seo.canonical|default('') }}">
   <link rel="alternate" hreflang="x-default" href="{{ _seo.canonical|default('') }}">
 
-  <meta property="og:type" content="{{ _seo.og_type|default('article') }}">
-  <meta property="og:site_name" content="{{ _seo.site_name|default('Caracas Research') }}">
+  <meta property="og:type" content="{{ _seo.og_type|default('website') }}">
+  <meta property="og:site_name" content="{{ _seo.site_name|default(site_name|default('REPLACE_ME_SITE_NAME')) }}">
   <meta property="og:locale" content="{{ _seo.locale|default('en_US') }}">
   <meta property="og:url" content="{{ _seo.canonical|default('') }}">
   <meta property="og:title" content="{{ _seo.title|default('') }}">
@@ -54,33 +51,37 @@
 
   <style>
     :root {
-      --sr-blue: #002b5e;
-      --sr-blue-dark: #001f44;
-      --sr-red: #cc0000;
-      --sr-gray-bg: #f8f9fa;
-      --sr-gray-light: #e9ecef;
-      --sr-gray-text: #6c757d;
-      --sr-dark-text: #212529;
+      --h-navy: #0c1f3f;
+      --h-navy-dark: #071428;
+      --h-teal: #0d9488;
+      --h-teal-dark: #0a7d72;
+      --h-accent: #f59e0b;
+      --h-gray-bg: #f8fafb;
+      --h-gray-light: #e5eaf0;
+      --h-gray-text: #64748b;
+      --h-dark-text: #1e293b;
       --white: #ffffff;
       --font-serif: 'Libre Baskerville', 'Times New Roman', Times, serif;
       --font-sans: 'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     html { scroll-behavior: smooth; }
-    body { font-family: var(--font-sans); background: var(--white); color: var(--sr-dark-text); line-height: 1.65; font-size: 17px; -webkit-font-smoothing: antialiased; }
-    a { color: var(--sr-blue); text-decoration: underline; text-decoration-color: var(--sr-gray-light); text-underline-offset: 3px; }
-    a:hover { color: var(--sr-red); text-decoration-color: var(--sr-red); }
-    /* Top-nav styling — kept identical to templates/report.html.j2 so the
-       header looks the same on every page (homepage, tools, briefings…). */
-    .top-nav { background-color: var(--sr-blue); color: var(--white); padding: 12px 0; font-family: var(--font-sans); }
+    body { font-family: var(--font-sans); background: var(--white); color: var(--h-dark-text); line-height: 1.65; font-size: 17px; -webkit-font-smoothing: antialiased; }
+    a { color: var(--h-teal-dark); text-decoration: underline; text-decoration-color: var(--h-gray-light); text-underline-offset: 3px; }
+    a:hover { color: var(--h-teal); text-decoration-color: var(--h-teal); }
+
+    /* ── Top Nav ── */
+    .top-nav { background-color: var(--h-navy); color: var(--white); padding: 12px 0; font-family: var(--font-sans); }
     .top-nav-inner { max-width: 1140px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
-    .nav-brand { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.5px; color: var(--white); text-decoration: none; display: flex; align-items: center; gap: 12px; line-height: 1; }
-    .nav-brand svg.brand-logo { width: 30px; height: 30px; flex-shrink: 0; display: block; }
-    .nav-links { display: flex; align-items: center; gap: 24px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; line-height: 1; }
+    .nav-brand { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.3px; color: var(--white); text-decoration: none; display: flex; align-items: center; gap: 10px; line-height: 1; }
+    .nav-brand .brand-icon { width: 28px; height: 28px; background: var(--h-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .nav-brand .brand-icon svg { width: 16px; height: 16px; fill: var(--white); }
+    .nav-links { display: flex; align-items: center; gap: 22px; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1; }
     .nav-links a { color: var(--white); text-decoration: none; transition: opacity 0.2s; display: inline-flex; align-items: center; }
     .nav-links a:hover { opacity: 0.8; }
-    .nav-login { background: var(--sr-red); padding: 8px 16px; border-radius: 3px; line-height: 1; }
-    /* Hamburger button — hidden on desktop, shown on <=768px to expose nav-links. */
+    .nav-cta { background: var(--h-teal); padding: 9px 18px; border-radius: 4px; line-height: 1; }
+    .nav-cta:hover { background: var(--h-teal-dark); opacity: 1; }
+
     .nav-toggle { display: none; background: transparent; border: 0; padding: 8px; margin: -8px -4px -8px 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
     .nav-toggle-bar { display: block; width: 24px; height: 2px; background: var(--white); border-radius: 2px; margin: 5px 0; transition: transform 0.2s ease, opacity 0.15s ease; }
     .nav-toggle[aria-expanded="true"] .nav-toggle-bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
@@ -89,126 +90,97 @@
     @media (max-width: 768px) {
       .top-nav-inner { flex-wrap: wrap; }
       .nav-toggle { display: block; }
-      .nav-links { display: none; flex-direction: column; align-items: stretch; width: 100%; gap: 0; margin-top: 12px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.18); font-size: 0.95rem; }
+      .nav-links { display: none; flex-direction: column; align-items: stretch; width: 100%; gap: 0; margin-top: 12px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.95rem; }
       .nav-links a { padding: 14px 4px; border-bottom: 1px solid rgba(255,255,255,0.08); }
       .nav-links a:last-child { border-bottom: 0; }
-      .nav-login { display: inline-block; align-self: flex-start; margin-top: 10px; padding: 10px 18px; }
+      .nav-cta { display: inline-block; align-self: flex-start; margin-top: 10px; padding: 10px 18px; }
       .top-nav.is-open .nav-links { display: flex; }
     }
 
+    /* ── Layout ── */
     .container { max-width: 760px; margin: 0 auto; padding: 0 24px; }
     .container-wide { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
 
-    /* Breadcrumbs row — turned into a flex container so the auto-injected
-       share button sits flush-right on the same line. */
-    .breadcrumbs { font-size: 13px; color: var(--sr-gray-text); margin: 24px 0 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
-    .breadcrumbs a { color: var(--sr-gray-text); }
-    .breadcrumbs span { margin: 0 0; }
-    .breadcrumbs .breadcrumb-share { margin-left: auto; }
+    /* ── Breadcrumbs ── */
+    .breadcrumbs { font-size: 13px; color: var(--h-gray-text); margin: 24px 0 12px; display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .breadcrumbs a { color: var(--h-gray-text); }
 
-    article header h1 { font-family: var(--font-serif); font-size: 38px; line-height: 1.2; color: var(--sr-blue-dark); margin: 12px 0; font-weight: 700; }
-    article header .subtitle { font-family: var(--font-serif); font-style: italic; font-size: 20px; color: var(--sr-gray-text); margin-bottom: 18px; }
-    article header .meta { font-size: 13px; color: var(--sr-gray-text); border-top: 1px solid var(--sr-gray-light); border-bottom: 1px solid var(--sr-gray-light); padding: 12px 0; margin-bottom: 28px; display: flex; gap: 18px; flex-wrap: wrap; }
-    article header .meta strong { color: var(--sr-dark-text); }
-
-    article .body h2 { font-family: var(--font-serif); font-size: 24px; color: var(--sr-blue-dark); margin: 32px 0 12px; font-weight: 700; }
-    article .body h3 { font-family: var(--font-serif); font-size: 19px; color: var(--sr-blue-dark); margin: 24px 0 10px; }
+    /* ── Article ── */
+    article header h1 { font-family: var(--font-serif); font-size: 36px; line-height: 1.2; color: var(--h-navy); margin: 12px 0; font-weight: 700; }
+    article header .subtitle { font-family: var(--font-serif); font-style: italic; font-size: 20px; color: var(--h-gray-text); margin-bottom: 18px; }
+    article header .meta { font-size: 13px; color: var(--h-gray-text); border-top: 1px solid var(--h-gray-light); border-bottom: 1px solid var(--h-gray-light); padding: 12px 0; margin-bottom: 28px; display: flex; gap: 18px; flex-wrap: wrap; }
+    article header .meta strong { color: var(--h-dark-text); }
+    article .body h2 { font-family: var(--font-serif); font-size: 24px; color: var(--h-navy); margin: 32px 0 12px; font-weight: 700; }
+    article .body h3 { font-family: var(--font-serif); font-size: 19px; color: var(--h-navy); margin: 24px 0 10px; }
     article .body p { margin: 0 0 16px; }
     article .body ul, article .body ol { margin: 0 0 16px 24px; }
     article .body li { margin-bottom: 8px; }
-    article .body blockquote { border-left: 3px solid var(--sr-red); padding: 4px 16px; margin: 20px 0; color: var(--sr-gray-text); font-style: italic; font-family: var(--font-serif); }
+    article .body blockquote { border-left: 3px solid var(--h-teal); padding: 4px 16px; margin: 20px 0; color: var(--h-gray-text); font-style: italic; font-family: var(--font-serif); }
 
-    .takeaways { background: var(--sr-gray-bg); border-left: 3px solid var(--sr-blue); padding: 18px 22px; margin: 24px 0 32px; }
-    .takeaways h3 { font-family: var(--font-serif); font-size: 16px; color: var(--sr-blue-dark); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+    /* ── Takeaways / Callout ── */
+    .takeaways { background: var(--h-gray-bg); border-left: 3px solid var(--h-teal); padding: 18px 22px; margin: 24px 0 32px; border-radius: 0 4px 4px 0; }
+    .takeaways h3 { font-family: var(--font-serif); font-size: 16px; color: var(--h-navy); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
     .takeaways ul { margin-left: 20px; }
     .takeaways li { margin-bottom: 6px; font-size: 15px; }
 
-    .source-citation { background: #fff8e1; border-left: 3px solid #f5b041; padding: 14px 18px; margin: 24px 0; font-size: 14px; color: var(--sr-dark-text); }
+    .source-citation { background: #fffbeb; border-left: 3px solid var(--h-accent); padding: 14px 18px; margin: 24px 0; font-size: 14px; color: var(--h-dark-text); border-radius: 0 4px 4px 0; }
     .source-citation a { font-weight: 600; }
 
-    .related { margin: 48px 0 24px; padding-top: 24px; border-top: 1px solid var(--sr-gray-light); }
-    .related h3 { font-family: var(--font-serif); font-size: 18px; color: var(--sr-blue-dark); margin-bottom: 12px; }
-    .related ul { list-style: none; }
-    .related li { padding: 8px 0; border-bottom: 1px dotted var(--sr-gray-light); }
-    .related li a { font-weight: 600; color: var(--sr-blue); text-decoration: none; }
-    .related li small { color: var(--sr-gray-text); margin-left: 8px; }
+    .medical-disclaimer { background: #fef3c7; border-left: 3px solid var(--h-accent); padding: 14px 18px; margin: 24px 0; font-size: 13px; color: #92400e; border-radius: 0 4px 4px 0; }
 
-    /* Canonical 3-card discovery grid (see templates/_card_grid.html.j2).
-       Used everywhere an internal-link "related / latest / cluster"
-       section surfaces 2-6 adjacent pages — briefings rails, sanctions
-       surname clusters, sector siblings, continue-exploring blocks.
-       The visual language matches the /research/sdn/ dossier hub, which
-       established the pattern. Any page extending _base.html.j2 gets
-       these styles for free. */
-    .cr-card-section { margin: 48px 0 24px; padding-top: 24px; border-top: 1px solid var(--sr-gray-light); }
-    .cr-card-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; justify-content: space-between; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid var(--sr-blue); }
-    .cr-card-title { font-family: var(--font-serif); font-size: 22px; color: var(--sr-blue-dark); margin: 0; letter-spacing: -0.3px; line-height: 1.3; }
-    .cr-card-meta { font-size: 13px; color: var(--sr-gray-text); }
-    .cr-card-intro { font-size: 14.5px; color: #495057; line-height: 1.6; margin: 0 0 18px; }
+    /* ── Card Grid ── */
+    .cr-card-section { margin: 48px 0 24px; padding-top: 24px; border-top: 1px solid var(--h-gray-light); }
+    .cr-card-header { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; justify-content: space-between; margin: 0 0 14px; padding-bottom: 10px; border-bottom: 2px solid var(--h-teal); }
+    .cr-card-title { font-family: var(--font-serif); font-size: 22px; color: var(--h-navy); margin: 0; letter-spacing: -0.3px; line-height: 1.3; }
+    .cr-card-meta { font-size: 13px; color: var(--h-gray-text); }
+    .cr-card-intro { font-size: 14.5px; color: #475569; line-height: 1.6; margin: 0 0 18px; }
     .cr-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
-    .cr-card { border: 1px solid #d8e0eb; border-radius: 4px; padding: 18px 20px; background: #fff; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; }
-    .cr-card:hover { border-color: var(--sr-blue); box-shadow: 0 4px 16px rgba(0, 43, 94, 0.08); transform: translateY(-1px); text-decoration: none; }
-    .cr-card-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--sr-red); }
-    .cr-card-eyebrow::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--sr-red); }
-    .cr-card-headline { font-family: var(--font-serif); font-size: 16px; margin: 0; color: #0a1828; line-height: 1.3; font-weight: 700; }
-    .cr-card-raw { font-size: 11.5px; color: #6a7484; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; word-break: break-word; }
-    .cr-card-tagline { font-size: 13.5px; color: #2a3645; line-height: 1.5; flex: 1; margin: 0; }
-    .cr-card-meta-rows { display: flex; gap: 12px; flex-wrap: wrap; font-size: 11.5px; color: #5a6478; padding-top: 10px; border-top: 1px solid #eef2f7; }
-    .cr-card-meta-rows strong { color: #1a2b3d; font-weight: 600; }
-    .cr-card-cta { font-size: 13px; font-weight: 600; color: var(--sr-blue); margin-top: 4px; }
+    .cr-card { border: 1px solid #d8e0eb; border-radius: 6px; padding: 18px 20px; background: #fff; transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s; display: flex; flex-direction: column; gap: 10px; text-decoration: none; color: inherit; }
+    .cr-card:hover { border-color: var(--h-teal); box-shadow: 0 4px 16px rgba(13, 148, 136, 0.1); transform: translateY(-1px); text-decoration: none; }
+    .cr-card-eyebrow { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: var(--h-teal); }
+    .cr-card-eyebrow::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--h-teal); }
+    .cr-card-headline { font-family: var(--font-serif); font-size: 16px; margin: 0; color: var(--h-navy); line-height: 1.3; font-weight: 700; }
+    .cr-card-tagline { font-size: 13.5px; color: #334155; line-height: 1.5; flex: 1; margin: 0; }
+    .cr-card-cta { font-size: 13px; font-weight: 600; color: var(--h-teal-dark); margin-top: 4px; }
     .cr-card-cta::after { content: " →"; }
-    .cr-card-footer { margin-top: 18px; font-size: 14px; }
-    .cr-card-footer a { color: var(--sr-blue); }
 
     .index-grid { display: grid; grid-template-columns: 1fr; gap: 22px; margin: 24px 0 48px; }
     @media (min-width: 720px) { .index-grid { grid-template-columns: 1fr 1fr; } }
-    .index-card { position: relative; background: var(--white); border: 1px solid var(--sr-gray-light); border-radius: 4px; padding: 20px 22px; transition: border-color 0.15s, transform 0.15s; cursor: pointer; }
-    .index-card:hover { border-color: var(--sr-blue); transform: translateY(-1px); }
-    .index-card:hover a.title-link { color: var(--sr-red); }
-    .index-card a.card-link { position: absolute; inset: 0; z-index: 1; text-indent: -9999px; overflow: hidden; border-radius: 4px; }
-    .index-card a.card-link:focus-visible { outline: 2px solid var(--sr-blue); outline-offset: 2px; }
-    .index-card a.title-link { position: relative; z-index: 2; font-family: var(--font-serif); font-weight: 700; font-size: 20px; color: var(--sr-blue-dark); text-decoration: none; line-height: 1.3; display: block; margin-bottom: 8px; pointer-events: none; }
-    .index-card .meta { font-size: 12px; color: var(--sr-gray-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-    .index-card .summary { font-size: 14px; color: var(--sr-dark-text); line-height: 1.55; }
+    .index-card { position: relative; background: var(--white); border: 1px solid var(--h-gray-light); border-radius: 6px; padding: 20px 22px; transition: border-color 0.15s, transform 0.15s; cursor: pointer; }
+    .index-card:hover { border-color: var(--h-teal); transform: translateY(-1px); }
+    .index-card a.card-link { position: absolute; inset: 0; z-index: 1; text-indent: -9999px; overflow: hidden; border-radius: 6px; }
+    .index-card a.title-link { position: relative; z-index: 2; font-family: var(--font-serif); font-weight: 700; font-size: 20px; color: var(--h-navy); text-decoration: none; line-height: 1.3; display: block; margin-bottom: 8px; pointer-events: none; }
+    .index-card .meta { font-size: 12px; color: var(--h-gray-text); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+    .index-card .summary { font-size: 14px; color: var(--h-dark-text); line-height: 1.55; }
 
-    .cr-search-panel { background: #f4f8fc; border: 1px solid #cfddee; border-left: 4px solid var(--sr-blue); border-radius: 4px; padding: 16px 18px; margin: 16px 0 24px; }
-    .cr-search-panel .cr-search-label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: 1.1px; color: var(--sr-blue-dark); font-weight: 700; margin: 0 0 8px; }
-    .cr-search-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: stretch; }
-    .cr-search-row input[type="text"], .cr-search-row input[type="search"], .cr-search-row select { flex: 1 1 240px; min-width: 0; padding: 13px 15px; border: 2px solid var(--sr-blue); border-radius: 3px; font-family: var(--font-sans); font-size: 15px; background: var(--white); color: var(--sr-dark-text); }
-    .cr-search-row select { flex: 0 1 220px; border-color: #b9c7d8; }
-    .cr-search-row button { padding: 13px 20px; background: var(--sr-blue); color: var(--white); border: 0; border-radius: 3px; font-family: var(--font-sans); font-size: 14px; font-weight: 700; cursor: pointer; }
-    .cr-search-row button:hover { background: var(--sr-blue-dark); }
-    .cr-search-help { margin: 8px 0 0; font-size: 13px; color: var(--sr-gray-text); line-height: 1.5; }
-    .cr-empty-filter { display: none; padding: 18px 20px; margin: 16px 0; background: var(--sr-gray-bg); border-left: 3px solid var(--sr-red); color: var(--sr-gray-text); font-size: 14px; }
+    /* ── CTA Buttons ── */
+    .btn-primary { display: inline-block; background: var(--h-teal); color: var(--white); padding: 12px 28px; border-radius: 5px; text-decoration: none; font-weight: 600; font-size: 15px; letter-spacing: 0.3px; transition: background 0.15s; border: 0; cursor: pointer; }
+    .btn-primary:hover { background: var(--h-teal-dark); color: var(--white); }
+    .btn-secondary { display: inline-block; background: var(--white); color: var(--h-navy); padding: 12px 28px; border-radius: 5px; text-decoration: none; font-weight: 600; font-size: 15px; border: 2px solid var(--h-navy); transition: all 0.15s; cursor: pointer; }
+    .btn-secondary:hover { background: var(--h-navy); color: var(--white); }
 
-    .footer-cta { background: var(--sr-gray-bg); border-top: 1px solid var(--sr-gray-light); padding: 32px 24px; text-align: center; margin-top: 64px; }
-    .footer-cta h3 { font-family: var(--font-serif); color: var(--sr-blue-dark); margin-bottom: 8px; font-size: 22px; }
-    .footer-cta p { color: var(--sr-gray-text); margin-bottom: 16px; }
-    .footer-cta a.btn { display: inline-block; background: var(--sr-red); color: var(--white); padding: 10px 24px; border-radius: 3px; text-decoration: none; font-weight: 600; font-size: 14px; letter-spacing: 0.5px; text-transform: uppercase; }
+    /* ── Footer CTA ── */
+    .footer-cta { background: var(--h-gray-bg); border-top: 1px solid var(--h-gray-light); padding: 40px 24px; text-align: center; margin-top: 64px; }
+    .footer-cta h3 { font-family: var(--font-serif); color: var(--h-navy); margin-bottom: 10px; font-size: 24px; }
+    .footer-cta p { color: var(--h-gray-text); margin-bottom: 20px; max-width: 540px; margin-left: auto; margin-right: auto; }
 
-    .site-footer { background: var(--sr-blue-dark); color: rgba(255,255,255,0.7); padding: 24px; text-align: center; font-size: 13px; }
-    .site-footer a { color: rgba(255,255,255,0.85); text-decoration: none; margin: 0 8px; }
+    .site-footer { background: var(--h-navy-dark); color: rgba(255,255,255,0.65); padding: 28px 24px; text-align: center; font-size: 13px; }
+    .site-footer a { color: rgba(255,255,255,0.8); text-decoration: none; margin: 0 8px; }
 
-    /* Share button — same look & behavior as on the homepage report cards.
-       Used across every sub-page (blog post, landing, tools, calendar…). */
-    .share-btn { background: transparent; border: 1px solid var(--sr-gray-light); border-radius: 999px; padding: 6px 14px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--sr-gray-text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; line-height: 1; transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease; text-decoration: none; }
-    .share-btn:hover { color: var(--sr-blue); border-color: var(--sr-blue); }
-    .share-btn:active { transform: scale(0.97); }
+    /* ── Cluster Pills ── */
+    .cluster-pill { display: inline-block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; padding: 4px 10px; border-radius: 3px; }
+    .cluster-pill.metabolism { background: #dbeafe; color: #1e40af; }
+    .cluster-pill.hormones { background: #fef3c7; color: #92400e; }
+    .cluster-pill.recovery { background: #d1fae5; color: #065f46; }
+    .cluster-pill.testing { background: #ede9fe; color: #5b21b6; }
+
+    /* ── Share Button ── */
+    .share-btn { background: transparent; border: 1px solid var(--h-gray-light); border-radius: 999px; padding: 6px 14px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--h-gray-text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; line-height: 1; transition: color 0.15s, border-color 0.15s, background 0.15s; text-decoration: none; }
+    .share-btn:hover { color: var(--h-teal); border-color: var(--h-teal); }
     .share-btn.copied { color: #166534; border-color: #166534; background: #f0fdf4; }
-    .share-btn svg { display: block; }
-    /* Page-level share row sits flush-right above the headline, matching
-       the visual weight of the "By Caracas Research" meta line. */
-    .page-share-row { display: flex; justify-content: flex-end; margin: 4px 0 -4px; }
-    /* Toast — bottom-center floating pill, ~1.6s. */
-    .share-toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--sr-blue-dark); color: var(--white); padding: 10px 20px; border-radius: 999px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; letter-spacing: 0.3px; box-shadow: 0 8px 24px rgba(0,0,0,0.18); opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 9999; }
+    .share-toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--h-navy); color: var(--white); padding: 10px 20px; border-radius: 999px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.18); opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 9999; }
     .share-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
-
-  {# Topic-cluster nav styles — loaded on every page that extends
-     _base.html.j2 so the `cluster_nav` macro from _cluster_nav.html.j2
-     renders consistently regardless of which template imports it. #}
-  {% from "_cluster_nav.html.j2" import cluster_nav_css %}
-  {{ cluster_nav_css() }}
 
   {% block head_extra %}{% endblock %}
 </head>
@@ -216,29 +188,29 @@
 
 <nav class="top-nav">
   <div class="top-nav-inner">
-    <a class="nav-brand" href="/">{% include "_brand_logo.svg" %}Caracas Research</a>
+    <a class="nav-brand" href="/">
+      <span class="brand-icon">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </span>
+      {{ site_name|default('REPLACE_ME_SITE_NAME') }}
+    </a>
     <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav">
       <span class="nav-toggle-bar"></span>
       <span class="nav-toggle-bar"></span>
       <span class="nav-toggle-bar"></span>
     </button>
     <div class="nav-links" id="primary-nav">
-      <a href="/briefing">Analysis</a>
-      <a href="/invest-in-venezuela">Invest</a>
-      <a href="/real-estate/">Real Estate</a>
-      <a href="/sanctions-tracker">Sanctions</a>
-      <a href="/research/sdn/">Research</a>
+      <a href="/how-it-works">How It Works</a>
+      <a href="/guides">Guides</a>
+      <a href="/briefing">Articles</a>
       <a href="/tools">Tools</a>
-      <a href="/explainers">Explainers</a>
-      <a href="/travel">Travel</a>
-      <a href="/#signup" class="nav-login">Subscribe Free</a>
+      <a href="/recommendations">Picks</a>
+      <a href="/about">About</a>
+      <a href="/assessment" class="nav-cta">Free Assessment</a>
     </div>
   </div>
 </nav>
 
-{# Reusable share button macro. Pages call {{ share_button(url, title) }}
-   anywhere they want to render a Share affordance. The global script
-   below wires up navigator.share / clipboard fallback. #}
 {% macro share_button(url, title, label='Share') -%}
 <button type="button" class="share-btn"
         data-share-url="{{ url }}"
@@ -255,19 +227,23 @@
 {% block content %}{% endblock %}
 
 <div class="footer-cta">
-  <h3>Get the daily briefing in your inbox</h3>
-  <p>Twice-daily Venezuelan business intelligence — sanctions, regulatory, sector analysis.</p>
-  <a class="btn" href="/#newsletter">Subscribe free</a>
+  <h3>Understand your health — on your terms</h3>
+  <p>Use our free tools and evidence-based guides to make smarter decisions about your metabolism, hormones, and recovery.</p>
+  <a class="btn-primary" href="/assessment">Take the Free Assessment →</a>
 </div>
 
 <footer class="site-footer">
-  &copy; {{ current_year|default(2026) }} Caracas Research ·
+  &copy; {{ current_year|default(2026) }} {{ site_name|default('REPLACE_ME_SITE_NAME') }} ·
+  <a href="/about">About</a>
+  <a href="/faq">FAQ</a>
   <a href="/sitemap.xml">Sitemap</a>
+  <br style="margin-top:6px">
+  <span style="font-size:11px; opacity:0.6; display:inline-block; margin-top:8px;">
+    This site provides health information for educational purposes only. It is not medical advice. Always consult a qualified healthcare provider.
+  </span>
 </footer>
 
 <script>
-// Mobile nav toggle. The hamburger button is the only way to reach the
-// nav links on screens <=768px, so this script is required, not nice-to-have.
 (function initNavToggle() {
   var btn = document.querySelector('.top-nav .nav-toggle');
   var nav = document.querySelector('.top-nav');
@@ -288,40 +264,6 @@
   });
 })();
 
-// Auto-inject a Share button into every breadcrumbs row. This means tools,
-// calendar, sanctions tracker, blog index, etc. all get a consistent share
-// affordance without per-template edits. Skip when the nav already contains a
-// share button, when data-no-breadcrumb-share is set (page shows Share
-// elsewhere), or when a sibling .page-share-row would duplicate the control.
-(function autoInjectBreadcrumbShare() {
-  var canonicalEl = document.querySelector('link[rel="canonical"]');
-  var canonical = (canonicalEl && canonicalEl.getAttribute('href')) || window.location.href;
-  var title = document.title || 'Caracas Research';
-  document.querySelectorAll('nav.breadcrumbs').forEach(function(crumbs) {
-    if (crumbs.hasAttribute('data-no-breadcrumb-share')) return;
-    if (crumbs.querySelector('.share-btn')) return;
-    var next = crumbs.nextElementSibling;
-    if (next && next.classList && next.classList.contains('page-share-row') &&
-        next.querySelector('.share-btn')) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'share-btn breadcrumb-share';
-    btn.setAttribute('data-share-url', canonical);
-    btn.setAttribute('data-share-title', title);
-    btn.setAttribute('aria-label', 'Share this page');
-    btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-      '<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>' +
-      '<line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>' +
-      '</svg><span class="share-btn-label">Share</span>';
-    crumbs.appendChild(btn);
-  });
-})();
-
-// Share button handler — used by any .share-btn on this page (page header,
-// inline buttons, breadcrumbs auto-injected, etc.). On mobile / browsers
-// exposing navigator.share we open the native share sheet; on desktop we
-// copy the canonical URL and show a "Link copied" toast. Falls back to
-// window.location.href when no data-share-url is provided.
 (function initShareButtons() {
   var toastEl = null;
   function showToast(msg) {
@@ -337,16 +279,6 @@
       toastEl.classList.remove('is-visible');
     }, 1600);
   }
-  function flashCopied(btn) {
-    var label = btn.querySelector('.share-btn-label');
-    var prev = label ? label.textContent : null;
-    btn.classList.add('copied');
-    if (label) label.textContent = 'Copied';
-    setTimeout(function() {
-      btn.classList.remove('copied');
-      if (label && prev !== null) label.textContent = prev;
-    }, 1600);
-  }
   function copyToClipboard(text) {
     if (navigator.clipboard && navigator.clipboard.writeText) {
       return navigator.clipboard.writeText(text);
@@ -354,14 +286,9 @@
     return new Promise(function(resolve, reject) {
       try {
         var ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        resolve();
+        ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select(); document.execCommand('copy');
+        document.body.removeChild(ta); resolve();
       } catch (err) { reject(err); }
     });
   }
@@ -371,19 +298,11 @@
       var title = btn.getAttribute('data-share-title') || document.title;
       if (navigator.share) {
         navigator.share({ title: title, url: url }).catch(function() {
-          copyToClipboard(url).then(function() {
-            flashCopied(btn);
-            showToast('Link copied');
-          }).catch(function() {});
+          copyToClipboard(url).then(function() { showToast('Link copied'); });
         });
         return;
       }
-      copyToClipboard(url).then(function() {
-        flashCopied(btn);
-        showToast('Link copied');
-      }).catch(function() {
-        showToast('Could not copy link');
-      });
+      copyToClipboard(url).then(function() { showToast('Link copied'); }).catch(function() { showToast('Could not copy link'); });
     });
   });
 })();

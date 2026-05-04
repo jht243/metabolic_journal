@@ -1,0 +1,96 @@
+{#
+  E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness) elements
+  for health content. Required for YMYL (Your Money or Your Life) compliance.
+
+  Usage:
+    {% from "_eeat.html.j2" import reviewer_badge, evidence_citations, last_reviewed, medical_schema %}
+    {{ reviewer_badge(name="Dr. Sarah Chen", credentials="MD, Board-Certified Endocrinologist", date="2026-04-15") }}
+    {{ evidence_citations(sources) }}
+    {{ last_reviewed(date="2026-04-15") }}
+#}
+
+{# Clinician reviewer badge — shows who reviewed the content and when #}
+{% macro reviewer_badge(name="Medical Advisory Board", credentials="", date="", photo_url="") %}
+<div class="eeat-reviewer" style="display:flex; align-items:center; gap:12px; padding:16px; margin:20px 0; background:var(--h-gray-bg); border-radius:8px; border-left:3px solid var(--h-teal);">
+  {% if photo_url %}
+  <img src="{{ photo_url }}" alt="{{ name }}" style="width:48px; height:48px; border-radius:50%; object-fit:cover;">
+  {% else %}
+  <div style="width:48px; height:48px; border-radius:50%; background:var(--h-teal); display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:18px; flex-shrink:0;">{{ name[0] }}</div>
+  {% endif %}
+  <div>
+    <div style="font-size:12px; color:var(--h-teal); font-weight:600; text-transform:uppercase; letter-spacing:0.05em;">Medically Reviewed</div>
+    <div style="font-size:15px; font-weight:600; color:var(--h-navy);">{{ name }}</div>
+    {% if credentials %}<div style="font-size:13px; color:var(--h-gray-text);">{{ credentials }}</div>{% endif %}
+    {% if date %}<div style="font-size:12px; color:var(--h-gray-text); margin-top:2px;">Last reviewed: {{ date }}</div>{% endif %}
+  </div>
+</div>
+{% endmacro %}
+
+{# Evidence citations list — for linking to clinical sources #}
+{% macro evidence_citations(sources) %}
+{% if sources %}
+<div class="eeat-citations" style="margin:24px 0; padding:20px; background:var(--h-gray-bg); border-radius:8px;">
+  <h4 style="font-size:14px; font-weight:700; color:var(--h-navy); margin-bottom:12px; text-transform:uppercase; letter-spacing:0.03em;">Sources & References</h4>
+  <ol style="margin:0; padding-left:20px; font-size:13px; color:var(--h-dark-text); line-height:1.6;">
+    {% for src in sources %}
+    <li style="margin-bottom:6px;">
+      {% if src.url %}<a href="{{ src.url }}" target="_blank" rel="noopener noreferrer" style="color:var(--h-teal);">{{ src.title }}</a>{% else %}{{ src.title }}{% endif %}
+      {% if src.journal %}<span style="color:var(--h-gray-text);"> — {{ src.journal }}</span>{% endif %}
+      {% if src.year %}<span style="color:var(--h-gray-text);"> ({{ src.year }})</span>{% endif %}
+    </li>
+    {% endfor %}
+  </ol>
+</div>
+{% endif %}
+{% endmacro %}
+
+{# Last reviewed date stamp #}
+{% macro last_reviewed(date="") %}
+{% if date %}
+<div style="display:inline-flex; align-items:center; gap:6px; font-size:12px; color:var(--h-gray-text); margin:8px 0;">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+  Last reviewed: {{ date }}
+</div>
+{% endif %}
+{% endmacro %}
+
+{# MedicalWebPage schema markup for health content pages #}
+{% macro medical_schema(title, description, date_reviewed="", reviewer_name="", reviewer_credentials="", url="") %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MedicalWebPage",
+  "name": {{ title|tojson }},
+  "description": {{ description|tojson }},
+  {% if url %}"url": {{ url|tojson }},{% endif %}
+  "isAccessibleForFree": true,
+  "medicalAudience": {
+    "@type": "MedicalAudience",
+    "audienceType": "Patient"
+  }
+  {% if reviewer_name %},
+  "reviewedBy": {
+    "@type": "Person",
+    "name": {{ reviewer_name|tojson }}
+    {% if reviewer_credentials %},"jobTitle": {{ reviewer_credentials|tojson }}{% endif %}
+  }
+  {% endif %}
+  {% if date_reviewed %},
+  "lastReviewed": {{ date_reviewed|tojson }}{% endif %}
+}
+</script>
+{% endmacro %}
+
+{# Editorial standards badge — for about/methodology sections #}
+{% macro editorial_standards() %}
+<div style="margin:24px 0; padding:20px 24px; background:white; border:1px solid var(--h-gray-light); border-radius:8px;">
+  <h4 style="font-size:15px; font-weight:700; color:var(--h-navy); margin-bottom:12px;">Our Editorial Standards</h4>
+  <ul style="margin:0; padding-left:20px; font-size:14px; color:var(--h-dark-text); line-height:1.8;">
+    <li><strong>Evidence-based:</strong> All clinical claims cite peer-reviewed research or established clinical guidelines (ADA, Endocrine Society, AASM, AHA)</li>
+    <li><strong>Medically reviewed:</strong> Content is reviewed by our medical advisory board before publication</li>
+    <li><strong>Transparent scope:</strong> We clearly distinguish between educational content and medical advice — and tell you when to see a doctor</li>
+    <li><strong>Regular updates:</strong> Content is reviewed at minimum every 6 months or when relevant guidelines change</li>
+    <li><strong>Honest recommendations:</strong> Product reviews disclose affiliate relationships and are never influenced by them</li>
+  </ul>
+</div>
+{% endmacro %}

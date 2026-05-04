@@ -1,0 +1,519 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .form-wrapper { padding: 40px 0 64px; }
+  .form-header { text-align: center; margin-bottom: 32px; }
+  .form-header h1 { font-family: var(--font-serif); font-size: 28px; color: var(--h-navy); margin-bottom: 8px; }
+  .form-header p { color: var(--h-gray-text); font-size: 15px; }
+
+  .progress-bar { background: var(--h-gray-light); height: 6px; border-radius: 3px; margin-bottom: 36px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--h-teal); border-radius: 3px; transition: width 0.3s ease; }
+
+  .step-indicators { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .step-ind { font-size: 12px; font-weight: 600; color: var(--h-gray-text); text-transform: uppercase; letter-spacing: 0.5px; }
+  .step-ind.active { color: var(--h-teal); }
+  .step-ind.done { color: var(--h-navy); }
+
+  .form-step { display: none; }
+  .form-step.active { display: block; }
+  .form-step h2 { font-family: var(--font-serif); font-size: 22px; color: var(--h-navy); margin-bottom: 6px; }
+  .form-step .step-desc { color: var(--h-gray-text); font-size: 14.5px; margin-bottom: 24px; }
+
+  .field-group { margin-bottom: 20px; }
+  .field-group label { display: block; font-weight: 600; font-size: 14px; color: var(--h-navy); margin-bottom: 6px; }
+  .field-group input[type="text"],
+  .field-group input[type="number"],
+  .field-group select,
+  .field-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--h-gray-light);
+    border-radius: 5px;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    color: var(--h-dark-text);
+    background: var(--white);
+    transition: border-color 0.15s;
+  }
+  .field-group input:focus,
+  .field-group select:focus,
+  .field-group textarea:focus { outline: none; border-color: var(--h-teal); }
+  .field-group textarea { resize: vertical; min-height: 80px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+  .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border: 1px solid var(--h-gray-light);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 14px;
+  }
+  .checkbox-item:hover { border-color: var(--h-teal); }
+  .checkbox-item.checked { background: #f0fdfa; border-color: var(--h-teal); }
+  .checkbox-item input[type="checkbox"] { accent-color: var(--h-teal); }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 10px; }
+  .radio-item {
+    padding: 10px 18px;
+    border: 1px solid var(--h-gray-light);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .radio-item:hover { border-color: var(--h-teal); }
+  .radio-item.selected { background: #f0fdfa; border-color: var(--h-teal); font-weight: 600; }
+  .radio-item input { display: none; }
+
+  .form-nav { display: flex; justify-content: space-between; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--h-gray-light); }
+  .form-nav .btn-back {
+    background: none;
+    border: 0;
+    font-family: var(--font-sans);
+    font-size: 15px;
+    color: var(--h-gray-text);
+    cursor: pointer;
+    padding: 12px 0;
+    font-weight: 600;
+  }
+  .form-nav .btn-back:hover { color: var(--h-dark-text); }
+
+  .saving-indicator {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 999;
+  }
+  .saving-indicator.visible { opacity: 1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> <a href="/assessment">Assessment</a> <span>/</span> Questionnaire
+  </nav>
+
+  <div class="form-wrapper">
+    <div class="form-header">
+      <h1>Clinical Assessment</h1>
+      <p>Complete each section to receive your personalized analysis.</p>
+    </div>
+
+    <div class="step-indicators" id="stepIndicators">
+      <span class="step-ind active" data-step="0">Demographics</span>
+      <span class="step-ind" data-step="1">Symptoms</span>
+      <span class="step-ind" data-step="2">Goals</span>
+      <span class="step-ind" data-step="3">History</span>
+      <span class="step-ind" data-step="4">Lifestyle</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:20%"></div></div>
+
+    <form id="assessmentForm" novalidate>
+      {# Step 1: Demographics #}
+      <div class="form-step active" data-step="0">
+        <h2>Demographics</h2>
+        <p class="step-desc">Basic information to contextualize your results.</p>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="age">Age</label>
+            <input type="number" id="age" name="age" min="18" max="120" placeholder="e.g. 35" required>
+          </div>
+          <div class="field-group">
+            <label for="sex">Biological Sex</label>
+            <select id="sex" name="sex" required>
+              <option value="">Select…</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field-group">
+            <label for="height">Height (cm)</label>
+            <input type="number" id="height" name="height" min="100" max="250" placeholder="e.g. 178">
+          </div>
+          <div class="field-group">
+            <label for="weight">Weight (kg)</label>
+            <input type="number" id="weight" name="weight" min="30" max="300" placeholder="e.g. 82">
+          </div>
+        </div>
+      </div>
+
+      {# Step 2: Symptoms — organized by clinically validated categories #}
+      <div class="form-step" data-step="1">
+        <h2>Current Symptoms</h2>
+        <p class="step-desc">Select all symptoms you currently experience on a regular basis. Grouped by clinical category to help identify root-cause patterns.</p>
+
+        <div class="field-group">
+          <label>Energy &amp; Fatigue</label>
+          <div class="checkbox-grid">
+            {% set energy_symptoms = [
+              'Persistent fatigue despite adequate sleep',
+              'Post-meal energy crashes (especially after carb-heavy meals)',
+              'Afternoon energy slump (2–4 PM)',
+              'Needing caffeine to function',
+              'Fatigue that worsens throughout the day'
+            ] %}
+            {% for symptom in energy_symptoms %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}">
+              {{ symptom }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Weight &amp; Body Composition</label>
+          <div class="checkbox-grid">
+            {% set weight_symptoms = [
+              'Unexplained weight gain (especially abdominal)',
+              'Difficulty losing weight despite caloric deficit',
+              'Increased waist circumference',
+              'Darkened skin on neck or armpits (acanthosis nigricans)'
+            ] %}
+            {% for symptom in weight_symptoms %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}">
+              {{ symptom }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Sleep</label>
+          <div class="checkbox-grid">
+            {% set sleep_symptoms = [
+              'Difficulty falling asleep',
+              'Waking frequently during the night',
+              'Waking up unrefreshed',
+              'Snoring or witnessed breathing pauses',
+              'Night sweats'
+            ] %}
+            {% for symptom in sleep_symptoms %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}">
+              {{ symptom }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Hormonal</label>
+          <div class="checkbox-grid">
+            {% set hormonal_symptoms = [
+              'Low sex drive or sexual dysfunction',
+              'Mood swings or irritability',
+              'Brain fog or difficulty concentrating',
+              'Hair thinning or hair loss',
+              'Hot flashes or temperature dysregulation',
+              'Irregular menstrual cycles (women)',
+              'Erectile dysfunction (men)'
+            ] %}
+            {% for symptom in hormonal_symptoms %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}">
+              {{ symptom }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Metabolic</label>
+          <div class="checkbox-grid">
+            {% set metabolic_symptoms = [
+              'Sugar or carb cravings',
+              'Feeling shaky or irritable when hungry',
+              'Frequent urination',
+              'Increased thirst',
+              'Slow wound healing'
+            ] %}
+            {% for symptom in metabolic_symptoms %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}">
+              {{ symptom }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label>Stress &amp; Recovery</label>
+          <div class="checkbox-grid">
+            {% set stress_symptoms = [
+              'Feeling "wired but tired" at night',
+              'Difficulty recovering from exercise',
+              'Anxiety or feeling overwhelmed',
+              'Poor stress tolerance'
+            ] %}
+            {% for symptom in stress_symptoms %}
+            <label class="checkbox-item">
+              <input type="checkbox" name="symptoms" value="{{ symptom }}">
+              {{ symptom }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="field-group" style="margin-top:20px;">
+          <label for="symptoms_other">Other symptoms</label>
+          <textarea id="symptoms_other" name="symptoms_other" placeholder="Describe any additional symptoms not listed above…" rows="3"></textarea>
+        </div>
+      </div>
+
+      {# Step 3: Goals #}
+      <div class="form-step" data-step="2">
+        <h2>Your Goals</h2>
+        <p class="step-desc">What would you most like to improve? Select all that apply.</p>
+        <div class="checkbox-grid">
+          {% set goals = [
+            'Increase energy levels', 'Lose body fat', 'Build muscle',
+            'Improve sleep quality', 'Balance hormones', 'Reduce brain fog',
+            'Improve mood / mental health', 'Increase libido', 'Reduce stress impact',
+            'Optimize metabolic health', 'Improve athletic performance', 'Slow aging processes'
+          ] %}
+          {% for goal in goals %}
+          <label class="checkbox-item">
+            <input type="checkbox" name="goals" value="{{ goal }}">
+            {{ goal }}
+          </label>
+          {% endfor %}
+        </div>
+        <div class="field-group" style="margin-top:20px;">
+          <label for="goal_priority">Top priority (in your own words)</label>
+          <textarea id="goal_priority" name="goal_priority" placeholder="What's the single most important thing you want to change?" rows="2"></textarea>
+        </div>
+      </div>
+
+      {# Step 4: Health History #}
+      <div class="form-step" data-step="3">
+        <h2>Health History</h2>
+        <p class="step-desc">Past and current health context helps us identify patterns.</p>
+        <div class="field-group">
+          <label for="conditions">Diagnosed conditions</label>
+          <textarea id="conditions" name="conditions" placeholder="e.g. hypothyroidism, pre-diabetes, PCOS, none" rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="medications">Current medications &amp; supplements</label>
+          <textarea id="medications" name="medications" placeholder="List any medications, supplements, or hormones you currently take" rows="3"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="family_history">Relevant family history</label>
+          <textarea id="family_history" name="family_history" placeholder="e.g. diabetes, heart disease, thyroid issues" rows="2"></textarea>
+        </div>
+        <div class="field-group">
+          <label for="recent_labs">Recent lab work</label>
+          <select id="recent_labs" name="recent_labs">
+            <option value="">Select…</option>
+            <option value="none">No recent labs</option>
+            <option value="6mo">Within the last 6 months</option>
+            <option value="1yr">Within the last year</option>
+            <option value="older">More than a year ago</option>
+          </select>
+        </div>
+      </div>
+
+      {# Step 5: Lifestyle — evidence-based categories #}
+      <div class="form-step" data-step="4">
+        <h2>Lifestyle</h2>
+        <p class="step-desc">Daily habits that impact metabolic and hormonal health. Be as accurate as possible — these factors significantly influence biomarker interpretation.</p>
+        <div class="field-group">
+          <label>Diet pattern</label>
+          <div class="radio-group">
+            {% for diet in ['Standard American diet', 'Mediterranean', 'Low-carb / keto', 'Plant-based', 'Intermittent fasting', 'No specific diet'] %}
+            <label class="radio-item">
+              <input type="radio" name="diet" value="{{ diet }}"> {{ diet }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Exercise frequency</label>
+          <div class="radio-group">
+            {% for freq in ['Sedentary', '1–2x / week', '3–4x / week', '5+ x / week'] %}
+            <label class="radio-item">
+              <input type="radio" name="exercise_freq" value="{{ freq }}"> {{ freq }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Exercise type</label>
+          <div class="radio-group">
+            {% for etype in ['None', 'Walking only', 'Strength training', 'Cardio', 'Mixed (strength + cardio)', 'HIIT'] %}
+            <label class="radio-item">
+              <input type="radio" name="exercise_type" value="{{ etype }}"> {{ etype }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Average sleep duration</label>
+          <div class="radio-group">
+            {% for dur in ['Less than 5 hours', '5–6 hours', '6–7 hours', '7–8 hours', '8+ hours'] %}
+            <label class="radio-item">
+              <input type="radio" name="sleep_duration" value="{{ dur }}"> {{ dur }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Stress level</label>
+          <div class="radio-group">
+            {% for level in ['Low', 'Moderate', 'High', 'Very high'] %}
+            <label class="radio-item">
+              <input type="radio" name="stress" value="{{ level }}"> {{ level }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Alcohol consumption</label>
+          <div class="radio-group">
+            {% for alc in ['None', 'Occasional (1–2 / week)', 'Moderate (3–5 / week)', 'Daily'] %}
+            <label class="radio-item">
+              <input type="radio" name="alcohol" value="{{ alc }}"> {{ alc }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Caffeine intake</label>
+          <div class="radio-group">
+            {% for caf in ['None', '1 cup / day', '2–3 cups / day', '4+ cups / day'] %}
+            <label class="radio-item">
+              <input type="radio" name="caffeine" value="{{ caf }}"> {{ caf }}
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </form>
+
+    <div class="form-nav">
+      <button type="button" class="btn-back" id="btnBack" style="visibility:hidden;">← Back</button>
+      <button type="button" class="btn-primary" id="btnNext">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<div class="saving-indicator" id="savingIndicator">Saving…</div>
+
+<script>
+(function() {
+  var currentStep = 0;
+  var totalSteps = 5;
+  var token = '{{ assessment.token }}';
+  var form = document.getElementById('assessmentForm');
+  var btnNext = document.getElementById('btnNext');
+  var btnBack = document.getElementById('btnBack');
+  var progressFill = document.getElementById('progressFill');
+  var savingEl = document.getElementById('savingIndicator');
+  var indicators = document.querySelectorAll('.step-ind');
+
+  function updateUI() {
+    form.querySelectorAll('.form-step').forEach(function(el, i) {
+      el.classList.toggle('active', i === currentStep);
+    });
+    progressFill.style.width = ((currentStep + 1) / totalSteps * 100) + '%';
+    btnBack.style.visibility = currentStep === 0 ? 'hidden' : 'visible';
+    btnNext.textContent = currentStep === totalSteps - 1 ? 'Submit Assessment' : 'Continue →';
+    indicators.forEach(function(ind, i) {
+      ind.classList.remove('active', 'done');
+      if (i === currentStep) ind.classList.add('active');
+      else if (i < currentStep) ind.classList.add('done');
+    });
+  }
+
+  function getStepData() {
+    var stepEl = form.querySelector('.form-step[data-step="' + currentStep + '"]');
+    var data = {};
+    stepEl.querySelectorAll('input, select, textarea').forEach(function(el) {
+      if (el.type === 'checkbox') {
+        if (!data[el.name]) data[el.name] = [];
+        if (el.checked) data[el.name].push(el.value);
+      } else if (el.type === 'radio') {
+        if (el.checked) data[el.name] = el.value;
+      } else {
+        if (el.value) data[el.name] = el.value;
+      }
+    });
+    return data;
+  }
+
+  function saveStep(callback) {
+    savingEl.classList.add('visible');
+    fetch('/assessment/' + token + '/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: currentStep, data: getStepData() })
+    }).then(function(r) { return r.json(); })
+      .then(function() { savingEl.classList.remove('visible'); if (callback) callback(); })
+      .catch(function() { savingEl.classList.remove('visible'); if (callback) callback(); });
+  }
+
+  btnNext.addEventListener('click', function() {
+    if (currentStep < totalSteps - 1) {
+      saveStep(function() {
+        currentStep++;
+        updateUI();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    } else {
+      btnNext.disabled = true;
+      btnNext.textContent = 'Submitting…';
+      saveStep(function() {
+        fetch('/assessment/' + token + '/submit', { method: 'POST' })
+          .then(function(r) { return r.json(); })
+          .then(function(d) { window.location.href = d.redirect || '/assessment/' + token + '/results'; })
+          .catch(function() { btnNext.disabled = false; btnNext.textContent = 'Submit Assessment'; });
+      });
+    }
+  });
+
+  btnBack.addEventListener('click', function() {
+    if (currentStep > 0) { currentStep--; updateUI(); window.scrollTo({ top: 0, behavior: 'smooth' }); }
+  });
+
+  document.querySelectorAll('.checkbox-item').forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      if (e.target.tagName === 'INPUT') return;
+      var cb = item.querySelector('input[type="checkbox"]');
+      cb.checked = !cb.checked;
+      item.classList.toggle('checked', cb.checked);
+    });
+    var cb = item.querySelector('input[type="checkbox"]');
+    cb.addEventListener('change', function() { item.classList.toggle('checked', cb.checked); });
+  });
+
+  document.querySelectorAll('.radio-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      var radio = item.querySelector('input[type="radio"]');
+      radio.checked = true;
+      item.closest('.radio-group').querySelectorAll('.radio-item').forEach(function(r) {
+        r.classList.toggle('selected', r.querySelector('input').checked);
+      });
+    });
+  });
+})();
+</script>
+{% endblock %}

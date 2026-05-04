@@ -1,63 +1,29 @@
 {#
-  Reusable "Latest analysis" rail — the section rendered on tool pages,
-  sanctions tracker, calendar, travel, and sector pages that funnels
-  crawl + reader traffic into the individual /briefing/<slug> analyses.
+  Recent briefings card grid partial.
 
-  Why this partial exists:
-    Per-page bespoke briefing rails were drifting in style. Worse, each
-    page had to re-implement the markup to surface a short list of
-    recent briefings. The 2026-04 indexing audit flagged that briefings
-    had inbound links only from /briefing (the chronological index,
-    which Google deprioritises as it ages), so we want every steady-
-    traffic page (tools, sanctions tracker, sector pages) to feed crawl
-    signal into the briefings.
-
-  Why the visual style changed in 2026-04:
-    The original rail was a <ul> of title + date rows. The 2026-04 UX
-    audit (alongside the drift in other internal-link sections) pushed
-    every "related pages" block on the site onto the same 3-card grid
-    pattern first shipped on /research/sdn/. This partial now delegates
-    to templates/_card_grid.html.j2 so the rail matches every other
-    discovery section on the site — readers see the same visual
-    language everywhere, and we have one place to evolve the design.
-
-  Inputs:
-    recent_briefings : list of BlogPost rows with .slug, .title,
-                       .published_date, optional .summary, .primary_sector,
-                       .reading_minutes
-    heading          : section heading; defaults to "Latest analysis"
-    intro            : optional short paragraph above the grid
-
-  Render no-ops if recent_briefings is empty so callers can pass it
-  unconditionally.
+  Usage:
+    {% from "_recent_briefings.html.j2" import recent_briefings %}
+    {{ recent_briefings(posts, limit=3) }}
 #}
-{% from "_card_grid.html.j2" import card_grid_section %}
 
-{% macro recent_briefings_rail(recent_briefings, heading="Latest analysis", intro=None) -%}
-{%- if recent_briefings %}
-{%- set cards = [] %}
-{%- for r in recent_briefings %}
-{%-   set _eyebrow = (r.primary_sector|replace('_',' ')|upper) if r.primary_sector else 'ANALYSIS' %}
-{%-   set _tagline = r.summary if r.summary else '' %}
-{%-   set _meta_rows = [] %}
-{%-   if r.published_date %}{%- set _ = _meta_rows.append('<strong>' ~ r.published_date.strftime('%b %d, %Y') ~ '</strong>') %}{%- endif %}
-{%-   if r.reading_minutes %}{%- set _ = _meta_rows.append(r.reading_minutes|string ~ ' min read') %}{%- endif %}
-{%-   set _ = cards.append({
-        'href': '/briefing/' ~ r.slug,
-        'eyebrow': _eyebrow,
-        'title': r.title,
-        'tagline': _tagline,
-        'meta_rows': _meta_rows,
-        'cta': 'Read analysis'
-      }) %}
-{%- endfor %}
-{{ card_grid_section(
-     heading=heading,
-     intro=intro,
-     cards=cards,
-     aria_label=heading,
-     footer_link={'href': '/briefing', 'label': 'Browse all daily briefings'},
-     footer_mode='always'
-) }}
-{%- endif %}
-{%- endmacro %}
+{% macro recent_briefings(posts, limit=3) %}
+{% set display_posts = posts[:limit] %}
+{% if display_posts %}
+<section class="cr-card-section" aria-label="Recent articles">
+  <div class="cr-card-header">
+    <h2 class="cr-card-title">Latest Health Briefings</h2>
+    <a href="/briefing" class="cr-card-meta" style="text-decoration:underline;">View all →</a>
+  </div>
+  <div class="cr-card-grid">
+    {% for p in display_posts %}
+    <a class="cr-card" href="/briefing/{{ p.slug }}">
+      <span class="cr-card-eyebrow">{{ (p.primary_cluster or 'Health')|replace('_',' ')|title }}</span>
+      <h3 class="cr-card-headline">{{ p.title }}</h3>
+      {% if p.summary %}<p class="cr-card-tagline">{{ p.summary|truncate(120) }}</p>{% endif %}
+      <span class="cr-card-cta">Read article</span>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endmacro %}

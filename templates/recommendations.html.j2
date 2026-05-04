@@ -1,0 +1,166 @@
+{% extends "_base.html.j2" %}
+{% from "_cta.html.j2" import cta_assessment %}
+
+{% block head_extra %}
+<style>
+  .page-hero {
+    background: var(--h-navy);
+    color: var(--white);
+    padding: 56px 24px 48px;
+    text-align: center;
+  }
+  .page-hero h1 { font-family: var(--font-serif); font-size: clamp(28px, 4vw, 38px); margin-bottom: 14px; }
+  .page-hero p { color: rgba(255,255,255,0.7); max-width: 560px; margin: 0 auto; font-size: 17px; line-height: 1.55; }
+
+  .recs-section { padding: 48px 0; border-bottom: 1px solid var(--h-gray-light); }
+  .recs-section:last-of-type { border-bottom: 0; }
+  .recs-section h2 { font-family: var(--font-serif); font-size: 24px; color: var(--h-navy); margin-bottom: 8px; }
+  .recs-section > p { color: var(--h-gray-text); margin-bottom: 24px; font-size: 15px; }
+
+  .rec-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+  }
+  .rec-card {
+    border: 1px solid var(--h-gray-light);
+    border-radius: 8px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .rec-card:hover { border-color: var(--h-teal); box-shadow: 0 4px 16px rgba(13, 148, 136, 0.08); }
+  .rec-tag {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border-radius: 3px;
+    align-self: flex-start;
+  }
+  .rec-tag.lab { background: #ede9fe; color: #5b21b6; }
+  .rec-tag.supplement { background: #d1fae5; color: #065f46; }
+  .rec-tag.device { background: #dbeafe; color: #1e40af; }
+  .rec-tag.book { background: #fef3c7; color: #92400e; }
+  .rec-card h3 { font-family: var(--font-serif); font-size: 17px; color: var(--h-navy); margin: 0; }
+  .rec-card .rec-desc { font-size: 14px; color: var(--h-dark-text); line-height: 1.55; flex: 1; }
+  .rec-card .rec-why {
+    font-size: 13px;
+    color: var(--h-gray-text);
+    background: var(--h-gray-bg);
+    padding: 10px 14px;
+    border-radius: 4px;
+    line-height: 1.5;
+  }
+  .rec-card .rec-why strong { color: var(--h-dark-text); }
+  .rec-link { font-size: 14px; font-weight: 600; color: var(--h-teal-dark); text-decoration: none; }
+  .rec-link:hover { color: var(--h-teal); }
+
+  .disclosure {
+    background: var(--h-gray-bg);
+    border-radius: 6px;
+    padding: 20px 24px;
+    font-size: 13px;
+    color: var(--h-gray-text);
+    line-height: 1.6;
+    margin-top: 48px;
+  }
+  .disclosure strong { color: var(--h-dark-text); }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <h1>Our Picks</h1>
+  <p>Lab test kits, supplements, devices, and resources reviewed by our medical advisory team — with honest assessments of what works, what doesn't, and who it's for.</p>
+</section>
+
+<div class="container-wide">
+  <nav class="breadcrumbs">
+    <a href="/">Home</a> <span>/</span> Recommendations
+  </nav>
+
+  <div class="recs-section">
+    <h2>At-Home Lab Tests</h2>
+    <p>Get the biomarkers that matter without waiting for a doctor's order. These are the panels our medical team recommends most.</p>
+    <div class="rec-grid">
+      <div class="rec-card">
+        <span class="rec-tag lab">Lab Test</span>
+        <h3>Comprehensive Metabolic Panel</h3>
+        <p class="rec-desc">Covers fasting insulin, HbA1c, fasting glucose, lipid panel, hs-CRP, and uric acid. The gold standard for catching insulin resistance and metabolic syndrome early.</p>
+        <div class="rec-why"><strong>Best for:</strong> Anyone with unexplained weight gain, energy crashes, or family history of type 2 diabetes.</div>
+        <a class="rec-link" href="/metabolic-health">Learn about these markers →</a>
+      </div>
+      <div class="rec-card">
+        <span class="rec-tag lab">Lab Test</span>
+        <h3>Complete Hormone Panel</h3>
+        <p class="rec-desc">Total and free testosterone, estradiol, DHEA-S, SHBG, TSH, free T3, free T4, AM cortisol, FSH, and LH. Goes well beyond the single-marker screening most doctors order.</p>
+        <div class="rec-why"><strong>Best for:</strong> Fatigue, low libido, mood changes, suspected thyroid issues, or perimenopause symptoms.</div>
+        <a class="rec-link" href="/hormonal-health">Learn about these markers →</a>
+      </div>
+      <div class="rec-card">
+        <span class="rec-tag lab">Lab Test</span>
+        <h3>Fatigue &amp; Recovery Panel</h3>
+        <p class="rec-desc">Ferritin, vitamin D (25-OH), RBC magnesium, B12, thyroid panel, cortisol, CBC, and hs-CRP. Targets the physiological causes of fatigue that sleep hygiene won't fix.</p>
+        <div class="rec-why"><strong>Best for:</strong> Waking unrefreshed, afternoon crashes, poor HRV, or chronic tiredness despite adequate sleep.</div>
+        <a class="rec-link" href="/sleep-recovery">Learn about these markers →</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="recs-section">
+    <h2>Supplements</h2>
+    <p>Only compounds with clinical trial evidence. We skip the trendy stuff and focus on what actually moves biomarkers.</p>
+    <div class="rec-grid">
+      <div class="rec-card">
+        <span class="rec-tag supplement">Supplement</span>
+        <h3>Magnesium Glycinate</h3>
+        <p class="rec-desc">Supports 600+ enzymatic processes including sleep regulation and glucose metabolism. Glycinate form has superior bioavailability and minimal GI side effects compared to oxide or citrate.</p>
+        <div class="rec-why"><strong>Evidence:</strong> Clinical trials show improvements in sleep quality, insulin sensitivity, and HRV. Deficiency is common — serum magnesium misses 80% of cases.</div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-tag supplement">Supplement</span>
+        <h3>Vitamin D3 + K2</h3>
+        <p class="rec-desc">Vitamin D insufficiency (&lt;30 ng/mL) affects an estimated 42% of US adults. K2 ensures calcium is directed to bones rather than arteries.</p>
+        <div class="rec-why"><strong>Evidence:</strong> Meta-analyses link optimal vitamin D (40-60 ng/mL) to improved insulin sensitivity, immune function, and sleep quality.</div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-tag supplement">Supplement</span>
+        <h3>Berberine</h3>
+        <p class="rec-desc">Plant alkaloid studied as a glucose-lowering agent. Multiple RCTs show it reduces fasting glucose and HbA1c comparably to metformin in some populations.</p>
+        <div class="rec-why"><strong>Evidence:</strong> A 2024 meta-analysis of 46 RCTs confirmed significant reductions in fasting glucose, HbA1c, and HOMA-IR. Not a substitute for medical treatment.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="recs-section">
+    <h2>Health Devices</h2>
+    <p>Monitoring tools that provide actionable data over time — not just one-time snapshots.</p>
+    <div class="rec-grid">
+      <div class="rec-card">
+        <span class="rec-tag device">Device</span>
+        <h3>Continuous Glucose Monitor (CGM)</h3>
+        <p class="rec-desc">Tracks real-time glucose responses to food, exercise, stress, and sleep. Reveals patterns a single fasting glucose test can't. Brands like Dexcom, Libre, and Levels offer consumer-accessible options.</p>
+        <div class="rec-why"><strong>Best for:</strong> Insulin resistance investigation, weight loss plateaus, or anyone curious about their glycemic responses.</div>
+      </div>
+      <div class="rec-card">
+        <span class="rec-tag device">Device</span>
+        <h3>HRV &amp; Sleep Tracker</h3>
+        <p class="rec-desc">Devices like Oura Ring, Whoop, and Apple Watch track heart rate variability, resting heart rate, and sleep stages — providing trends that reflect autonomic nervous system health.</p>
+        <div class="rec-why"><strong>Best for:</strong> Recovery monitoring, stress tracking, and sleep quality assessment over weeks and months.</div>
+      </div>
+    </div>
+  </div>
+
+  {{ cta_assessment(heading="Not Sure What You Need?", subtext="Take our free assessment. We'll recommend the most relevant tests, supplements, and tools based on your symptoms and goals.") }}
+
+  <div class="disclosure">
+    <strong>Disclosure:</strong> Some links on this page are affiliate links, meaning we may earn a small commission if you make a purchase. This never influences our ratings or recommendations. Our medical advisory team evaluates every product independently against clinical evidence. We only recommend products we would use ourselves or recommend to family members. Products that don't meet our evidence threshold are not listed regardless of affiliate terms.
+  </div>
+</div>
+
+{% endblock %}
