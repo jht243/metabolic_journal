@@ -2879,6 +2879,58 @@ Sitemap: {base}/sitemap.xml
 
 
 # ═══════════════════════════════════════════════════════════════════════
+#  IndexNow — instant search engine notification
+# ═══════════════════════════════════════════════════════════════════════
+
+_INDEXNOW_KEY = "4cc1bd5a92d14002ba49f4f01765fd34"
+
+
+@app.route("/4cc1bd5a92d14002ba49f4f01765fd34.txt")
+def indexnow_key_file():
+    return Response(_INDEXNOW_KEY, content_type="text/plain; charset=utf-8")
+
+
+@app.route("/indexnow-submit", methods=["POST"])
+def indexnow_submit():
+    """Submit all important URLs to IndexNow (Bing, Yandex, Naver)."""
+    import requests as _req
+
+    base = settings.canonical_site_url
+    host = base.replace("https://", "").replace("http://", "")
+
+    primary_entries = list(_SITEMAP_PRIMARY)
+    seo_paths = all_seo_paths()
+    for path in seo_paths:
+        primary_entries.append((path, "0.8", "weekly"))
+
+    url_list = [f"{base}{path}" for path, _, _ in primary_entries]
+    for path, _, _ in _SITEMAP_TOOLS:
+        url_list.append(f"{base}{path}")
+
+    payload = {
+        "host": host,
+        "key": _INDEXNOW_KEY,
+        "keyLocation": f"{base}/{_INDEXNOW_KEY}.txt",
+        "urlList": url_list,
+    }
+
+    results = {}
+    for engine in ["api.indexnow.org", "www.bing.com", "yandex.com"]:
+        try:
+            r = _req.post(
+                f"https://{engine}/indexnow",
+                json=payload,
+                headers={"Content-Type": "application/json; charset=utf-8"},
+                timeout=10,
+            )
+            results[engine] = {"status": r.status_code, "body": r.text[:200]}
+        except Exception as exc:
+            results[engine] = {"status": "error", "body": str(exc)[:200]}
+
+    return jsonify({"urls_submitted": len(url_list), "results": results})
+
+
+# ═══════════════════════════════════════════════════════════════════════
 #  Error Handlers
 # ═══════════════════════════════════════════════════════════════════════
 
