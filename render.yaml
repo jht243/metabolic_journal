@@ -1,11 +1,6 @@
-# =====================================================================
-# RENDER BLUEPRINT — PLACEHOLDER (old project services removed)
-# Replace service names, env vars, and schedules for the NEW project
-# before connecting this repo to a new Render workspace.
-# =====================================================================
 services:
   - type: web
-    name: REPLACE-ME-web
+    name: metabolic-health-web
     runtime: python
     plan: starter
     buildCommand: "pip install -r requirements.txt"
@@ -20,7 +15,7 @@ services:
       - key: OPENAI_MODEL
         value: gpt-4o
       - key: SITE_URL
-        value: https://REPLACE_ME_DOMAIN.com
+        value: https://metabolic-health-web.onrender.com
       - key: RESEND_API_KEY
         sync: false
       - key: LOG_LEVEL
@@ -28,7 +23,7 @@ services:
     healthCheckPath: /health
 
   - type: cron
-    name: REPLACE-ME-daily-pipeline
+    name: metabolic-health-daily-pipeline
     runtime: python
     schedule: "0 15,22 * * *"
     plan: starter
@@ -47,7 +42,7 @@ services:
         value: INFO
 
   - type: cron
-    name: REPLACE-ME-daily-seo-email
+    name: metabolic-health-daily-seo-email
     runtime: python
     schedule: "0 16 * * *"
     plan: starter
@@ -62,7 +57,7 @@ services:
         value: INFO
 
   - type: cron
-    name: REPLACE-ME-weekly-linkcheck
+    name: metabolic-health-weekly-linkcheck
     runtime: python
     schedule: "0 8 * * 1"
     plan: starter
