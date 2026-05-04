@@ -362,27 +362,10 @@ def _stub_page(title: str, heading: str | None = None, body: str = "") -> str:
 
 
 def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Response:
-    """Serve a LandingPage from DB, then static PAGES dict, then stub."""
+    """Serve a LandingPage from static dict first (instant), then DB, then stub."""
     cluster_ctx = build_cluster_ctx(request.path)
 
-    # 1) Try database
-    try:
-        from src.models import LandingPage, SessionLocal, init_db
-        init_db()
-        db = SessionLocal()
-        try:
-            page = db.query(LandingPage).filter_by(page_key=page_key).first()
-            if page:
-                return Response(
-                    render_template("landing_page.html.j2", page=page, cluster_ctx=cluster_ctx),
-                    content_type="text/html; charset=utf-8",
-                )
-        finally:
-            db.close()
-    except Exception as exc:
-        logger.warning("DB lookup failed for landing page %s: %s", page_key, exc)
-
-    # 2) Fall back to static content from generate_seo_pages.py
+    # 1) Try static content first — zero latency, no network
     try:
         from scripts.generate_seo_pages import PAGES as _STATIC_PAGES
         static = _STATIC_PAGES.get(request.path)
@@ -408,6 +391,23 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
             )
     except Exception as exc:
         logger.warning("Static page lookup failed for %s: %s", request.path, exc)
+
+    # 2) Fall back to database
+    try:
+        from src.models import LandingPage, SessionLocal, init_db
+        init_db()
+        db = SessionLocal()
+        try:
+            page = db.query(LandingPage).filter_by(page_key=page_key).first()
+            if page:
+                return Response(
+                    render_template("landing_page.html.j2", page=page, cluster_ctx=cluster_ctx),
+                    content_type="text/html; charset=utf-8",
+                )
+        finally:
+            db.close()
+    except Exception as exc:
+        logger.warning("DB lookup failed for landing page %s: %s", page_key, exc)
 
     # 3) Stub fallback
     class _FakePage:
@@ -459,19 +459,7 @@ def health_check():
 @app.route("/")
 def index():
     """Homepage — render the health optimization homepage."""
-    try:
-        from src.models import BlogPost, SessionLocal, init_db
-        init_db()
-        db = SessionLocal()
-        try:
-            posts = db.query(BlogPost).order_by(BlogPost.published_date.desc()).limit(6).all()
-            return render_template("home.html.j2", posts=posts)
-        except Exception:
-            return render_template("home.html.j2", posts=[])
-        finally:
-            db.close()
-    except Exception:
-        return render_template("home.html.j2", posts=[])
+    return render_template("home.html.j2", posts=[])
 
 
 @app.route("/how-it-works")
@@ -2186,9 +2174,8 @@ def assessment_submit(token: str):
 
 
 @app.route("/pricing")
-@app.route("/recommendations")
-def recommendations():
-    return render_template("recommendations.html.j2")
+def pricing():
+    return render_template("pricing.html.j2")
 
 
 @app.route("/about")
@@ -2218,23 +2205,30 @@ def doctors():
 
 @app.route("/briefing")
 def briefing_index():
-    try:
-        from src.models import BlogPost, SessionLocal, init_db
-        init_db()
-        db = SessionLocal()
-        try:
-            posts = (
-                db.query(BlogPost)
-                .order_by(BlogPost.published_date.desc())
-                .limit(50)
-                .all()
-            )
-            return render_template("blog_index.html.j2", posts=posts)
-        finally:
-            db.close()
-    except Exception as exc:
-        logger.warning("Briefing index DB error: %s", exc)
-        return render_template("blog_index.html.j2", posts=[])
+    from scripts.generate_seo_pages import PAGES as _STATIC_PAGES
+    from src.seo.cluster_topology import CLUSTERS
+
+    articles_by_cluster: dict[str, list] = {}
+    for cluster_key, cluster in CLUSTERS.items():
+        items = []
+        for member in cluster.members:
+            page = _STATIC_PAGES.get(member.path)
+            if page:
+                items.append({
+                    "path": member.path,
+                    "title": page.title,
+                    "summary": page.summary,
+                    "cluster": cluster_key,
+                    "page_type": page.page_type,
+                })
+        articles_by_cluster[cluster_key] = items
+
+    return render_template(
+        "blog_index.html.j2",
+        posts=[],
+        articles_by_cluster=articles_by_cluster,
+        clusters=CLUSTERS,
+    )
 
 
 @app.route("/briefing/<slug>")
@@ -2729,74 +2723,105 @@ def stripe_webhook():
 #  ROUTES — Sitemap, News Sitemap, Robots.txt
 # ═══════════════════════════════════════════════════════════════════════
 
-_STATIC_SITEMAP_PATHS = [
-    "/",
-    "/how-it-works",
-    "/guides",
-    "/guides/metabolic",
-    "/guides/hormones",
-    "/guides/recovery",
-    "/assessment",
-    "/recommendations",
-    "/about",
-    "/results",
-    "/faq",
-    "/doctors",
-    "/briefing",
-    "/tools",
-    "/tools/energy-assessment",
-    "/tools/metabolic-score",
-    "/tools/hormone-checker",
-    "/tools/sleep-score",
-    "/tools/insulin-resistance-calculator",
-] + all_seo_paths()
+_SITEMAP_PRIMARY = [
+    ("/", "1.0", "daily"),
+    ("/guides", "0.9", "weekly"),
+    ("/guides/metabolic", "0.9", "weekly"),
+    ("/guides/hormones", "0.9", "weekly"),
+    ("/guides/recovery", "0.9", "weekly"),
+    ("/metabolic-health", "0.9", "weekly"),
+    ("/hormone-optimization", "0.9", "weekly"),
+    ("/sleep-recovery", "0.9", "weekly"),
+    ("/lab-testing", "0.9", "weekly"),
+    ("/assessment", "0.8", "monthly"),
+    ("/briefing", "0.8", "weekly"),
+    ("/how-it-works", "0.8", "monthly"),
+    ("/about", "0.7", "monthly"),
+    ("/tools", "0.7", "monthly"),
+]
+
+_SITEMAP_TOOLS = [
+    ("/tools/energy-assessment", "0.6", "monthly"),
+    ("/tools/metabolic-score", "0.6", "monthly"),
+    ("/tools/hormone-checker", "0.6", "monthly"),
+    ("/tools/sleep-score", "0.6", "monthly"),
+    ("/tools/insulin-resistance-calculator", "0.6", "monthly"),
+    ("/results", "0.4", "monthly"),
+    ("/faq", "0.4", "monthly"),
+    ("/doctors", "0.4", "monthly"),
+]
+
+
+def _build_urlset(entries: list[tuple[str, str, str]]) -> str:
+    base = _xml_escape(settings.canonical_site_url)
+    today = date.today().isoformat()
+    urls = ""
+    for path, priority, freq in entries:
+        urls += f"""<url>
+  <loc>{base}{path}</loc>
+  <lastmod>{today}</lastmod>
+  <changefreq>{freq}</changefreq>
+  <priority>{priority}</priority>
+</url>\n"""
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+{urls}</urlset>"""
 
 
 @app.route("/sitemap.xml")
-def sitemap():
-    base = settings.canonical_site_url
+def sitemap_index():
+    base = _xml_escape(settings.canonical_site_url)
     today = date.today().isoformat()
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>{base}/sitemap-primary.xml</loc>
+    <lastmod>{today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>{base}/sitemap-content.xml</loc>
+    <lastmod>{today}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>{base}/sitemap-tools.xml</loc>
+    <lastmod>{today}</lastmod>
+  </sitemap>
+</sitemapindex>"""
+    return Response(xml, content_type="application/xml; charset=utf-8")
 
-    urls_xml = ""
-    for path in _STATIC_SITEMAP_PATHS:
-        priority = "1.0" if path == "/" else "0.8"
-        urls_xml += f"""<url>
-  <loc>{_xml_escape(base)}{path}</loc>
-  <lastmod>{today}</lastmod>
-  <priority>{priority}</priority>
-</url>\n"""
 
+@app.route("/sitemap-primary.xml")
+def sitemap_primary():
+    seo_paths = all_seo_paths()
+    entries = list(_SITEMAP_PRIMARY)
+    for path in seo_paths:
+        entries.append((path, "0.8", "weekly"))
+    return Response(_build_urlset(entries), content_type="application/xml; charset=utf-8")
+
+
+@app.route("/sitemap-content.xml")
+def sitemap_content():
+    entries: list[tuple[str, str, str]] = []
     try:
-        from src.models import BlogPost, LandingPage, SessionLocal, init_db
+        from src.models import BlogPost, SessionLocal, init_db
         init_db()
         db = SessionLocal()
         try:
-            posts = db.query(BlogPost.slug, BlogPost.published_date).order_by(BlogPost.published_date.desc()).all()
-            for slug, pub_date in posts:
-                lastmod = pub_date.isoformat() if pub_date else today
-                urls_xml += f"""<url>
-  <loc>{_xml_escape(base)}/briefing/{_xml_escape(slug)}</loc>
-  <lastmod>{lastmod}</lastmod>
-  <priority>0.7</priority>
-</url>\n"""
-
-            pages = db.query(LandingPage.canonical_path, LandingPage.last_generated_at).all()
-            for canonical_path, gen_at in pages:
-                lastmod = gen_at.strftime("%Y-%m-%d") if gen_at else today
-                urls_xml += f"""<url>
-  <loc>{_xml_escape(base)}{_xml_escape(canonical_path)}</loc>
-  <lastmod>{lastmod}</lastmod>
-  <priority>0.7</priority>
-</url>\n"""
+            posts = db.query(BlogPost.slug).order_by(BlogPost.published_date.desc()).all()
+            for (slug,) in posts:
+                entries.append((f"/briefing/{slug}", "0.7", "weekly"))
         finally:
             db.close()
-    except Exception as exc:
-        logger.warning("Sitemap DB lookup failed: %s", exc)
+    except Exception:
+        pass
+    if not entries:
+        entries.append(("/briefing", "0.6", "weekly"))
+    return Response(_build_urlset(entries), content_type="application/xml; charset=utf-8")
 
-    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-{urls_xml}</urlset>"""
-    return Response(xml, content_type="application/xml; charset=utf-8")
+
+@app.route("/sitemap-tools.xml")
+def sitemap_tools():
+    return Response(_build_urlset(_SITEMAP_TOOLS), content_type="application/xml; charset=utf-8")
 
 
 @app.route("/news-sitemap.xml")
@@ -2849,7 +2874,6 @@ def robots_txt():
 Allow: /
 
 Sitemap: {base}/sitemap.xml
-Sitemap: {base}/news-sitemap.xml
 """
     return Response(body, content_type="text/plain; charset=utf-8")
 

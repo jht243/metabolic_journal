@@ -15,7 +15,7 @@ services:
       - key: OPENAI_MODEL
         value: gpt-4o
       - key: SITE_URL
-        value: https://metabolic-health-web.onrender.com
+        value: https://themetabolicjournal.com
       - key: RESEND_API_KEY
         sync: false
       - key: LOG_LEVEL

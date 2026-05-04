@@ -29,11 +29,12 @@
   .tool-outputs h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 12px; }
   .tool-outputs ul { margin-left: 20px; color: var(--h-dark-text); }
   .tool-outputs li { margin-bottom: 8px; font-size: 15px; }
-  .symptom-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-  @media(max-width:580px){ .symptom-grid { grid-template-columns: 1fr; } }
-  .symptom-grid label { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: white; border-radius: 4px; border: 1px solid var(--h-gray-light); cursor: pointer; font-size: 14px; font-weight: 400; margin: 0; }
-  .symptom-grid label:hover { border-color: var(--h-teal); }
-  .symptom-grid input[type="checkbox"] { accent-color: var(--h-teal); }
+  .symptom-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+  .symptom-grid label { display: inline-flex; align-items: center; padding: 8px 16px; background: white; border-radius: 100px; border: 1.5px solid var(--h-gray-light); cursor: pointer; font-size: 14px; font-weight: 500; margin: 0; transition: all 0.15s; user-select: none; }
+  .symptom-grid label:hover { border-color: var(--h-teal); background: rgba(13,148,136,0.04); }
+  .symptom-grid input[type="checkbox"] { display: none; }
+  .symptom-grid input[type="checkbox"]:checked + span { color: white; }
+  .symptom-grid label:has(input:checked) { background: var(--h-teal); border-color: var(--h-teal); color: white; }
 </style>
 {% endblock %}
 
@@ -114,26 +115,26 @@
       </div>
       <p style="font-weight:600; color:var(--h-navy); margin:20px 0 10px; font-size:15px;">Check all symptoms you experience regularly:</p>
       <div class="symptom-grid" id="hc-symptoms">
-        <label><input type="checkbox" data-h="t,c" value="fatigue"> Persistent fatigue</label>
-        <label><input type="checkbox" data-h="t" value="muscle_loss"> Loss of muscle mass</label>
-        <label><input type="checkbox" data-h="t" value="low_libido"> Reduced sex drive</label>
-        <label><input type="checkbox" data-h="t" value="ed"> Erectile difficulties (men)</label>
-        <label><input type="checkbox" data-h="th" value="weight_gain"> Unexplained weight gain</label>
-        <label><input type="checkbox" data-h="th" value="cold"> Cold intolerance</label>
-        <label><input type="checkbox" data-h="th" value="hair_loss"> Hair thinning/loss</label>
-        <label><input type="checkbox" data-h="th" value="dry_skin"> Dry skin</label>
-        <label><input type="checkbox" data-h="th" value="constipation"> Constipation</label>
-        <label><input type="checkbox" data-h="c" value="anxiety"> Anxiety or irritability</label>
-        <label><input type="checkbox" data-h="c" value="sleep"> Difficulty sleeping</label>
-        <label><input type="checkbox" data-h="c" value="belly_fat"> Belly fat accumulation</label>
-        <label><input type="checkbox" data-h="c" value="brain_fog"> Brain fog</label>
-        <label><input type="checkbox" data-h="e" value="hot_flashes"> Hot flashes</label>
-        <label><input type="checkbox" data-h="e" value="night_sweats"> Night sweats</label>
-        <label><input type="checkbox" data-h="e" value="mood_swings"> Mood swings</label>
-        <label><input type="checkbox" data-h="e" value="irregular_periods"> Irregular periods (women)</label>
-        <label><input type="checkbox" data-h="t" value="depression"> Low mood / depression</label>
-        <label><input type="checkbox" data-h="th" value="fatigue_morning"> Morning fatigue despite sleep</label>
-        <label><input type="checkbox" data-h="c" value="wired"> Feeling wired but tired at night</label>
+        <label><input type="checkbox" data-h="t,c" value="fatigue"><span>Persistent fatigue</span></label>
+        <label><input type="checkbox" data-h="t" value="muscle_loss"><span>Loss of muscle mass</span></label>
+        <label><input type="checkbox" data-h="t" value="low_libido"><span>Reduced sex drive</span></label>
+        <label><input type="checkbox" data-h="t" value="ed"><span>Erectile difficulties</span></label>
+        <label><input type="checkbox" data-h="th" value="weight_gain"><span>Unexplained weight gain</span></label>
+        <label><input type="checkbox" data-h="th" value="cold"><span>Cold intolerance</span></label>
+        <label><input type="checkbox" data-h="th" value="hair_loss"><span>Hair thinning / loss</span></label>
+        <label><input type="checkbox" data-h="th" value="dry_skin"><span>Dry skin</span></label>
+        <label><input type="checkbox" data-h="th" value="constipation"><span>Constipation</span></label>
+        <label><input type="checkbox" data-h="c" value="anxiety"><span>Anxiety / irritability</span></label>
+        <label><input type="checkbox" data-h="c" value="sleep"><span>Difficulty sleeping</span></label>
+        <label><input type="checkbox" data-h="c" value="belly_fat"><span>Belly fat accumulation</span></label>
+        <label><input type="checkbox" data-h="c" value="brain_fog"><span>Brain fog</span></label>
+        <label><input type="checkbox" data-h="e" value="hot_flashes"><span>Hot flashes</span></label>
+        <label><input type="checkbox" data-h="e" value="night_sweats"><span>Night sweats</span></label>
+        <label><input type="checkbox" data-h="e" value="mood_swings"><span>Mood swings</span></label>
+        <label><input type="checkbox" data-h="e" value="irregular_periods"><span>Irregular periods</span></label>
+        <label><input type="checkbox" data-h="t" value="depression"><span>Low mood / depression</span></label>
+        <label><input type="checkbox" data-h="th" value="fatigue_morning"><span>Morning fatigue despite sleep</span></label>
+        <label><input type="checkbox" data-h="c" value="wired"><span>Wired but tired at night</span></label>
       </div>
       <button type="submit" class="tool-btn">Analyze Hormone Symptoms</button>
     </form>
@@ -209,11 +210,6 @@
     <strong>Medical Disclaimer:</strong> This tool provides estimates for educational purposes only. Results are not a diagnosis. Consult a healthcare provider for clinical interpretation of your results.
   </div>
 
-  <div style="text-align:center; margin:40px 0 16px; padding:24px; background:var(--h-gray-bg); border-radius:8px;">
-    <h3 style="font-family:var(--font-serif); color:var(--h-navy); margin-bottom:8px;">Want a personalized analysis?</h3>
-    <p style="color:var(--h-gray-text); margin-bottom:16px; font-size:15px;">Our free assessment combines your symptom profile with metabolic and hormonal risk factors for a more complete picture.</p>
-    <a href="/assessment" class="btn-primary">Get a Personalized Analysis →</a>
-  </div>
 
 </article>
 {% endblock %}

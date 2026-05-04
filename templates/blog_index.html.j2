@@ -4,11 +4,42 @@
 {% block head_extra %}
 {{ cluster_nav_css() }}
 <style>
-  .filter-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 0 0 24px; }
-  .filter-btn { background: var(--white); border: 1px solid var(--h-gray-light); border-radius: 4px; padding: 8px 16px; font-size: 13px; font-weight: 600; color: var(--h-gray-text); cursor: pointer; transition: all 0.15s; }
-  .filter-btn:hover { border-color: var(--h-teal); color: var(--h-teal); }
-  .filter-btn.is-active { background: var(--h-teal); border-color: var(--h-teal); color: var(--white); }
-  .empty-state { text-align: center; padding: 48px 24px; color: var(--h-gray-text); }
+  .cluster-section { margin-bottom: 48px; }
+  .cluster-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--h-navy);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+  }
+  .cluster-header h2 { font-family: var(--font-serif); font-size: 24px; color: var(--h-navy); margin: 0; }
+  .cluster-header .cluster-count { font-size: 13px; color: var(--h-gray-text); font-weight: 600; }
+  .article-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .article-card {
+    background: white;
+    border: 1px solid var(--h-gray-light);
+    border-radius: 8px;
+    padding: 20px 22px;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .article-card:hover { border-color: var(--h-teal); box-shadow: 0 3px 16px rgba(13,148,136,0.08); }
+  .article-card .ac-type {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 8px;
+  }
+  .ac-type.metabolism { color: #059669; }
+  .ac-type.hormones { color: #7c3aed; }
+  .ac-type.recovery { color: #2563eb; }
+  .ac-type.testing { color: #d97706; }
+  .article-card .ac-title { font-size: 15px; font-weight: 600; color: var(--h-navy); line-height: 1.4; margin-bottom: 8px; }
+  .article-card .ac-summary { font-size: 13px; color: var(--h-gray-text); line-height: 1.5; flex: 1; }
 </style>
 {% endblock %}
 
@@ -20,78 +51,40 @@
     <span>Articles</span>
   </nav>
 
-  <header style="margin: 16px 0 24px;">
-    <h1 style="font-family:var(--font-serif); font-size:36px; color:var(--h-navy); margin:0 0 10px;">Health Optimization Briefings</h1>
+  <header style="margin: 16px 0 32px;">
+    <h1 style="font-family:var(--font-serif); font-size:36px; color:var(--h-navy); margin:0 0 10px;">Health Articles &amp; Guides</h1>
     <p style="font-family:var(--font-serif); font-style:italic; color:var(--h-gray-text); font-size:18px; max-width:680px;">
-      Evidence-based analysis on metabolism, hormones, recovery, and biomarkers — written for people who want results, not filler.
+      Evidence-based guides on metabolism, hormones, recovery, and biomarkers — written for people who want results, not filler.
     </p>
   </header>
 
   {{ cluster_nav() }}
 
-  {% if posts %}
-  <div class="filter-bar" role="toolbar" aria-label="Filter by cluster">
-    <button type="button" class="filter-btn is-active" data-filter="all">All</button>
-    <button type="button" class="filter-btn" data-filter="metabolism">Metabolism</button>
-    <button type="button" class="filter-btn" data-filter="hormones">Hormones</button>
-    <button type="button" class="filter-btn" data-filter="recovery">Recovery</button>
-    <button type="button" class="filter-btn" data-filter="testing">Testing</button>
-  </div>
-
-  <div class="index-grid" id="posts-grid">
-    {% for p in posts %}
-    <article class="index-card" data-cluster="{{ p.primary_cluster or '' }}">
-      <a class="card-link" href="/briefing/{{ p.slug }}">{{ p.title }}</a>
-      <div class="meta">
-        {% if p.primary_cluster %}
-        <span class="cluster-pill {{ p.primary_cluster }}">{{ p.primary_cluster|replace('_',' ')|title }}</span> ·
-        {% endif %}
-        {{ p.published_date.strftime('%b %d, %Y') }}
-        {% if p.reading_minutes %} · {{ p.reading_minutes }} min read{% endif %}
-      </div>
-      <a class="title-link" href="/briefing/{{ p.slug }}">{{ p.title }}</a>
-      {% if p.summary %}<p class="summary">{{ p.summary|truncate(160) }}</p>{% endif %}
-    </article>
-    {% endfor %}
-  </div>
-
-  <div class="empty-state" id="empty-filter" style="display:none;">
-    <p>No articles in this category yet. Check back soon.</p>
-  </div>
-
-  {% else %}
-  <div class="empty-state">
-    <p>No articles published yet. New briefings are published daily.</p>
+  {% if articles_by_cluster %}
+  {% set cluster_names = {"metabolism": "Metabolic Health", "hormones": "Hormone Optimization", "recovery": "Sleep & Recovery", "testing": "Testing & Biomarkers"} %}
+  {% for cluster_key in ["metabolism", "hormones", "recovery", "testing"] %}
+  {% set items = articles_by_cluster.get(cluster_key, []) %}
+  {% if items %}
+  <div class="cluster-section" id="section-{{ cluster_key }}">
+    <div class="cluster-header">
+      <h2>{{ cluster_names[cluster_key] }}</h2>
+      <span class="cluster-count">{{ items|length }} article{{ 's' if items|length != 1 }}</span>
+    </div>
+    <div class="article-grid">
+      {% for item in items %}
+      <a href="{{ item.path }}" class="article-card">
+        {% set cluster_labels = {"metabolism": "Metabolism", "hormones": "Hormones", "recovery": "Sleep & Recovery", "testing": "Testing"} %}
+        <span class="ac-type {{ item.cluster }}">{{ cluster_labels.get(item.cluster, item.cluster|title) }}</span>
+        <div class="ac-title">{{ item.title }}</div>
+        {% if item.summary %}<div class="ac-summary">{{ item.summary|truncate(140) }}</div>{% endif %}
+      </a>
+      {% endfor %}
+    </div>
   </div>
   {% endif %}
+  {% endfor %}
+  {% endif %}
 
-  <div style="text-align:center; margin: 32px 0 48px;">
-    <a href="/assessment" class="btn-primary">Get Your Personalized Protocol →</a>
-  </div>
 
 </section>
-
-<script>
-(function () {
-  var buttons = document.querySelectorAll('.filter-btn[data-filter]');
-  var cards = document.querySelectorAll('.index-card[data-cluster]');
-  var empty = document.getElementById('empty-filter');
-  if (!buttons.length) return;
-
-  buttons.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      buttons.forEach(function (b) { b.classList.remove('is-active'); });
-      btn.classList.add('is-active');
-      var filter = btn.getAttribute('data-filter');
-      var visible = 0;
-      cards.forEach(function (card) {
-        var show = filter === 'all' || card.getAttribute('data-cluster') === filter;
-        card.style.display = show ? '' : 'none';
-        if (show) visible++;
-      });
-      if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
-    });
-  });
-})();
-</script>
 {% endblock %}
