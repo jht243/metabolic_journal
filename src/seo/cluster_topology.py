@@ -104,6 +104,9 @@ _ANCHOR: dict[str, str] = {
     "/programs/metabolic": "Metabolic health program",
     "/programs/hormones": "Hormone optimization program",
     "/programs/recovery": "Sleep and recovery program",
+    "/guides/metabolic": "Metabolic Health Guide",
+    "/guides/hormones": "Hormone Health Guide",
+    "/guides/recovery": "Sleep & Recovery Guide",
 }
 
 
@@ -352,6 +355,10 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/biomarkers/cortisol-levels", "hormones"),
     ("/biomarkers/shbg", "testing"),
     ("/biomarkers/testosterone-by-age", "testing"),
+
+    ("/guides/metabolic", "metabolism"),
+    ("/guides/hormones", "hormones"),
+    ("/guides/recovery", "recovery"),
 
     # Broad prefix fallbacks (last resort)
     ("/symptoms/", "metabolism"),
