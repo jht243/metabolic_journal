@@ -73,7 +73,7 @@ class Settings(BaseSettings):
     server_port: int = 8080
 
     # ── SEO / Site Identity ─────────────────────────────────────────
-    site_url: str = "https://localhost:5001"
+    site_url: str = "https://themetabolicjournal.com"
     site_name: str = "Metabolic Health"
     site_owner_org: str = "Metabolic Health"
     site_locale: str = "en_US"
@@ -82,9 +82,7 @@ class Settings(BaseSettings):
     def canonical_site_url(self) -> str:
         """Customer-facing base URL for emails, links, and SEO."""
         u = (self.site_url or "").strip().rstrip("/")
-        if not u or "onrender.com" in u.lower():
-            return "https://localhost:5001"
-        return u
+        return u or "https://themetabolicjournal.com"
 
     # ── Blog / Content Generation ───────────────────────────────────
     blog_gen_budget_per_run: int = 6
