@@ -1,0 +1,444 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .quiz-wrapper { max-width: 680px; margin: 0 auto; padding: 40px 24px 64px; }
+  .quiz-header { text-align: center; margin-bottom: 8px; }
+  .quiz-header h1 { font-family: var(--font-serif); font-size: 28px; color: var(--h-navy); margin-bottom: 6px; }
+  .quiz-header p { color: var(--h-gray-text); font-size: 15px; }
+
+  .progress-wrap { margin: 24px 0 32px; }
+  .progress-labels { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .progress-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--h-gray-text); transition: color 0.2s; }
+  .progress-label.active { color: var(--h-teal); }
+  .progress-label.done { color: var(--h-navy); }
+  .progress-track { background: var(--h-gray-light); height: 6px; border-radius: 3px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--h-teal); border-radius: 3px; transition: width 0.35s ease; }
+
+  .step { display: none; }
+  .step.active { display: block; }
+  .step h2 { font-family: var(--font-serif); font-size: 22px; color: var(--h-navy); margin-bottom: 4px; }
+  .step .step-desc { color: var(--h-gray-text); font-size: 14.5px; margin-bottom: 24px; line-height: 1.5; }
+
+  .field { margin-bottom: 20px; }
+  .field > label { display: block; font-weight: 600; font-size: 14px; color: var(--h-navy); margin-bottom: 8px; }
+  .field input[type="number"], .field select, .field textarea {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--h-gray-light);
+    border-radius: 6px; font-size: 15px; color: var(--h-dark-text); background: white;
+    font-family: var(--font-sans);
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--h-teal); box-shadow: 0 0 0 3px rgba(13,148,136,0.08); }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width:520px){ .field-row { grid-template-columns: 1fr; } }
+
+  .pill-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill-group label {
+    display: inline-flex; align-items: center; padding: 9px 18px;
+    background: white; border: 1.5px solid var(--h-gray-light); border-radius: 100px;
+    font-size: 14px; font-weight: 500; cursor: pointer; user-select: none;
+    transition: all 0.15s;
+  }
+  .pill-group label:hover { border-color: var(--h-teal); background: rgba(13,148,136,0.03); }
+  .pill-group input { display: none; }
+  .pill-group label:has(input:checked) { background: var(--h-teal); border-color: var(--h-teal); color: white; }
+
+  .radio-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .radio-pills label {
+    display: inline-flex; padding: 9px 18px;
+    background: white; border: 1.5px solid var(--h-gray-light); border-radius: 100px;
+    font-size: 14px; font-weight: 500; cursor: pointer; user-select: none;
+    transition: all 0.15s;
+  }
+  .radio-pills label:hover { border-color: var(--h-teal); }
+  .radio-pills input { display: none; }
+  .radio-pills label:has(input:checked) { background: var(--h-teal); border-color: var(--h-teal); color: white; }
+
+  .symptom-category { margin-bottom: 20px; }
+  .symptom-category > .cat-label { font-size: 13px; font-weight: 700; color: var(--h-gray-text); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+
+  .nav-buttons { display: flex; justify-content: space-between; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--h-gray-light); }
+  .btn-back-q { background: none; border: 0; font-size: 15px; color: var(--h-gray-text); cursor: pointer; font-weight: 600; padding: 12px 0; }
+  .btn-back-q:hover { color: var(--h-dark-text); }
+
+  /* Results */
+  .results-section { display: none; }
+  .results-section.active { display: block; }
+  .score-hero { text-align: center; padding: 32px 0 24px; }
+  .score-number { font-size: 64px; font-weight: 700; line-height: 1; }
+  .score-subtitle { font-size: 16px; color: var(--h-gray-text); margin-top: 4px; }
+  .domain-card { background: var(--h-gray-bg); border-radius: 8px; padding: 20px 24px; margin-bottom: 12px; }
+  .domain-card .dc-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .domain-card .dc-name { font-weight: 700; font-size: 15px; }
+  .domain-card .dc-score { font-weight: 700; font-size: 15px; }
+  .domain-bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; }
+  .domain-bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; }
+  .domain-card .dc-detail { font-size: 13px; color: var(--h-gray-text); margin-top: 8px; line-height: 1.5; }
+  .rec-section { margin-top: 28px; }
+  .rec-section h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 12px; }
+  .rec-list { list-style: none; padding: 0; }
+  .rec-list li { padding: 12px 0; border-bottom: 1px solid var(--h-gray-light); font-size: 14px; line-height: 1.5; display: flex; gap: 10px; }
+  .rec-list li:last-child { border-bottom: 0; }
+  .rec-icon { color: var(--h-teal); font-weight: 700; flex-shrink: 0; }
+  .rec-links { margin-top: 28px; }
+  .rec-links h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 12px; }
+  .rec-link-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media(max-width:520px){ .rec-link-grid { grid-template-columns: 1fr; } }
+  .rec-link-card { display: block; padding: 14px 18px; background: white; border: 1px solid var(--h-gray-light); border-radius: 8px; text-decoration: none; transition: border-color 0.15s; }
+  .rec-link-card:hover { border-color: var(--h-teal); }
+  .rec-link-card .rlc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--h-teal); }
+  .rec-link-card .rlc-title { font-size: 14px; font-weight: 600; color: var(--h-navy); margin-top: 4px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="quiz-wrapper">
+  <div class="quiz-header">
+    <h1>Health Assessment</h1>
+    <p>5 quick sections. Get personalized insights instantly.</p>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-labels" id="progressLabels">
+      <span class="progress-label active" data-s="0">Basics</span>
+      <span class="progress-label" data-s="1">Symptoms</span>
+      <span class="progress-label" data-s="2">Goals</span>
+      <span class="progress-label" data-s="3">History</span>
+      <span class="progress-label" data-s="4">Lifestyle</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:20%"></div></div>
+  </div>
+
+  <!-- Step 0: Demographics -->
+  <div class="step active" data-s="0">
+    <h2>About You</h2>
+    <p class="step-desc">Basic info to personalize your results.</p>
+    <div class="field-row">
+      <div class="field"><label>Age</label><input type="number" id="q-age" min="18" max="100" placeholder="e.g. 38"></div>
+      <div class="field"><label>Biological Sex</label>
+        <select id="q-sex"><option value="">Select…</option><option value="male">Male</option><option value="female">Female</option></select>
+      </div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Height (inches)</label><input type="number" id="q-height" placeholder="e.g. 70"></div>
+      <div class="field"><label>Weight (lbs)</label><input type="number" id="q-weight" placeholder="e.g. 180"></div>
+    </div>
+  </div>
+
+  <!-- Step 1: Symptoms -->
+  <div class="step" data-s="1">
+    <h2>Symptoms</h2>
+    <p class="step-desc">Select everything you experience regularly.</p>
+
+    <div class="symptom-category">
+      <div class="cat-label">Energy & Fatigue</div>
+      <div class="pill-group" data-domain="metabolic">
+        <label><input type="checkbox" value="Persistent fatigue"><span>Persistent fatigue</span></label>
+        <label><input type="checkbox" value="Post-meal crashes"><span>Post-meal energy crashes</span></label>
+        <label><input type="checkbox" value="Afternoon slump"><span>Afternoon slump</span></label>
+        <label><input type="checkbox" value="Need caffeine"><span>Need caffeine to function</span></label>
+      </div>
+    </div>
+
+    <div class="symptom-category">
+      <div class="cat-label">Weight & Body Composition</div>
+      <div class="pill-group" data-domain="metabolic">
+        <label><input type="checkbox" value="Unexplained weight gain"><span>Unexplained weight gain</span></label>
+        <label><input type="checkbox" value="Can't lose weight"><span>Can't lose weight</span></label>
+        <label><input type="checkbox" value="Belly fat"><span>Belly fat accumulation</span></label>
+        <label><input type="checkbox" value="Sugar cravings"><span>Sugar / carb cravings</span></label>
+      </div>
+    </div>
+
+    <div class="symptom-category">
+      <div class="cat-label">Hormonal</div>
+      <div class="pill-group" data-domain="hormonal">
+        <label><input type="checkbox" value="Low sex drive"><span>Low sex drive</span></label>
+        <label><input type="checkbox" value="Brain fog"><span>Brain fog</span></label>
+        <label><input type="checkbox" value="Mood swings"><span>Mood swings</span></label>
+        <label><input type="checkbox" value="Hair thinning"><span>Hair thinning / loss</span></label>
+        <label><input type="checkbox" value="Cold intolerance"><span>Cold intolerance</span></label>
+        <label><input type="checkbox" value="Dry skin"><span>Dry skin</span></label>
+        <label><input type="checkbox" value="Hot flashes"><span>Hot flashes</span></label>
+        <label><input type="checkbox" value="Irregular periods"><span>Irregular periods</span></label>
+      </div>
+    </div>
+
+    <div class="symptom-category">
+      <div class="cat-label">Sleep & Recovery</div>
+      <div class="pill-group" data-domain="recovery">
+        <label><input type="checkbox" value="Trouble falling asleep"><span>Trouble falling asleep</span></label>
+        <label><input type="checkbox" value="Night wakeups"><span>Frequent night wakeups</span></label>
+        <label><input type="checkbox" value="Unrefreshed"><span>Wake up unrefreshed</span></label>
+        <label><input type="checkbox" value="Night sweats"><span>Night sweats</span></label>
+        <label><input type="checkbox" value="Snoring"><span>Snoring / breathing pauses</span></label>
+      </div>
+    </div>
+
+    <div class="symptom-category">
+      <div class="cat-label">Stress & Mental</div>
+      <div class="pill-group" data-domain="recovery">
+        <label><input type="checkbox" value="Anxiety"><span>Anxiety / irritability</span></label>
+        <label><input type="checkbox" value="Wired but tired"><span>Wired but tired at night</span></label>
+        <label><input type="checkbox" value="Low mood"><span>Low mood / depression</span></label>
+        <label><input type="checkbox" value="Poor stress tolerance"><span>Poor stress tolerance</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Goals -->
+  <div class="step" data-s="2">
+    <h2>Your Goals</h2>
+    <p class="step-desc">What matters most to you right now? Select all that apply.</p>
+    <div class="pill-group" id="goals-group">
+      <label><input type="checkbox" value="More energy"><span>More energy</span></label>
+      <label><input type="checkbox" value="Lose body fat"><span>Lose body fat</span></label>
+      <label><input type="checkbox" value="Build muscle"><span>Build muscle</span></label>
+      <label><input type="checkbox" value="Better sleep"><span>Better sleep</span></label>
+      <label><input type="checkbox" value="Balance hormones"><span>Balance hormones</span></label>
+      <label><input type="checkbox" value="Reduce brain fog"><span>Reduce brain fog</span></label>
+      <label><input type="checkbox" value="Improve mood"><span>Improve mood</span></label>
+      <label><input type="checkbox" value="Increase libido"><span>Increase libido</span></label>
+      <label><input type="checkbox" value="Reduce stress"><span>Reduce stress</span></label>
+      <label><input type="checkbox" value="Optimize metabolic health"><span>Optimize metabolic health</span></label>
+      <label><input type="checkbox" value="Slow aging"><span>Slow aging</span></label>
+    </div>
+  </div>
+
+  <!-- Step 3: Health History -->
+  <div class="step" data-s="3">
+    <h2>Health History</h2>
+    <p class="step-desc">Context that helps interpret your results.</p>
+    <div class="field"><label>Any diagnosed conditions?</label>
+      <textarea id="q-conditions" placeholder="e.g. hypothyroidism, pre-diabetes, PCOS, or none" rows="2"></textarea>
+    </div>
+    <div class="field"><label>Current medications or supplements?</label>
+      <textarea id="q-meds" placeholder="List anything you take regularly" rows="2"></textarea>
+    </div>
+    <div class="field"><label>Recent lab work?</label>
+      <div class="radio-pills">
+        <label><input type="radio" name="labs" value="none"><span>None</span></label>
+        <label><input type="radio" name="labs" value="6mo"><span>Within 6 months</span></label>
+        <label><input type="radio" name="labs" value="1yr"><span>Within a year</span></label>
+        <label><input type="radio" name="labs" value="older"><span>Over a year ago</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Lifestyle -->
+  <div class="step" data-s="4">
+    <h2>Lifestyle</h2>
+    <p class="step-desc">Daily habits that affect your metabolic and hormonal health.</p>
+
+    <div class="field"><label>Diet pattern</label>
+      <div class="radio-pills">
+        <label><input type="radio" name="diet" value="Standard"><span>Standard American</span></label>
+        <label><input type="radio" name="diet" value="Mediterranean"><span>Mediterranean</span></label>
+        <label><input type="radio" name="diet" value="Low-carb"><span>Low-carb / keto</span></label>
+        <label><input type="radio" name="diet" value="Plant-based"><span>Plant-based</span></label>
+        <label><input type="radio" name="diet" value="IF"><span>Intermittent fasting</span></label>
+        <label><input type="radio" name="diet" value="None"><span>No specific diet</span></label>
+      </div>
+    </div>
+
+    <div class="field"><label>Exercise frequency</label>
+      <div class="radio-pills">
+        <label><input type="radio" name="exercise" value="0"><span>Sedentary</span></label>
+        <label><input type="radio" name="exercise" value="1"><span>1–2x / week</span></label>
+        <label><input type="radio" name="exercise" value="2"><span>3–4x / week</span></label>
+        <label><input type="radio" name="exercise" value="3"><span>5+ x / week</span></label>
+      </div>
+    </div>
+
+    <div class="field"><label>Sleep duration</label>
+      <div class="radio-pills">
+        <label><input type="radio" name="sleep" value="0"><span>Under 5 hours</span></label>
+        <label><input type="radio" name="sleep" value="1"><span>5–6 hours</span></label>
+        <label><input type="radio" name="sleep" value="2"><span>6–7 hours</span></label>
+        <label><input type="radio" name="sleep" value="3"><span>7–8 hours</span></label>
+        <label><input type="radio" name="sleep" value="4"><span>8+ hours</span></label>
+      </div>
+    </div>
+
+    <div class="field"><label>Stress level</label>
+      <div class="radio-pills">
+        <label><input type="radio" name="stress" value="0"><span>Low</span></label>
+        <label><input type="radio" name="stress" value="1"><span>Moderate</span></label>
+        <label><input type="radio" name="stress" value="2"><span>High</span></label>
+        <label><input type="radio" name="stress" value="3"><span>Very high</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results (hidden until submit) -->
+  <div class="results-section" id="resultsSection">
+    <div class="score-hero">
+      <div class="score-number" id="totalScore" style="color:var(--h-teal)">—</div>
+      <div class="score-subtitle">Overall Health Optimization Score</div>
+    </div>
+
+    <div id="domainCards"></div>
+
+    <div class="rec-section">
+      <h3>Recommended Next Steps</h3>
+      <ul class="rec-list" id="recList"></ul>
+    </div>
+
+    <div class="rec-links">
+      <h3>Recommended Reading</h3>
+      <div class="rec-link-grid" id="recLinks"></div>
+    </div>
+
+    <div style="text-align:center; margin-top:32px;">
+      <a href="/assessment/quiz" class="btn-primary" onclick="location.reload();return false;">Retake Assessment</a>
+    </div>
+  </div>
+
+  <div class="nav-buttons" id="navButtons">
+    <button type="button" class="btn-back-q" id="btnBack" style="visibility:hidden">← Back</button>
+    <button type="button" class="btn-primary" id="btnNext">Continue →</button>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts_extra %}
+<script>
+(function(){
+  var cur=0, total=5;
+  var steps=document.querySelectorAll('.step');
+  var labels=document.querySelectorAll('.progress-label');
+  var bar=document.getElementById('progressBar');
+  var btnN=document.getElementById('btnNext');
+  var btnB=document.getElementById('btnBack');
+  var nav=document.getElementById('navButtons');
+  var results=document.getElementById('resultsSection');
+
+  function show(){
+    steps.forEach(function(s,i){s.classList.toggle('active',i===cur)});
+    labels.forEach(function(l,i){
+      l.classList.remove('active','done');
+      if(i===cur)l.classList.add('active');
+      else if(i<cur)l.classList.add('done');
+    });
+    bar.style.width=((cur+1)/total*100)+'%';
+    btnB.style.visibility=cur===0?'hidden':'visible';
+    btnN.textContent=cur===total-1?'Get My Results':'Continue →';
+  }
+
+  btnN.addEventListener('click',function(){
+    if(cur<total-1){cur++;show();window.scrollTo({top:0,behavior:'smooth'});}
+    else{computeResults();}
+  });
+  btnB.addEventListener('click',function(){
+    if(cur>0){cur--;show();window.scrollTo({top:0,behavior:'smooth'});}
+  });
+
+  function checked(sel){
+    var out=[];
+    document.querySelectorAll(sel).forEach(function(cb){if(cb.checked)out.push(cb.value)});
+    return out;
+  }
+  function radioVal(name){var r=document.querySelector('input[name="'+name+'"]:checked');return r?r.value:'';}
+
+  function computeResults(){
+    var metabolicSymptoms=0,hormonalSymptoms=0,recoverySymptoms=0;
+    document.querySelectorAll('.pill-group[data-domain="metabolic"] input:checked').forEach(function(){metabolicSymptoms++});
+    document.querySelectorAll('.pill-group[data-domain="hormonal"] input:checked').forEach(function(){hormonalSymptoms++});
+    document.querySelectorAll('.pill-group[data-domain="recovery"] input:checked').forEach(function(){recoverySymptoms++});
+
+    var exercise=parseInt(radioVal('exercise'))||0;
+    var sleepVal=parseInt(radioVal('sleep'))||0;
+    var stressVal=parseInt(radioVal('stress'))||0;
+
+    var metScore=Math.max(0,100-metabolicSymptoms*12-Math.max(0,2-exercise)*8);
+    var hormScore=Math.max(0,100-hormonalSymptoms*10);
+    var recScore=Math.max(0,100-recoverySymptoms*11-(3-Math.min(sleepVal,3))*10-stressVal*8);
+
+    var overall=Math.round((metScore+hormScore+recScore)/3);
+
+    var domains=[
+      {name:'Metabolic Health',score:metScore,color:'#059669',
+       detail:metScore>=70?'Your metabolic markers look relatively healthy. Maintain your current habits and consider periodic fasting insulin testing.':
+              metScore>=40?'Some metabolic stress signals present. Diet optimization and regular exercise can meaningfully improve these markers within 8–12 weeks.':
+              'Multiple metabolic warning signs. We recommend a comprehensive metabolic panel including fasting insulin, HbA1c, and lipid panel.'},
+      {name:'Hormonal Health',score:hormScore,color:'#7c3aed',
+       detail:hormScore>=70?'Hormonal symptoms are minimal. Annual hormone panel is still recommended, especially after age 35.':
+              hormScore>=40?'Moderate hormonal symptom burden. A targeted hormone panel (testosterone, thyroid, cortisol) can identify the root cause.':
+              'Significant hormonal symptoms reported. A full hormone panel is strongly recommended — these symptoms are treatable once properly diagnosed.'},
+      {name:'Sleep & Recovery',score:recScore,color:'#2563eb',
+       detail:recScore>=70?'Your recovery capacity appears solid. Consider HRV tracking to optimize training and stress management.':
+              recScore>=40?'Recovery is compromised. Focus on sleep hygiene fundamentals and consider a 4-point salivary cortisol test.':
+              'Major recovery deficit. Poor sleep and high stress compound metabolic and hormonal issues. A sleep study may be warranted if snoring is present.'}
+    ];
+
+    var scoreColor=overall>=65?'#059669':overall>=40?'#d97706':'#dc2626';
+    document.getElementById('totalScore').textContent=overall+'/100';
+    document.getElementById('totalScore').style.color=scoreColor;
+
+    var cardsHtml='';
+    domains.forEach(function(d){
+      var c=d.score>=65?'#059669':d.score>=40?'#d97706':'#dc2626';
+      cardsHtml+='<div class="domain-card"><div class="dc-header"><span class="dc-name" style="color:'+d.color+'">'+d.name+'</span><span class="dc-score" style="color:'+c+'">'+d.score+'/100</span></div><div class="domain-bar"><div class="domain-bar-fill" style="width:'+d.score+'%;background:'+d.color+'"></div></div><div class="dc-detail">'+d.detail+'</div></div>';
+    });
+    document.getElementById('domainCards').innerHTML=cardsHtml;
+
+    var recs=[];
+    if(metScore<60){
+      recs.push('Get a fasting insulin and HbA1c test — these reveal metabolic issues years before fasting glucose becomes abnormal');
+      recs.push('Prioritize 150+ minutes of zone 2 cardio and 2+ strength sessions per week');
+    }
+    if(hormScore<60){
+      recs.push('Request a comprehensive hormone panel: total/free testosterone, TSH, free T3/T4, AM cortisol, DHEA-S');
+      recs.push('If female with irregular cycles, add estradiol, progesterone, and SHBG');
+    }
+    if(recScore<60){
+      recs.push('Implement a strict wind-down routine: no screens 60 min before bed, bedroom at 65–68°F, consistent wake time');
+      recs.push('Consider a 4-point salivary cortisol test if you feel "wired but tired"');
+    }
+    if(sleepVal<2) recs.push('Your sleep duration is below the 7–9 hour recommendation — this alone can drive weight gain, insulin resistance, and low testosterone');
+    if(stressVal>=2) recs.push('High chronic stress elevates cortisol, which directly impairs insulin sensitivity, testosterone, and sleep architecture');
+    if(exercise<1) recs.push('Even 3 sessions of 30-minute walks per week significantly improve insulin sensitivity and hormone levels');
+    if(recs.length===0) recs.push('Your profile looks strong — maintain current habits and retest annually');
+
+    var recHtml='';
+    recs.forEach(function(r){recHtml+='<li><span class="rec-icon">→</span><span>'+r+'</span></li>'});
+    document.getElementById('recList').innerHTML=recHtml;
+
+    var links=[];
+    if(metScore<70){
+      links.push({href:'/guides/metabolic',label:'Guide',title:'Metabolic Health Guide'});
+      links.push({href:'/insulin-resistance',label:'Article',title:'Insulin Resistance: Causes & Reversal'});
+      links.push({href:'/tools/metabolic-score',label:'Tool',title:'Metabolic Score Calculator'});
+    }
+    if(hormScore<70){
+      links.push({href:'/guides/hormones',label:'Guide',title:'Hormone Optimization Guide'});
+      links.push({href:'/tools/hormone-checker',label:'Tool',title:'Hormone Symptom Checker'});
+      links.push({href:'/low-testosterone',label:'Article',title:'Low Testosterone: Symptoms & Treatment'});
+    }
+    if(recScore<70){
+      links.push({href:'/guides/recovery',label:'Guide',title:'Sleep & Recovery Guide'});
+      links.push({href:'/tools/sleep-score',label:'Tool',title:'Sleep Recovery Score'});
+      links.push({href:'/chronic-fatigue',label:'Article',title:'Chronic Fatigue: Root Causes'});
+    }
+    if(links.length===0){
+      links.push({href:'/guides',label:'Guides',title:'All Health Guides'});
+      links.push({href:'/tools',label:'Tools',title:'All Health Tools'});
+    }
+
+    var linksHtml='';
+    links.forEach(function(l){
+      linksHtml+='<a href="'+l.href+'" class="rec-link-card"><div class="rlc-label">'+l.label+'</div><div class="rlc-title">'+l.title+'</div></a>';
+    });
+    document.getElementById('recLinks').innerHTML=linksHtml;
+
+    steps.forEach(function(s){s.classList.remove('active')});
+    nav.style.display='none';
+    document.querySelector('.progress-wrap').style.display='none';
+    results.classList.add('active');
+    document.querySelector('.quiz-header h1').textContent='Your Results';
+    document.querySelector('.quiz-header p').textContent='Personalized analysis based on your answers';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+})();
+</script>
+{% endblock %}
