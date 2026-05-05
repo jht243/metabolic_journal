@@ -6,7 +6,8 @@
 
 {% block head_extra %}
 {{ cluster_nav_css() }}
-{{ medical_schema(page.title, page.summary or '', page.reviewed_at|default('', true)|string, page.reviewed_by|default('', true), '', page.canonical_path|default('', true)) }}
+{% set _page_canonical = seo.canonical|default(page.canonical_path|default('', true), true) %}
+{{ medical_schema(page.title, page.summary or '', page.reviewed_at|default('', true)|string, page.reviewed_by|default('', true), '', _page_canonical) }}
 
 {% if page.faq_json %}
 <script type="application/ld+json">

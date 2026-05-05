@@ -45,6 +45,8 @@ _ANCHOR: dict[str, str] = {
 
     # ── Hormones hub + spokes ──
     "/hormone-optimization": "Hormone optimization — testosterone, thyroid, cortisol, estrogen",
+    "/hormone-optimization/menopause": "Menopause, fatigue, weight gain, and metabolic health",
+    "/hormone-optimization/perimenopause": "Perimenopause symptoms, fatigue, and early hormone changes",
     "/low-testosterone": "Low testosterone in men: symptoms, causes, and treatment",
     "/hormone-imbalance": "Hormone imbalance: symptoms, causes, and how to fix it",
     "/thyroid-symptoms": "Thyroid symptoms: hypothyroidism vs hyperthyroidism and what your labs mean",
@@ -67,6 +69,7 @@ _ANCHOR: dict[str, str] = {
 
     # ── Recovery hub + spokes ──
     "/sleep-recovery": "Sleep and recovery — fatigue, sleep quality, HRV, stress recovery",
+    "/sleep-recovery/sleep-apnea": "Sleep apnea, fatigue, weight gain, and metabolic risk",
     "/chronic-fatigue": "Chronic fatigue: causes beyond just sleep",
     "/symptoms/sleep-apnea": "Sleep apnea symptoms: signs you're not breathing at night",
     "/symptoms/waking-up-tired": "Waking up tired every day? Here's why",
@@ -193,6 +196,8 @@ CLUSTERS: dict[str, Cluster] = {
             "Hub page covering testosterone, thyroid, cortisol, and reproductive hormones.",
         ),
         members=(
+            _ck("/hormone-optimization/menopause", "Parent hub for menopause symptoms, body composition, testing, and treatment paths."),
+            _ck("/hormone-optimization/perimenopause", "Early-transition hub for fatigue, weight gain, sleep disruption, and symptom triage."),
             _ck("/low-testosterone", "Symptoms, causes, and treatment options for low T in men."),
             _ck("/hormone-imbalance", "How hormonal imbalances present differently in men and women."),
             _ck("/thyroid-symptoms", "Hypothyroidism vs hyperthyroidism — symptoms and what labs reveal."),
@@ -229,6 +234,7 @@ CLUSTERS: dict[str, Cluster] = {
             "Hub page covering sleep quality, fatigue, HRV, and stress recovery.",
         ),
         members=(
+            _ck("/sleep-recovery/sleep-apnea", "Entry hub connecting sleep apnea to fatigue, weight gain, testing, and treatment options."),
             _ck("/chronic-fatigue", "Causes of persistent fatigue beyond sleep — iron, thyroid, inflammation."),
             _ck("/symptoms/sleep-apnea", "OSA warning signs: snoring, witnessed apneas, daytime sleepiness."),
             _ck("/symptoms/waking-up-tired", "Why 7-8 hours isn't enough when sleep quality is poor."),
@@ -280,6 +286,9 @@ _CROSS_CLUSTER: dict[str, list[str]] = {
     "/labs/insulin-resistance-testing": ["testing", "metabolism"],
     "/biomarkers/heart-rate-variability": ["testing", "recovery"],
     "/conditions/cortisol-imbalance": ["hormones", "recovery"],
+    "/hormone-optimization/menopause": ["hormones", "metabolism", "recovery"],
+    "/hormone-optimization/perimenopause": ["hormones", "metabolism", "recovery"],
+    "/sleep-recovery/sleep-apnea": ["recovery", "metabolism", "hormones"],
 }
 
 
@@ -306,6 +315,8 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/tools/insulin-resistance-calculator", "metabolism"),
 
     # Hormones
+    ("/hormone-optimization/menopause", "hormones"),
+    ("/hormone-optimization/perimenopause", "hormones"),
     ("/hormone-optimization", "hormones"),
     ("/low-testosterone", "hormones"),
     ("/hormone-imbalance", "hormones"),
@@ -330,6 +341,7 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/tools/hormone-checker", "hormones"),
 
     # Recovery
+    ("/sleep-recovery/sleep-apnea", "recovery"),
     ("/sleep-recovery", "recovery"),
     ("/chronic-fatigue", "recovery"),
     ("/symptoms/sleep-apnea", "recovery"),
