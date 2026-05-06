@@ -117,6 +117,40 @@
     article .body li { margin-bottom: 8px; }
     article .body blockquote { border-left: 3px solid var(--h-teal); padding: 4px 16px; margin: 20px 0; color: var(--h-gray-text); font-style: italic; font-family: var(--font-serif); }
 
+    .generated-section { margin: 34px 0; }
+    .generated-section h2 { font-family: var(--font-serif); font-size: 24px; line-height: 1.25; color: var(--h-navy); margin: 0 0 14px; }
+    .generated-section p,
+    .generated-section li { font-size: 16px; line-height: 1.7; color: var(--h-dark-text); }
+    .generated-section p { margin: 0 0 16px; }
+    .generated-section ul,
+    .generated-section ol,
+    article .body ul,
+    article .body ol { padding-left: 22px; margin: 14px 0 18px; }
+    .generated-section li,
+    article .body li { margin: 6px 0; padding-left: 4px; }
+    .generated-section li::marker,
+    article .body li::marker { color: var(--h-teal-dark); font-size: 0.82em; }
+    .generated-section a,
+    article .body a { font-weight: 600; }
+    article table { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; margin: 18px 0 24px; border: 1px solid #d8e0eb; border-radius: 6px; overflow: hidden; background: var(--white); font-size: 15px; line-height: 1.45; }
+    article th,
+    article td { padding: 13px 15px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    article th { background: #f1f7f7; color: var(--h-navy); font-size: 12px; line-height: 1.25; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #d8e0eb; }
+    article td { color: var(--h-dark-text); border-bottom: 1px solid #eef2f6; }
+    article tr:last-child td { border-bottom: 0; }
+    article td + td,
+    article th + th { border-left: 1px solid #eef2f6; }
+    article td a { display: inline; font-weight: 700; color: var(--h-teal-dark); }
+    @media (max-width: 640px) {
+      article header h1 { font-size: 30px; }
+      article table { display: block; overflow-x: auto; table-layout: auto; -webkit-overflow-scrolling: touch; }
+      article th,
+      article td { min-width: 180px; }
+      .generated-section { margin: 28px 0; }
+      .generated-section p,
+      .generated-section li { font-size: 15.5px; line-height: 1.65; }
+    }
+
     /* ── Takeaways / Callout ── */
     .takeaways { background: var(--h-gray-bg); border-left: 3px solid var(--h-teal); padding: 18px 22px; margin: 24px 0 32px; border-radius: 0 4px 4px 0; }
     .takeaways h3 { font-family: var(--font-serif); font-size: 16px; color: var(--h-navy); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }

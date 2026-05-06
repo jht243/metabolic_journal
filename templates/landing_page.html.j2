@@ -1,7 +1,7 @@
 {% extends "_base.html.j2" %}
 {% from "_cluster_nav.html.j2" import cluster_nav, cluster_nav_css %}
 {% from "_recent_briefings.html.j2" import recent_briefings %}
-{% from "_cta.html.j2" import cta_assessment, cta_lead_magnet, cta_sticky %}
+{% from "_cta.html.j2" import cta_assessment, cta_lead_magnet %}
 {% from "_eeat.html.j2" import reviewer_badge, last_reviewed, medical_schema %}
 
 {% block head_extra %}
@@ -71,8 +71,8 @@
 
   {% if page.sections_json %}
   {% for section in page.sections_json %}
-  <section style="margin:32px 0;">
-    {% if section.heading %}<h2 style="font-family:var(--font-serif); font-size:24px; color:var(--h-navy); margin-bottom:12px;">{{ section.heading }}</h2>{% endif %}
+  <section class="generated-section">
+    {% if section.heading %}<h2>{{ section.heading }}</h2>{% endif %}
     {% if section.content %}{{ section.content | safe }}{% endif %}
   </section>
   {% endfor %}
@@ -101,7 +101,6 @@
   </div>
 
   {{ cta_assessment(variant="highlighted") }}
-  {{ cta_sticky() }}
 
   {# Related pages from cluster topology #}
   {% if cluster_ctx and cluster_ctx.others %}
