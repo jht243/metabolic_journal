@@ -193,11 +193,11 @@ CLUSTERS: dict[str, Cluster] = {
         ),
         pillar=_ck(
             "/hormone-optimization",
-            "Hub page covering testosterone, thyroid, cortisol, and reproductive hormones.",
+            "Guide to testosterone, thyroid, cortisol, and reproductive hormones.",
         ),
         members=(
-            _ck("/hormone-optimization/menopause", "Parent hub for menopause symptoms, body composition, testing, and treatment paths."),
-            _ck("/hormone-optimization/perimenopause", "Early-transition hub for fatigue, weight gain, sleep disruption, and symptom triage."),
+            _ck("/hormone-optimization/menopause", "Menopause symptoms, body composition, testing, and treatment paths."),
+            _ck("/hormone-optimization/perimenopause", "Early-transition fatigue, weight gain, sleep disruption, and symptom triage."),
             _ck("/low-testosterone", "Symptoms, causes, and treatment options for low T in men."),
             _ck("/hormone-imbalance", "How hormonal imbalances present differently in men and women."),
             _ck("/thyroid-symptoms", "Hypothyroidism vs hyperthyroidism — symptoms and what labs reveal."),
@@ -231,10 +231,10 @@ CLUSTERS: dict[str, Cluster] = {
         ),
         pillar=_ck(
             "/sleep-recovery",
-            "Hub page covering sleep quality, fatigue, HRV, and stress recovery.",
+            "Guide to sleep quality, fatigue, HRV, and stress recovery.",
         ),
         members=(
-            _ck("/sleep-recovery/sleep-apnea", "Entry hub connecting sleep apnea to fatigue, weight gain, testing, and treatment options."),
+            _ck("/sleep-recovery/sleep-apnea", "Connect sleep apnea to fatigue, weight gain, testing, and treatment options."),
             _ck("/chronic-fatigue", "Causes of persistent fatigue beyond sleep — iron, thyroid, inflammation."),
             _ck("/symptoms/sleep-apnea", "OSA warning signs: snoring, witnessed apneas, daytime sleepiness."),
             _ck("/symptoms/waking-up-tired", "Why 7-8 hours isn't enough when sleep quality is poor."),
