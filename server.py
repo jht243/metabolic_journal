@@ -17,6 +17,7 @@ import secrets
 import time
 from datetime import datetime, date, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 from xml.sax.saxutils import escape as _xml_escape
 
 import httpx
@@ -343,16 +344,68 @@ def _send_booking_notification(stripe_session: dict) -> bool:
     from_addr = _order_from_address()
     try:
         send_email(
-            subject=subject,
-            html=html,
             to=recipient,
-            provider=provider,
-            from_addr=from_addr,
+            subject=subject,
+            html_body=html,
+            provider_name=provider,
+            from_override=from_addr,
         )
         logger.info("Booking notification sent to %s", recipient)
         return True
     except Exception as exc:
         logger.exception("Failed to send booking notification: %s", exc)
+        return False
+
+
+def _send_doctor_request_notification(
+    *,
+    name: str,
+    email: str,
+    concern: str,
+    location: str,
+    preferences: str,
+    source: str,
+    result_context: str,
+    submitted_at: str,
+) -> bool:
+    """Email the site owner when someone requests a specialist match."""
+    from src.newsletter import send_email
+
+    recipient = _order_email_recipient()
+    if not recipient:
+        logger.info("Doctor request notification skipped: notification email not set")
+        return False
+
+    subject = f"New specialist appointment request - {concern or 'general'}"
+    html = f"""
+    <h2>New Specialist Appointment Request</h2>
+    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+      <tr><td><strong>Name</strong></td><td>{_xml_escape(name or 'Unknown')}</td></tr>
+      <tr><td><strong>Email</strong></td><td>{_xml_escape(email)}</td></tr>
+      <tr><td><strong>Concern</strong></td><td>{_xml_escape(concern or 'general')}</td></tr>
+      <tr><td><strong>Location / Telehealth</strong></td><td>{_xml_escape(location or 'Not provided')}</td></tr>
+      <tr><td><strong>Source</strong></td><td>{_xml_escape(source or 'unknown')}</td></tr>
+      <tr><td><strong>Result Context</strong></td><td>{_xml_escape(result_context or 'None')}</td></tr>
+      <tr><td><strong>Submitted</strong></td><td>{_xml_escape(submitted_at)}</td></tr>
+    </table>
+    <p><strong>Notes</strong></p>
+    <p>{_xml_escape(preferences or 'None')}</p>
+    """
+
+    provider = (settings.order_email_provider or "resend").strip().lower()
+    from_addr = _order_from_address()
+    try:
+        send_email(
+            to=recipient,
+            subject=subject,
+            html_body=html,
+            provider_name=provider,
+            from_override=from_addr,
+        )
+        logger.info("Doctor request notification sent to %s", recipient)
+        return True
+    except Exception as exc:
+        logger.exception("Failed to send doctor request notification: %s", exc)
         return False
 
 
@@ -933,6 +986,8 @@ _PROGRAM_DATA = {
 <li><strong>Registered dietitian (with low-carb or metabolic health expertise):</strong> for structured dietary guidance, meal planning, and behavior change support</li>
 <li><strong>Cardiologist (preventive):</strong> if you have metabolic syndrome with elevated cardiovascular risk markers (coronary calcium score, Lp(a), apoB)</li>
 </ul>
+
+<p style="margin-top:20px;"><a class="btn-primary" href="/book?concern=metabolic&source=guide-metabolic-referral">Book An Appointment With A Specialist →</a></p>
 
 <div class="callout-box">
 <h4>Your Next Steps</h4>
@@ -1544,6 +1599,8 @@ _PROGRAM_DATA = {
 <p>Beware of providers who: prescribe testosterone without baseline labs or follow-up monitoring, refuse to check free T3 or reverse T3 for symptomatic thyroid patients, dismiss perimenopause symptoms in women under 50, push expensive proprietary supplements without evidence, or put everyone on bioidentical hormones without individual assessment. Good hormone medicine is personalized, evidence-based, and monitored.</p>
 </div>
 
+<p style="margin-top:20px;"><a class="btn-primary" href="/book?concern=hormones&source=guide-hormones-referral">Book An Appointment With A Specialist →</a></p>
+
 <h2>Frequently Missed Diagnoses in Hormone Health</h2>
 
 <h3>Subclinical Hypothyroidism</h3>
@@ -2040,6 +2097,8 @@ _PROGRAM_DATA = {
 <p>Look for a physician who is <strong>board-certified in sleep medicine</strong> by the American Board of Medical Specialties (ABMS). You can verify certification at <strong>certificationmatters.org</strong>. Sleep medicine is a subspecialty — doctors can come from backgrounds in pulmonology, neurology, psychiatry, or internal medicine. For complex cases involving both sleep and fatigue, a neurologist or internist with sleep medicine fellowship training often provides the most comprehensive evaluation.</p>
 </div>
 
+<p style="margin-top:20px;"><a class="btn-primary" href="/book?concern=sleep&source=guide-recovery-referral">Book An Appointment With A Specialist →</a></p>
+
 <h2>Putting It All Together: A Decision Framework for Chronic Fatigue</h2>
 
 <p>If you've read this far, you now understand that fatigue and poor sleep rarely have a single cause. Here's the systematic approach we recommend:</p>
@@ -2153,7 +2212,21 @@ def faq():
 @app.route("/book")
 @app.route("/doctors")
 def doctors():
-    return render_template("doctors.html.j2")
+    allowed_concerns = {"metabolic", "hormones", "sleep", "fatigue", "general"}
+    concern = (request.args.get("concern") or "general").strip().lower()
+    if concern not in allowed_concerns:
+        concern = "general"
+    return render_template(
+        "doctors.html.j2",
+        selected_concern=concern,
+        source=(request.args.get("source") or "direct").strip(),
+        result_context=(request.args.get("result_context") or "").strip(),
+    )
+
+
+@app.route("/book/confirmation")
+def doctor_request_confirmation():
+    return render_template("doctor_request_confirmation.html.j2")
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -2602,9 +2675,12 @@ def api_lead_magnet():
         try:
             existing = db.query(Subscriber).filter_by(email=email).first()
             if existing:
-                existing.tags = list(set((existing.tags or []) + [tag]))
+                interests = set(existing.interests_json or [])
+                interests.add(tag)
+                existing.interests_json = sorted(interests)
+                existing.source = existing.source or "lead-magnet"
             else:
-                sub = Subscriber(email=email, tags=[tag])
+                sub = Subscriber(email=email, source="lead-magnet", interests_json=[tag])
                 db.add(sub)
             db.commit()
         finally:
@@ -2633,31 +2709,91 @@ def api_doctor_request():
     name = (request.form.get("name") or "").strip()
     email = (request.form.get("email") or "").strip().lower()
     concern = (request.form.get("concern") or "").strip()
+    location = (request.form.get("location") or "").strip()
     preferences = (request.form.get("preferences") or "").strip()
+    source = (request.form.get("source") or "direct").strip()
+    result_context = (request.form.get("result_context") or "").strip()
+    submitted_at = datetime.now(timezone.utc).isoformat()
 
     if not email or "@" not in email:
-        return redirect("/doctors?error=invalid-email")
+        return redirect(
+            "/book?"
+            + urlencode(
+                {
+                    "concern": concern or "general",
+                    "source": source or "direct",
+                    "result_context": result_context,
+                    "error": "invalid-email",
+                }
+            )
+        )
 
     tag = f"doctor-request-{concern}" if concern else "doctor-request"
 
     try:
-        from src.models import Subscriber, SessionLocal, init_db
+        from src.models import ConsultationBooking, BookingStatus, Subscriber, SessionLocal, init_db
         init_db()
         db = SessionLocal()
         try:
             existing = db.query(Subscriber).filter_by(email=email).first()
             if existing:
-                existing.tags = list(set((existing.tags or []) + [tag, "doctor-request"]))
+                interests = set(existing.interests_json or [])
+                interests.update([tag, "doctor-request"])
+                existing.interests_json = sorted(interests)
+                existing.source = existing.source or "doctor-request"
             else:
-                sub = Subscriber(email=email, tags=[tag, "doctor-request"])
+                sub = Subscriber(
+                    email=email,
+                    name=name,
+                    source="doctor-request",
+                    interests_json=[tag, "doctor-request"],
+                )
                 db.add(sub)
+            notes = json.dumps(
+                {
+                    "concern": concern,
+                    "location": location,
+                    "preferences": preferences,
+                    "source": source,
+                    "result_context": result_context,
+                    "submitted_at": submitted_at,
+                },
+                ensure_ascii=True,
+            )
+            db.add(
+                ConsultationBooking(
+                    email=email,
+                    name=name,
+                    booking_type=f"specialist-{concern or 'general'}",
+                    notes=notes,
+                    status=BookingStatus.PENDING,
+                )
+            )
             db.commit()
         finally:
             db.close()
     except Exception as exc:
         logger.warning("Doctor request DB save failed: %s", exc)
 
-    return redirect("/doctors?submitted=true")
+    logger.info(
+        "Doctor request submitted: concern=%s source=%s result_context=%s email=%s",
+        concern or "general",
+        source or "direct",
+        result_context or "none",
+        email,
+    )
+    _send_doctor_request_notification(
+        name=name,
+        email=email,
+        concern=concern,
+        location=location,
+        preferences=preferences,
+        source=source,
+        result_context=result_context,
+        submitted_at=submitted_at,
+    )
+
+    return redirect("/book/confirmation")
 
 
 @app.route("/lead-magnet/thank-you")

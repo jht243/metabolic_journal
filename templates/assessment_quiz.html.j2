@@ -88,6 +88,18 @@
   .rec-link-card:hover { border-color: var(--h-teal); }
   .rec-link-card .rlc-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--h-teal); }
   .rec-link-card .rlc-title { font-size: 14px; font-weight: 600; color: var(--h-navy); margin-top: 4px; }
+  .specialist-cta {
+    display: none;
+    text-align: center;
+    padding: 24px 20px;
+    margin-top: 28px;
+    background: var(--h-gray-bg);
+    border: 1px solid var(--h-gray-light);
+    border-radius: 8px;
+  }
+  .specialist-cta.active { display: block; }
+  .specialist-cta h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 8px; }
+  .specialist-cta p { font-size: 14px; color: var(--h-gray-text); max-width: 460px; margin: 0 auto 14px; line-height: 1.5; }
 </style>
 {% endblock %}
 
@@ -284,6 +296,12 @@
       <ul class="rec-list" id="recList"></ul>
     </div>
 
+    <div class="specialist-cta" id="specialistCta">
+      <h3>A specialist can help interpret these results</h3>
+      <p>Your answers suggest this may be worth reviewing with a clinician who works in the relevant specialty.</p>
+      <a class="btn-primary" id="specialistCtaLink" href="/book?concern=general&source=assessment-quiz">Book An Appointment With A Specialist →</a>
+    </div>
+
     <div class="rec-links">
       <h3>Recommended Reading</h3>
       <div class="rec-link-grid" id="recLinks"></div>
@@ -403,6 +421,15 @@
     var recHtml='';
     recs.forEach(function(r){recHtml+='<li><span class="rec-icon">→</span><span>'+r+'</span></li>'});
     document.getElementById('recList').innerHTML=recHtml;
+
+    var lowest=domains.reduce(function(a,b){return a.score<=b.score?a:b});
+    var specialistConcern=lowest.name==='Metabolic Health'?'metabolic':lowest.name==='Hormonal Health'?'hormones':'sleep';
+    if(metScore<60||hormScore<60||recScore<60){
+      var ctx='overall:'+overall+';metabolic:'+metScore+';hormones:'+hormScore+';sleep-recovery:'+recScore;
+      var href='/book?concern='+encodeURIComponent(specialistConcern)+'&source=assessment-quiz&result_context='+encodeURIComponent(ctx);
+      document.getElementById('specialistCtaLink').setAttribute('href',href);
+      document.getElementById('specialistCta').classList.add('active');
+    }
 
     var links=[];
     if(metScore<70){

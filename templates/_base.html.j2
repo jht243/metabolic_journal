@@ -259,11 +259,13 @@
 
 {% block content %}{% endblock %}
 
+{% block footer_action %}
 <div class="footer-action">
   <h3>Understand your health — on your terms</h3>
   <p>Use our free tools and evidence-based guides to make smarter decisions about your metabolism, hormones, and recovery.</p>
   <a class="btn-primary" href="/assessment">Take the Free Assessment →</a>
 </div>
+{% endblock %}
 
 <footer class="site-footer">
   &copy; {{ current_year|default(2026) }} {{ site_name|default('REPLACE_ME_SITE_NAME') }} ·
