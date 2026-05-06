@@ -9,9 +9,7 @@ Usage (run locally; does NOT need to run on Render):
     python scripts/indexnow_submit.py             # submit everything
     python scripts/indexnow_submit.py --dry-run   # list URLs only
 
-Idempotent — IndexNow accepts re-submissions cheaply, so re-running is
-safe. Records every submitted URL in distribution_logs so subsequent
-cron runs respect the 23-hour cooldown.
+Idempotent — IndexNow accepts re-submissions cheaply, so re-running is safe.
 """
 from __future__ import annotations
 
@@ -20,7 +18,7 @@ import os
 import sys
 from datetime import datetime
 
-os.environ.setdefault("SITE_URL", "https://caracasresearch.com")
+os.environ.setdefault("SITE_URL", "https://themetabolicjournal.com")
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if ROOT not in sys.path:
@@ -28,7 +26,6 @@ if ROOT not in sys.path:
 
 from src.config import settings  # noqa: E402
 from src.distribution import indexnow  # noqa: E402
-from src.distribution.runner import CHANNEL_INDEXNOW, _record  # noqa: E402
 from src.models import BlogPost, LandingPage, SessionLocal, init_db  # noqa: E402
 
 
@@ -36,26 +33,10 @@ from src.models import BlogPost, LandingPage, SessionLocal, init_db  # noqa: E40
 # sitemap_xml() route in server.py.
 STATIC_PATHS: tuple[str, ...] = (
     "/",
-    "/briefing",
-    "/sanctions-tracker",
-    "/invest-in-venezuela",
+    "/blog",
     "/tools",
-    "/tools/caracas-safety-by-neighborhood",
-    "/tools/venezuela-visa-requirements",
-    "/tools/venezuela-investment-roi-calculator",
-    "/tools/bolivar-usd-exchange-rate",
-    "/tools/ofac-venezuela-sanctions-checker",
-    "/tools/ofac-venezuela-general-licenses",
-    "/tools/public-company-venezuela-exposure-check",
-    "/explainers",
-    "/travel",
-    "/calendar",
-    "/sources",
-    "/sanctions/individuals",
-    "/sanctions/entities",
-    "/sanctions/vessels",
-    "/sanctions/aircraft",
-    "/companies",
+    "/about",
+    "/assessment",
 )
 
 
@@ -70,13 +51,6 @@ def collect_urls() -> list[tuple[str, str, int | None]]:
 
     for path in STATIC_PATHS:
         out.append((f"{base}{path}", "static", None))
-
-    try:
-        from src.data.real_estate import real_estate_paths
-        for path in real_estate_paths():
-            out.append((f"{base}{path.rstrip('/')}", "real_estate", None))
-    except Exception as exc:
-        print(f"WARN: could not enumerate real estate paths for IndexNow: {exc}")
 
     init_db()
     db = SessionLocal()
@@ -93,27 +67,6 @@ def collect_urls() -> list[tuple[str, str, int | None]]:
             out.append((f"{base}{path}", "landing_page", page.id))
     finally:
         db.close()
-
-    # Per-SDN profile pages — every OFAC Venezuela-program designation
-    # is its own indexable URL. We submit them all so Bing/Yandex
-    # discover the corpus immediately rather than waiting on link-walking.
-    try:
-        from src.data.sdn_profiles import list_all_profiles
-        for p in list_all_profiles():
-            out.append((f"{base}{p.url_path}", "sdn_profile", p.db_id))
-    except Exception as exc:
-        print(f"WARN: could not enumerate SDN profiles for IndexNow: {exc}")
-
-    # Per-company Venezuela-exposure pages — one per S&P 500 ticker.
-    # Same rationale as SDN profiles: long-tail SEO bet that only pays
-    # off if Bing/Yandex see the URLs early. Use the dedicated helper
-    # so this stays in lock-step with /sitemap.xml.
-    try:
-        from src.data.company_exposure import companies_for_sitemap
-        for entry in companies_for_sitemap():
-            out.append((f"{base}{entry['url_path']}", "company_profile", None))
-    except Exception as exc:
-        print(f"WARN: could not enumerate company profiles for IndexNow: {exc}")
 
     # Dedupe while preserving order.
     seen: set[str] = set()
@@ -166,18 +119,6 @@ def main() -> int:
             print(f"  -> status={result.status_code} "
                   f"submitted={result.submitted} success={result.success}")
             print(f"  -> response: {result.response_snippet[:200]}")
-
-            for url, entity_type, entity_id in chunk:
-                _record(
-                    db,
-                    channel=CHANNEL_INDEXNOW,
-                    url=url,
-                    success=result.success,
-                    response_code=result.status_code,
-                    response_snippet=result.response_snippet,
-                    entity_type=entity_type,
-                    entity_id=entity_id,
-                )
             if result.success:
                 total_ok += len(chunk)
             else:

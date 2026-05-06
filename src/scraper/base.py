@@ -46,7 +46,7 @@ class ScrapedNews:
 
 @dataclass
 class ScrapedArticle:
-    """Generic article from any external source (Federal Register, GDELT, etc.)."""
+    """Generic article from any external source."""
 
     headline: str
     published_date: date

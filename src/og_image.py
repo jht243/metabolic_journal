@@ -1,30 +1,11 @@
 """
 Per-briefing Open Graph card generator.
 
-Renders the 1200x630 PNG that Bluesky / X / LinkedIn / iMessage / Slack
-display when a briefing URL is shared. One unique card per briefing,
-with the headline, category, and date burned into the image so the
-preview tile stops being the same generic "Caracas Research" tile for
-every link.
+Renders the 1200x630 PNG that X / LinkedIn / iMessage / Slack display when
+a blog URL is shared. One unique card per post, with the headline, category,
+and date burned into the image.
 
-Design = Concept 3 ("Modern Sans"), the one we ship:
-
-  +--------------------------------------------------------+
-  | navy  |                       (red 6px rule)           |
-  |       |                                                |
-  | CARA- |  DAILY BRIEFING · MAR 13, 2026                 |
-  | CAS   |                                                |
-  | RES'H |  [ MINING ]                                    |
-  |       |                                                |
-  |       |  Headline goes here, in big                    |
-  |       |  modern Inter Display Bold,                    |
-  | BCV   |  three or four lines max                       |
-  | 481   |                                                |
-  | Bs/$  |                       caracasresearch.com      |
-  +--------------------------------------------------------+
-
-Pure-Python (Pillow) — same dependency we already have for the static
-homepage OG. No headless browser, no native deps to manage on Render.
+Pure-Python (Pillow). No headless browser, no native deps to manage on Render.
 
 Usage:
     from src.og_image import render_briefing_card
@@ -32,9 +13,8 @@ Usage:
         title=post.title,
         category=post.primary_sector,
         published_date=post.published_date,
-        bcv_usd=481.22,                # optional — adds the stat block
     )
-    # write to BlogPost.og_image_bytes; serve via /og/briefing/<slug>.png
+    # persist to BlogPost.og_image_bytes; serve via /og/briefing/<slug>.png
 """
 
 from __future__ import annotations
@@ -58,7 +38,7 @@ WIDTH, HEIGHT = 1200, 630
 LEFT_PANEL_W = 450
 RIGHT_PANEL_X = LEFT_PANEL_W
 
-# ── Brand palette (matches caracasresearch.com) ───────────────────────
+# ── Brand palette (matches themetabolicjournal.com) ───────────────────────
 NAVY = (0, 31, 68)            # left panel + headline ink
 NAVY_DEEP = (0, 19, 44)       # top of vertical gradient
 RED = (204, 0, 0)             # accent — chip, rule, "RESEARCH" wordmark
@@ -215,14 +195,10 @@ def _format_category(category: Optional[str]) -> str:
     cleaned = category.replace("_", " ").replace("-", " ").strip()
     # Map common internal slugs to nicer display names.
     aliases = {
-        "OFAC": "SANCTIONS",
-        "OFAC SANCTIONS": "SANCTIONS",
-        "ASAMBLEA": "POLITICS",
-        "ASAMBLEA NACIONAL": "POLITICS",
-        "GACETA": "REGULATION",
-        "GACETA OFICIAL": "REGULATION",
-        "BCV": "FX & RATES",
-        "BCV RATES": "FX & RATES",
+        "INSULIN_RESISTANCE": "INSULIN",
+        "METABOLIC_SYNDROME": "METABOLIC",
+        "SLEEP": "SLEEP HEALTH",
+        "HORMONES": "HORMONES",
     }
     upper = cleaned.upper()
     return aliases.get(upper, upper)[:24]
@@ -243,7 +219,6 @@ def render_briefing_card(
     title: str,
     category: Optional[str] = None,
     published_date: date | datetime | None = None,
-    bcv_usd: Optional[float] = None,
 ) -> bytes:
     """Render a per-briefing OG card and return PNG bytes.
 
@@ -265,53 +240,18 @@ def render_briefing_card(
     wm_x = 60
     wm_y = 90
     wm_font = _font("inter_bold", 44)
-    draw.text((wm_x, wm_y), "CARACAS", font=wm_font, fill=WHITE)
-    _, wm_h = _measure(draw, "CARACAS", wm_font)
-    draw.text((wm_x, wm_y + wm_h + 2), "RESEARCH", font=wm_font, fill=RED)
+    draw.text((wm_x, wm_y), "METABOLIC", font=wm_font, fill=WHITE)
+    _, wm_h = _measure(draw, "METABOLIC", wm_font)
+    draw.text((wm_x, wm_y + wm_h + 2), "JOURNAL", font=wm_font, fill=RED)
 
     # Tagline under the wordmark
     tag_font = _font("inter_regular", 18)
     draw.text(
         (wm_x, wm_y + (wm_h + 2) * 2 + 14),
-        "Venezuela investment intelligence",
+        "Metabolic health intelligence",
         font=tag_font,
         fill=NAVY_MUTED,
     )
-
-    # Optional BCV stat block at bottom-left
-    if bcv_usd is not None:
-        try:
-            rate_value = float(bcv_usd)
-        except (TypeError, ValueError):
-            rate_value = None
-        if rate_value:
-            label_font = _font("inter_semibold", 16)
-            value_font = _font("inter_bold", 40)
-            unit_font = _font("inter_regular", 18)
-
-            draw.line(
-                [(wm_x, HEIGHT - 170), (LEFT_PANEL_W - 60, HEIGHT - 170)],
-                fill=(255, 255, 255, 50),
-                width=1,
-            )
-            draw.text(
-                (wm_x, HEIGHT - 150),
-                "BCV OFFICIAL",
-                font=label_font,
-                fill=NAVY_MUTED,
-            )
-            draw.text(
-                (wm_x, HEIGHT - 122),
-                f"{rate_value:,.2f}",
-                font=value_font,
-                fill=WHITE,
-            )
-            draw.text(
-                (wm_x, HEIGHT - 64),
-                "Bs.D / USD",
-                font=unit_font,
-                fill=NAVY_MUTED,
-            )
 
     # ── RIGHT WHITE PANEL ─────────────────────────────────────────────
     # Red rule across the top of the white area.
@@ -368,7 +308,7 @@ def render_briefing_card(
         width=1,
     )
     footer_font = _font("inter_semibold", 22)
-    url_text = "caracasresearch.com"
+    url_text = "themetabolicjournal.com"
     url_w, _ = _measure(draw, url_text, footer_font)
     draw.text(
         (inner_right - url_w, footer_y),
@@ -398,41 +338,7 @@ def render_default_card() -> bytes:
     per-briefing one. Suitable for shares of `/`, `/briefing`, etc.
     """
     return render_briefing_card(
-        title="Venezuelan investment intelligence — daily research for international capital",
+        title="Metabolic health intelligence — evidence-based research for optimal health",
         category="DAILY BRIEFING",
         published_date=date.today(),
-        bcv_usd=None,
     )
-
-
-# ── Live data lookup ──────────────────────────────────────────────────
-
-def latest_bcv_usd() -> Optional[float]:
-    """Best-effort fetch of the most recent BCV official USD rate from
-    the DB. Returns None if the table is empty or any error trips —
-    callers should treat this as optional decoration."""
-    try:
-        from src.models import (  # local import to avoid cycle on module load
-            ExternalArticleEntry,
-            SessionLocal,
-            SourceType,
-            init_db,
-        )
-        init_db()
-        db = SessionLocal()
-        try:
-            row = (
-                db.query(ExternalArticleEntry)
-                .filter(ExternalArticleEntry.source == SourceType.BCV_RATES)
-                .order_by(ExternalArticleEntry.published_date.desc())
-                .first()
-            )
-            if not row or not row.extra_metadata:
-                return None
-            usd = row.extra_metadata.get("usd")
-            return float(usd) if usd is not None else None
-        finally:
-            db.close()
-    except Exception as exc:
-        logger.warning("og_image: latest_bcv_usd failed: %s", exc)
-        return None
