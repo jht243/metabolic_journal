@@ -338,7 +338,7 @@ class KeywordOpportunity:
 
 
 def run_keyword_research(
-    domain: str = "caracasresearch.com",
+    domain: str = "themetabolicjournal.com",
     seed_keywords: list[str] | None = None,
     *,
     competitor_domains: list[str] | None = None,
@@ -356,16 +356,11 @@ def run_keyword_research(
     """
     if seed_keywords is None:
         seed_keywords = [
-            "venezuela investment",
-            "venezuela sanctions",
-            "invest in venezuela",
-            "venezuela bonds",
-            "caracas real estate",
-            "venezuela visa",
-            "PDVSA",
-            "venezuela oil",
-            "OFAC sanctions venezuela",
-            "venezuela business",
+            "metabolic health",
+            "insulin resistance",
+            "metabolic syndrome",
+            "blood sugar optimization",
+            "metabolic diet",
         ]
 
     client = SemrushClient()

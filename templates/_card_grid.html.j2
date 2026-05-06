@@ -2,16 +2,14 @@
   Shared "header + 3-card grid" layout for every internal-link discovery
   section on the site. This is the canonical UI for any section whose
   job is to say "here are N related pages you should read next" —
-  briefings rails on tool pages, "More on this sector" on a blog post,
-  surname-cluster siblings on a sanctions profile, "Other S&P 500
-  companies in this sector" on a company profile, and so on.
+  briefings rails on tool pages, "More on this topic" on a blog post,
+  related articles on a content page, and so on.
 
   Why this layout (and why it is centralised):
     • Reader UX: scannable card grid beats a bullet list with dotted
       separators, especially once the list has more than 2-3 items.
-      The canonical example is the "Saab Moran cluster — 3 dossiers
-      sharing this surname" block on /research/sdn/; that card grid
-      predates this macro and established the visual language.
+      The card grid establishes a consistent visual language for
+      related-content discovery across the site.
     • Internal-linking SEO: a single shared component means every
       "related pages" section has identical structural markup, so when
       we tighten anchor-text conventions or add schema (ItemList /
