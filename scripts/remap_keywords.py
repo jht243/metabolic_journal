@@ -299,7 +299,7 @@ def classify(kw):
     if any(x in k for x in ["increase testosterone", "boost testosterone",
                               "raise testosterone", "heighten testosterone",
                               "boost for testosterone"]):
-        return ("hormones", "/low-testosterone")
+        return ("hormones", "/guides/increase-testosterone")
 
     if any(x in k for x in ["low testosterone", "low t "]) or k == "low t":
         return ("hormones", "/low-testosterone")
