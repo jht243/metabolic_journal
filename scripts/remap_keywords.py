@@ -7,10 +7,10 @@ with open("output/semrush/health-keyword-research-2026-05-03.json") as f:
 
 keywords = []
 seen = set()
-for item in raw.get("related", []) + raw.get("questions", []):
+for item in raw.get("related", []) + raw.get("questions", []) + raw.get("competitor_gaps", []):
     kw = item.get("Keyword", "").strip().lower()
     vol = int(item.get("Search Volume", 0))
-    kd = int(item.get("Keyword Difficulty Index", 0))
+    kd = int(item.get("Keyword Difficulty Index") or 0)
     cpc = str(item.get("CPC", "0"))
     if kw and vol > 0 and kw not in seen:
         seen.add(kw)
@@ -88,12 +88,16 @@ def classify(kw):
             return ("metabolism", "/guides/reverse-insulin-resistance")
         return ("metabolism", "/insulin-resistance")
 
+    if "fasting insulin" in k:
+        return ("testing", "/biomarkers/fasting-insulin")
+
     if any(x in k for x in ["what is insulin", "what does insulin do",
                               "the hormone insulin", "how does insulin work",
                               "how to lower insulin", "insulin levels",
                               "what produces insulin", "where is insulin produced",
                               "what organ produces insulin", "high insulin",
-                              "is insulin a hormone"]):
+                              "is insulin a hormone", "insulin fat storage",
+                              "insulin and fat storage"]):
         return ("metabolism", "/insulin-resistance")
 
     if k in ("insulin", "insulina", "insuline"):
@@ -276,7 +280,8 @@ def classify(kw):
                               "tiroides", "thyroid nodule", "thyroid cancer",
                               "thyroid eye disease", "thyroid storm",
                               "thyroid disorder", "thyroid medication",
-                              "problems of the thyroid", "bad thyroid"]):
+                              "problems of the thyroid", "bad thyroid",
+                              "how to cure thyroid naturally"]):
         return ("hormones", "/thyroid-symptoms")
 
     if k in ("thyroid", "tiroidism", "iodine deficiency symptoms"):
@@ -296,6 +301,15 @@ def classify(kw):
                               "how to get testosterone"]):
         return ("hormones", "/low-testosterone")
 
+    if "testosterone levels by age" in k:
+        return ("testing", "/biomarkers/testosterone-by-age")
+
+    if "at home testosterone test" in k:
+        return ("testing", "/labs/hormone-testing")
+
+    if "vitamin d supplement for testosterone" in k:
+        return ("hormones", "/guides/increase-testosterone")
+
     if any(x in k for x in ["increase testosterone", "boost testosterone",
                               "raise testosterone", "heighten testosterone",
                               "boost for testosterone"]):
@@ -307,6 +321,9 @@ def classify(kw):
     if any(x in k for x in ["testosterone symptom", "signs of low testosterone",
                               "testosterone low in male", "men low in testosterone"]):
         return ("hormones", "/low-testosterone")
+
+    if "sex hormone binding globulin" in k or "shbg" in k:
+        return ("testing", "/biomarkers/shbg")
 
     if any(x in k for x in ["testosterone test", "check testosterone",
                               "how to test testosterone", "testosterone levels",
@@ -372,7 +389,7 @@ def classify(kw):
                               "memory loss", "brainfog", "fogginess", "mental fog",
                               "foggy brain", "foggy head", "head feels fuzzy",
                               "brain dog", "what causes mental fog",
-                              "dementia in women", "signs of senility",
+                              "anemia brain fog", "dementia in women", "signs of senility",
                               "early symptoms of dementia"]):
         return ("hormones", "/symptoms/brain-fog")
 
