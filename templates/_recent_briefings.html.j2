@@ -20,7 +20,7 @@
       <span class="cr-card-eyebrow">{{ (p.primary_cluster or 'Health')|replace('_',' ')|title }}</span>
       <h3 class="cr-card-headline">{{ p.title }}</h3>
       {% if p.summary %}<p class="cr-card-tagline">{{ p.summary|truncate(120) }}</p>{% endif %}
-      <span class="cr-card-cta">Read article</span>
+      <span class="cr-card-action">Read article</span>
     </a>
     {% endfor %}
   </div>

@@ -72,7 +72,7 @@
         {% for m in c.meta_rows %}<span>{{ m|safe }}</span>{% endfor %}
       </div>
       {% endif %}
-      <span class="cr-card-cta">{{ c.cta|default('Read more') }}</span>
+      <span class="cr-card-action">{{ c.cta|default('Read more') }}</span>
     </a>
     {% endfor %}
   </div>

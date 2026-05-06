@@ -67,6 +67,30 @@ logger = logging.getLogger(__name__)
 
 OUTPUT_DIR = settings.output_dir
 
+_LANDING_SEO_OVERRIDES = {
+    "/hormone-optimization/menopause": {
+        "title": "Menopause Fatigue & Weight Gain Guide",
+        "description": (
+            "Understand menopause fatigue, belly fat, brain fog, insomnia, "
+            "and weight gain through hormones, metabolism, sleep, and labs."
+        ),
+    },
+    "/hormone-optimization/perimenopause": {
+        "title": "Perimenopause Symptoms & Fatigue Guide",
+        "description": (
+            "A symptom-first perimenopause guide for fatigue, weight gain, "
+            "poor sleep, brain fog, labs, and hormone-metabolic next steps."
+        ),
+    },
+    "/sleep-recovery/sleep-apnea": {
+        "title": "Sleep Apnea Fatigue & Weight Gain Guide",
+        "description": (
+            "Connect sleep apnea symptoms, waking tired, CPAP alternatives, "
+            "home sleep testing, weight gain, and metabolic risk."
+        ),
+    },
+}
+
 # ═══════════════════════════════════════════════════════════════════════
 #  Gzip After-Request Middleware
 # ═══════════════════════════════════════════════════════════════════════
@@ -361,6 +385,44 @@ def _stub_page(title: str, heading: str | None = None, body: str = "") -> str:
 </html>"""
 
 
+def _landing_page_seo(page) -> dict:
+    """Build SERP metadata for generated SEO landing pages."""
+    base = settings.canonical_site_url
+    canonical_path = getattr(page, "canonical_path", request.path) or request.path
+    canonical = f"{base}{canonical_path}"
+    override = _LANDING_SEO_OVERRIDES.get(canonical_path, {})
+    title = (override.get("title") or getattr(page, "title", "") or settings.site_name).strip()
+    description = (
+        override.get("description")
+        or getattr(page, "summary", None)
+        or getattr(page, "subtitle", None)
+        or ""
+    ).strip()
+    if len(description) > 160:
+        description = description[:157].rsplit(" ", 1)[0].rstrip(" ,.;:") + "..."
+
+    keywords = getattr(page, "keywords_json", None) or []
+    if isinstance(keywords, str):
+        keywords = [k.strip() for k in keywords.split(",") if k.strip()]
+
+    raw_section = (getattr(page, "page_type", "") or "Health").title()
+    section = "Guide" if raw_section == "Hub" else raw_section
+
+    return {
+        "title": f"{title} | {settings.site_name}",
+        "description": description,
+        "keywords": ", ".join(keywords) if keywords else "",
+        "canonical": canonical,
+        "site_name": settings.site_name,
+        "site_url": base,
+        "locale": settings.site_locale,
+        "og_image": f"{base}/static/og-image.png",
+        "og_type": "article",
+        "section": section,
+        "article_tags": keywords[:10],
+    }
+
+
 def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Response:
     """Serve a LandingPage from static dict first (instant), then DB, then stub."""
     cluster_ctx = build_cluster_ctx(request.path)
@@ -386,7 +448,12 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
             sp.reviewed_by = None
             sp.reviewed_at = None
             return Response(
-                render_template("landing_page.html.j2", page=sp, cluster_ctx=cluster_ctx),
+                render_template(
+                    "landing_page.html.j2",
+                    page=sp,
+                    cluster_ctx=cluster_ctx,
+                    seo=_landing_page_seo(sp),
+                ),
                 content_type="text/html; charset=utf-8",
             )
     except Exception as exc:
@@ -401,7 +468,12 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
             page = db.query(LandingPage).filter_by(page_key=page_key).first()
             if page:
                 return Response(
-                    render_template("landing_page.html.j2", page=page, cluster_ctx=cluster_ctx),
+                    render_template(
+                        "landing_page.html.j2",
+                        page=page,
+                        cluster_ctx=cluster_ctx,
+                        seo=_landing_page_seo(page),
+                    ),
                     content_type="text/html; charset=utf-8",
                 )
         finally:
@@ -424,7 +496,12 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
     fake.keywords_json = None
     fake.page_type = page_type
     return Response(
-        render_template("landing_page.html.j2", page=fake, cluster_ctx=cluster_ctx),
+        render_template(
+            "landing_page.html.j2",
+            page=fake,
+            cluster_ctx=cluster_ctx,
+            seo=_landing_page_seo(fake),
+        ),
         content_type="text/html; charset=utf-8",
     )
 
@@ -2195,14 +2272,20 @@ def briefing_og_image(slug: str):
 _HUB_PAGES = {
     "metabolic-health": "Metabolic Health",
     "hormone-optimization": "Hormone Optimization",
+    "hormone-optimization/menopause": "Menopause, Fatigue & Weight Gain",
+    "hormone-optimization/perimenopause": "Perimenopause Symptoms, Fatigue & Weight Gain",
     "sleep-recovery": "Sleep & Recovery",
+    "sleep-recovery/sleep-apnea": "Sleep Apnea, Fatigue & Weight Gain",
     "lab-testing": "Lab Testing & Biomarkers",
 }
 
 
 @app.route("/metabolic-health")
 @app.route("/hormone-optimization")
+@app.route("/hormone-optimization/menopause")
+@app.route("/hormone-optimization/perimenopause")
 @app.route("/sleep-recovery")
+@app.route("/sleep-recovery/sleep-apnea")
 @app.route("/lab-testing")
 def hub_page():
     slug = request.path.lstrip("/")
