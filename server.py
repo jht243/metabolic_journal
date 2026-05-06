@@ -2725,7 +2725,6 @@ _SITEMAP_PRIMARY = [
     ("/sleep-recovery", "0.9", "weekly"),
     ("/lab-testing", "0.9", "weekly"),
     ("/assessment", "0.8", "monthly"),
-    ("/briefing", "0.8", "weekly"),
     ("/how-it-works", "0.8", "monthly"),
     ("/about", "0.7", "monthly"),
     ("/tools", "0.7", "monthly"),
@@ -2785,8 +2784,12 @@ def sitemap_index():
 def sitemap_primary():
     seo_paths = all_seo_paths()
     entries = list(_SITEMAP_PRIMARY)
+    existing_paths = {path for path, _, _ in entries}
     for path in seo_paths:
+        if path in existing_paths or path.startswith("/tools/"):
+            continue
         entries.append((path, "0.8", "weekly"))
+        existing_paths.add(path)
     return Response(_build_urlset(entries), content_type="application/xml; charset=utf-8")
 
 
