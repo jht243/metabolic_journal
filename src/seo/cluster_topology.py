@@ -162,7 +162,7 @@ CLUSTERS: dict[str, Cluster] = {
         ),
         pillar=_ck(
             "/metabolic-health",
-            "Hub page covering insulin resistance, blood sugar, and metabolic optimization.",
+            "Guide to insulin resistance, blood sugar, and metabolic optimization.",
         ),
         members=(
             _ck("/insulin-resistance", "What insulin resistance is, how to test for it, and how to reverse it."),
@@ -263,7 +263,7 @@ CLUSTERS: dict[str, Cluster] = {
         ),
         pillar=_ck(
             "/lab-testing",
-            "Hub page for lab testing — panels, biomarkers, and optimal ranges.",
+            "Guide to lab testing, panels, biomarkers, and optimal ranges.",
         ),
         members=(
             _ck("/labs/hormone-testing", "Which hormones to test, when to draw blood, and how to interpret results."),

@@ -405,6 +405,9 @@ def _landing_page_seo(page) -> dict:
     if isinstance(keywords, str):
         keywords = [k.strip() for k in keywords.split(",") if k.strip()]
 
+    raw_section = (getattr(page, "page_type", "") or "Health").title()
+    section = "Guide" if raw_section == "Hub" else raw_section
+
     return {
         "title": f"{title} | {settings.site_name}",
         "description": description,
@@ -415,7 +418,7 @@ def _landing_page_seo(page) -> dict:
         "locale": settings.site_locale,
         "og_image": f"{base}/static/og-image.png",
         "og_type": "article",
-        "section": (getattr(page, "page_type", "") or "Health").title(),
+        "section": section,
         "article_tags": keywords[:10],
     }
 

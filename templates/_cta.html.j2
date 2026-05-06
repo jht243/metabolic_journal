@@ -11,7 +11,7 @@
 
 {# Primary assessment CTA — used on symptom, condition, and blog pages #}
 {% macro cta_assessment(heading="Check Where You Stand", subtext="Take our free health assessment to understand your metabolic, hormonal, and recovery risk factors — and get personalized recommendations.", button_text="Take the Free Assessment →", variant="default") %}
-<div class="cta-block cta-{{ variant }}" style="text-align:center; padding:32px 24px; margin:40px 0; border-radius:8px; {% if variant == 'highlighted' %}background:linear-gradient(135deg, var(--h-navy) 0%, #1a3a5c 100%); color:white;{% else %}background:var(--h-gray-bg); border:1px solid var(--h-gray-light);{% endif %}">
+<div class="action-block action-{{ variant }}" style="text-align:center; padding:32px 24px; margin:40px 0; border-radius:8px; {% if variant == 'highlighted' %}background:linear-gradient(135deg, var(--h-navy) 0%, #1a3a5c 100%); color:white;{% else %}background:var(--h-gray-bg); border:1px solid var(--h-gray-light);{% endif %}">
   <h3 style="font-family:var(--font-serif); font-size:22px; margin-bottom:8px; {% if variant == 'highlighted' %}color:white;{% else %}color:var(--h-navy);{% endif %}">{{ heading }}</h3>
   <p style="{% if variant == 'highlighted' %}color:rgba(255,255,255,0.85);{% else %}color:var(--h-gray-text);{% endif %} margin-bottom:16px; font-size:15px; max-width:480px; margin-left:auto; margin-right:auto;">{{ subtext }}</p>
   <a href="/assessment" class="btn-primary" style="{% if variant == 'highlighted' %}background:var(--h-teal); color:white;{% endif %}">{{ button_text }}</a>
@@ -21,7 +21,7 @@
 
 {# Lead magnet CTA — email capture on guide and educational pages #}
 {% macro cta_lead_magnet(magnet_slug="metabolic-guide", heading="Free Guide: The Lab Markers Your Doctor Isn't Testing", subtext="Get our evidence-based guide to the biomarkers that catch metabolic and hormonal dysfunction early — with optimal ranges, not just 'normal' ones.", button_text="Get the Free Guide →") %}
-<div class="cta-block cta-lead-magnet" style="padding:28px 24px; margin:40px 0; border-radius:8px; background:white; border:2px solid var(--h-teal); text-align:center;">
+<div class="action-block action-lead-magnet" style="padding:28px 24px; margin:40px 0; border-radius:8px; background:white; border:2px solid var(--h-teal); text-align:center;">
   <div style="font-size:32px; margin-bottom:8px;">📋</div>
   <h3 style="font-family:var(--font-serif); font-size:20px; color:var(--h-navy); margin-bottom:8px;">{{ heading }}</h3>
   <p style="color:var(--h-gray-text); margin-bottom:16px; font-size:14px; max-width:480px; margin-left:auto; margin-right:auto;">{{ subtext }}</p>
@@ -36,7 +36,7 @@
 
 {# Doctor booking CTA — used on product and results pages #}
 {% macro cta_doctor(heading="Need Expert Guidance?", subtext="We match you with a vetted specialist in metabolic health, endocrinology, or sleep medicine — so you get the right doctor, not just any doctor.") %}
-<div class="cta-block cta-doctor" style="text-align:center; padding:32px 24px; margin:40px 0; border-radius:8px; background:var(--h-gray-bg); border:1px solid var(--h-gray-light);">
+<div class="action-block action-doctor" style="text-align:center; padding:32px 24px; margin:40px 0; border-radius:8px; background:var(--h-gray-bg); border:1px solid var(--h-gray-light);">
   <h3 style="font-family:var(--font-serif); font-size:22px; color:var(--h-navy); margin-bottom:8px;">{{ heading }}</h3>
   <p style="color:var(--h-gray-text); margin-bottom:16px; font-size:15px; max-width:480px; margin-left:auto; margin-right:auto;">{{ subtext }}</p>
   <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
@@ -55,13 +55,13 @@
 
 {# Sticky bottom CTA bar — for high-intent pages #}
 {% macro cta_sticky(text="Find out where you stand", button_text="Free Assessment", link="/assessment") %}
-<div id="sticky-cta" style="position:fixed; bottom:0; left:0; right:0; background:var(--h-navy); padding:12px 20px; display:flex; align-items:center; justify-content:center; gap:16px; z-index:1000; transform:translateY(100%); transition:transform 0.3s ease; box-shadow:0 -2px 8px rgba(0,0,0,0.15);">
+<div id="sticky-action" style="position:fixed; bottom:0; left:0; right:0; background:var(--h-navy); padding:12px 20px; display:flex; align-items:center; justify-content:center; gap:16px; z-index:1000; transform:translateY(100%); transition:transform 0.3s ease; box-shadow:0 -2px 8px rgba(0,0,0,0.15);">
   <span style="color:rgba(255,255,255,0.9); font-size:14px; font-weight:500;">{{ text }}</span>
   <a href="{{ link }}" style="padding:8px 20px; background:var(--h-teal); color:white; border-radius:6px; font-weight:600; font-size:14px; text-decoration:none; white-space:nowrap;">{{ button_text }} →</a>
 </div>
 <script>
 (function(){
-  var sticky=document.getElementById('sticky-cta');
+  var sticky=document.getElementById('sticky-action');
   if(!sticky)return;
   var shown=false;
   window.addEventListener('scroll',function(){
