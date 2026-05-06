@@ -2104,7 +2104,9 @@ _PROGRAM_DATA = {
 }
 
 @app.route("/programs/<slug>")
-@app.route("/guides/<slug>")
+@app.route("/guides/metabolic", defaults={"slug": "metabolic"})
+@app.route("/guides/hormones", defaults={"slug": "hormones"})
+@app.route("/guides/recovery", defaults={"slug": "recovery"})
 def program_detail(slug: str):
     program = _PROGRAM_DATA.get(slug)
     if not program:
@@ -2398,6 +2400,34 @@ _TOOLS = {
 _TOOL_SLUGS = {slug: data["name"] for slug, data in _TOOLS.items()}
 
 
+def _tool_page_seo(tool: dict) -> dict:
+    """Build SERP metadata for interactive calculator pages."""
+    base = settings.canonical_site_url
+    canonical = f"{base}/tools/{tool['slug']}"
+    description = (tool.get("description") or "").strip()
+    if len(description) > 160:
+        description = description[:157].rsplit(" ", 1)[0].rstrip(" ,.;:") + "..."
+
+    keywords = [
+        tool["name"],
+        tool["slug"].replace("-", " "),
+        "health calculator",
+        "metabolic health tool",
+    ]
+
+    return {
+        "title": f"{tool['name']} | {settings.site_name}",
+        "description": description,
+        "keywords": ", ".join(keywords),
+        "canonical": canonical,
+        "site_name": settings.site_name,
+        "site_url": base,
+        "locale": settings.site_locale,
+        "og_image": f"{base}/static/og-image.png",
+        "og_type": "website",
+    }
+
+
 @app.route("/tools")
 def tools_index():
     return render_template("tools_index.html.j2")
@@ -2408,7 +2438,7 @@ def tool_page(slug: str):
     tool = _TOOLS.get(slug)
     if not tool:
         abort(404)
-    return render_template("tool_page.html.j2", tool=tool)
+    return render_template("tool_page.html.j2", tool=tool, seo=_tool_page_seo(tool))
 
 
 # ═══════════════════════════════════════════════════════════════════════
