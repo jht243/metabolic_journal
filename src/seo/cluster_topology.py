@@ -25,6 +25,35 @@ from typing import Optional
 # Canonical anchor text for every page in the cluster topology.
 # Every internal link uses these exact phrases for consistent topical signal.
 _ANCHOR: dict[str, str] = {
+    # ── Peptides hub + spokes ──
+    "/peptides": "Peptide therapy — what peptides are, how they work, and which ones to consider",
+    "/peptide-therapy": "Peptide therapy: what it is, how it works, and who it's for",
+    "/peptides/bpc-157": "BPC-157: healing peptide benefits, dosage, and safety",
+    "/peptides/ipamorelin": "Ipamorelin: growth hormone peptide benefits, dosage & results",
+    "/peptides/sermorelin": "Sermorelin: anti-aging growth hormone therapy guide",
+    "/peptides/cjc-1295": "CJC-1295: GHRH analog benefits, dosage, and stacking guide",
+    "/peptides/tb-500": "TB-500 (Thymosin Beta-4): tissue repair peptide guide",
+    "/peptides/epithalon": "Epithalon: the longevity peptide — research, benefits & dosage",
+    "/peptides/semax": "Semax: cognitive peptide — nootropic effects and research",
+    "/peptides/selank": "Selank: anti-anxiety peptide — effects, research & dosage",
+    "/peptides/healing": "Peptides for healing: tissue repair, injury recovery & inflammation",
+    "/peptides/muscle-growth": "Peptides for muscle growth: best options, stacks & protocols",
+    "/peptides/anti-aging": "Longevity peptides: anti-aging options and the research behind them",
+    "/compare/bpc-157-vs-tb-500": "BPC-157 vs TB-500: tissue repair peptides compared",
+    "/faq/are-peptides-legal": "Are peptides legal? FDA status, research chemicals & what's allowed",
+    "/tools/peptide-finder": "Peptide Finder — personalized peptide recommendations based on your goals",
+    "/peptides/weight-loss": "Peptides for weight loss: GLP-1, tesamorelin & what actually works",
+    "/peptides/nad": "NAD+ therapy and peptides: benefits, injections & the research",
+    "/peptides/glp-1": "GLP-1 peptides: semaglutide, tirzepatide, retatrutide & how they work",
+    "/peptides/hgh": "HGH peptides vs. human growth hormone: differences, safety & access",
+    "/peptides/skin": "Peptides for skin: GHK-Cu, collagen peptides & topical vs systemic",
+    "/peptides/collagen": "Collagen peptides: benefits, types, dosing & RCT evidence",
+    "/compare/cjc-1295-ipamorelin-stack": "CJC-1295 + ipamorelin stack: dosing protocol, timing & results",
+    "/guides/how-to-reconstitute-peptides": "How to reconstitute peptides: step-by-step guide with dose calculations",
+    "/peptides/igf-1-lr3": "IGF-1 LR3: mechanism, risks, and what the research actually shows",
+    "/peptides/wolverine-stack": "The wolverine stack: BPC-157 + TB-500 injury recovery protocol",
+    "/peptides/aod-9604": "AOD-9604: the fat-loss peptide that failed Phase III — and what works instead",
+
     # ── Metabolism hub + spokes ──
     "/metabolic-health": "Metabolic health — insulin resistance, blood sugar, body composition",
     "/insulin-resistance": "What is insulin resistance? Causes, symptoms & how to reverse it",
@@ -152,6 +181,48 @@ def _ck(path: str, description: str = "") -> ClusterLink:
 # ──────────────────────────────────────────────────────────────────────
 
 CLUSTERS: dict[str, Cluster] = {
+    "peptides": Cluster(
+        key="peptides",
+        name="Peptide Therapy",
+        summary=(
+            "Peptide therapy for healing, muscle growth, cognitive enhancement, "
+            "and longevity — evidence-based profiles for BPC-157, ipamorelin, "
+            "sermorelin, TB-500, epithalon, semax, and more."
+        ),
+        pillar=_ck(
+            "/peptides",
+            "Peptide therapy guide — what peptides are, how they work, and which to consider.",
+        ),
+        members=(
+            _ck("/peptide-therapy", "What peptide therapy is, how it works, and how to access it."),
+            _ck("/peptides/bpc-157", "BPC-157 benefits, dosage, research, and tissue repair mechanism."),
+            _ck("/peptides/ipamorelin", "Ipamorelin for growth hormone release, body composition, and recovery."),
+            _ck("/peptides/sermorelin", "Sermorelin therapy for HGH stimulation, aging, and body composition."),
+            _ck("/peptides/cjc-1295", "CJC-1295 dosage, benefits, and how to stack with ipamorelin."),
+            _ck("/peptides/tb-500", "TB-500 for injury repair, inflammation, and tissue regeneration."),
+            _ck("/peptides/epithalon", "Epithalon's telomere and longevity research — what the evidence shows."),
+            _ck("/peptides/semax", "Semax for focus, neuroprotection, and BDNF upregulation."),
+            _ck("/peptides/selank", "Selank for anxiety, mood stability, and cognitive calm."),
+            _ck("/peptides/healing", "Which peptides help with healing — BPC-157, TB-500, and the wolverine stack."),
+            _ck("/peptides/muscle-growth", "Best peptides for muscle growth, recovery, and performance."),
+            _ck("/peptides/anti-aging", "Longevity peptides — epithalon, GHK-Cu, and the anti-aging research."),
+            _ck("/compare/bpc-157-vs-tb-500", "BPC-157 vs TB-500: differences, use cases, and how to stack."),
+            _ck("/faq/are-peptides-legal", "Peptide legality: FDA status, research chemical regulations, and what's allowed."),
+            _ck("/tools/peptide-finder", "Answer 6 questions to get personalized peptide recommendations."),
+            _ck("/peptides/weight-loss", "GLP-1 peptides, tesamorelin, and GH secretagogues for weight loss and body recomposition."),
+            _ck("/peptides/nad", "NAD+ therapy, IV infusions, and NMN/NR supplementation for cellular energy and longevity."),
+            _ck("/peptides/glp-1", "GLP-1 receptor agonists — semaglutide, tirzepatide, retatrutide — compared and explained."),
+            _ck("/peptides/hgh", "HGH peptides vs synthetic HGH: mechanisms, side effects, and who needs each."),
+            _ck("/peptides/skin", "GHK-Cu, matrixyl, and collagen peptides for skin health — topical and systemic options."),
+            _ck("/peptides/collagen", "Collagen peptides: RCT evidence, types, dosing, and how they actually work."),
+            _ck("/compare/cjc-1295-ipamorelin-stack", "CJC-1295 + ipamorelin stack: why they're synergistic, full dosing protocol, and results timeline."),
+            _ck("/guides/how-to-reconstitute-peptides", "How to reconstitute peptides with bacteriostatic water — step-by-step with dose calculation examples."),
+            _ck("/peptides/igf-1-lr3", "IGF-1 LR3 mechanism, hyperplasia use case, risk profile, and how it compares to GH secretagogues."),
+            _ck("/peptides/wolverine-stack", "The wolverine stack — BPC-157 and TB-500 combined: injury protocol, dosing, and what to expect."),
+            _ck("/peptides/aod-9604", "AOD-9604: the GH fragment that failed Phase III, why it's still sold, and what actually works for fat loss."),
+        ),
+    ),
+
     "metabolism": Cluster(
         key="metabolism",
         name="Metabolic Health",
@@ -372,7 +443,19 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/guides/hormones", "hormones"),
     ("/guides/recovery", "recovery"),
 
+    # Peptides
+    ("/peptides", "peptides"),
+    ("/peptide-therapy", "peptides"),
+    ("/tools/peptide-finder", "peptides"),
+    ("/compare/bpc-157-vs-tb-500", "peptides"),
+    ("/compare/tesamorelin-vs-sermorelin", "peptides"),
+    ("/compare/sarms-vs-peptides", "peptides"),
+    ("/compare/cjc-1295-ipamorelin-stack", "peptides"),
+    ("/faq/are-peptides-legal", "peptides"),
+    ("/guides/how-to-reconstitute-peptides", "peptides"),
+
     # Broad prefix fallbacks (last resort)
+    ("/peptides/", "peptides"),
     ("/symptoms/", "metabolism"),
     ("/guides/", "metabolism"),
     ("/conditions/", "hormones"),

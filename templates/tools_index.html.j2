@@ -40,6 +40,11 @@
       'slug': 'insulin-resistance-calculator',
       'name': 'Insulin Resistance Calculator',
       'description': 'Estimate your insulin resistance risk using the HOMA-IR model and additional metabolic markers. Early detection enables early intervention.'
+    },
+    {
+      'slug': 'peptide-finder',
+      'name': 'Peptide Finder',
+      'description': 'Answer 6 questions about your goals and health status to get personalized peptide recommendations — ranked by relevance across 9 therapeutic peptides.'
     }
   ] %}
 
@@ -49,7 +54,7 @@
       <span class="cr-card-eyebrow">Free Tool</span>
       <h2 class="cr-card-headline">{{ tool.name }}</h2>
       <p class="cr-card-tagline">{{ tool.description }}</p>
-      <span class="cr-card-action">Use calculator</span>
+      <span class="cr-card-action">{{ 'Find my peptide →' if tool.slug == 'peptide-finder' else 'Use calculator' }}</span>
     </a>
     {% endfor %}
   </div>
