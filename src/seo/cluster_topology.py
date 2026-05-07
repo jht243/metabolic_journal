@@ -48,6 +48,11 @@ _ANCHOR: dict[str, str] = {
     "/peptides/hgh": "HGH peptides vs. human growth hormone: differences, safety & access",
     "/peptides/skin": "Peptides for skin: GHK-Cu, collagen peptides & topical vs systemic",
     "/peptides/collagen": "Collagen peptides: benefits, types, dosing & RCT evidence",
+    "/compare/cjc-1295-ipamorelin-stack": "CJC-1295 + ipamorelin stack: dosing protocol, timing & results",
+    "/guides/how-to-reconstitute-peptides": "How to reconstitute peptides: step-by-step guide with dose calculations",
+    "/peptides/igf-1-lr3": "IGF-1 LR3: mechanism, risks, and what the research actually shows",
+    "/peptides/wolverine-stack": "The wolverine stack: BPC-157 + TB-500 injury recovery protocol",
+    "/peptides/aod-9604": "AOD-9604: the fat-loss peptide that failed Phase III — and what works instead",
 
     # ── Metabolism hub + spokes ──
     "/metabolic-health": "Metabolic health — insulin resistance, blood sugar, body composition",
@@ -210,6 +215,11 @@ CLUSTERS: dict[str, Cluster] = {
             _ck("/peptides/hgh", "HGH peptides vs synthetic HGH: mechanisms, side effects, and who needs each."),
             _ck("/peptides/skin", "GHK-Cu, matrixyl, and collagen peptides for skin health — topical and systemic options."),
             _ck("/peptides/collagen", "Collagen peptides: RCT evidence, types, dosing, and how they actually work."),
+            _ck("/compare/cjc-1295-ipamorelin-stack", "CJC-1295 + ipamorelin stack: why they're synergistic, full dosing protocol, and results timeline."),
+            _ck("/guides/how-to-reconstitute-peptides", "How to reconstitute peptides with bacteriostatic water — step-by-step with dose calculation examples."),
+            _ck("/peptides/igf-1-lr3", "IGF-1 LR3 mechanism, hyperplasia use case, risk profile, and how it compares to GH secretagogues."),
+            _ck("/peptides/wolverine-stack", "The wolverine stack — BPC-157 and TB-500 combined: injury protocol, dosing, and what to expect."),
+            _ck("/peptides/aod-9604", "AOD-9604: the GH fragment that failed Phase III, why it's still sold, and what actually works for fat loss."),
         ),
     ),
 
@@ -440,7 +450,9 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/compare/bpc-157-vs-tb-500", "peptides"),
     ("/compare/tesamorelin-vs-sermorelin", "peptides"),
     ("/compare/sarms-vs-peptides", "peptides"),
+    ("/compare/cjc-1295-ipamorelin-stack", "peptides"),
     ("/faq/are-peptides-legal", "peptides"),
+    ("/guides/how-to-reconstitute-peptides", "peptides"),
 
     # Broad prefix fallbacks (last resort)
     ("/peptides/", "peptides"),

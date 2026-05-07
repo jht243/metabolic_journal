@@ -2322,6 +2322,9 @@ _PEPTIDE_PROFILES = {
     "hgh": "HGH Peptides vs. Human Growth Hormone: What's the Difference?",
     "skin": "Peptides for Skin: GHK-Cu, Collagen Peptides & What Actually Works",
     "collagen": "Collagen Peptides: Benefits, Types & What the Research Shows",
+    "igf-1-lr3": "IGF-1 LR3: Mechanism, Risks, and What the Research Actually Shows",
+    "wolverine-stack": "The Wolverine Stack: BPC-157 + TB-500 Protocol for Injury Recovery",
+    "aod-9604": "AOD-9604: The Fat-Loss Peptide That Failed Phase III (And What Works Instead)",
 }
 
 
@@ -2803,6 +2806,12 @@ _SITEMAP_PEPTIDES = [
     ("/peptides/hgh", "0.7", "monthly"),
     ("/peptides/skin", "0.7", "monthly"),
     ("/peptides/collagen", "0.7", "monthly"),
+    # Gap pages — May 2026 keyword analysis
+    ("/compare/cjc-1295-ipamorelin-stack", "0.8", "monthly"),
+    ("/guides/how-to-reconstitute-peptides", "0.7", "monthly"),
+    ("/peptides/igf-1-lr3", "0.7", "monthly"),
+    ("/peptides/wolverine-stack", "0.7", "monthly"),
+    ("/peptides/aod-9604", "0.7", "monthly"),
 ]
 
 _SITEMAP_TOOLS = [
