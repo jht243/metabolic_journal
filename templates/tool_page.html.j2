@@ -190,31 +190,64 @@
     {# ── Peptide Finder ── #}
     {% elif tool.slug == 'peptide-finder' %}
     <style>
-      .pf-step { display: none; } .pf-step.active { display: block; }
-      .pf-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
-      .pf-options label { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: white; border: 2px solid var(--h-gray-light); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; user-select: none; }
-      .pf-options label:hover { border-color: var(--h-teal); }
-      .pf-options input[type=radio], .pf-options input[type=checkbox] { display: none; }
-      .pf-options label:has(input:checked) { background: var(--h-teal); border-color: var(--h-teal); color: white; }
-      .pf-progress { display: flex; gap: 6px; margin-bottom: 24px; }
-      .pf-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--h-gray-light); transition: background 0.2s; }
+      /* ── Quiz shell ── */
+      .pf-wrap { max-width: 480px; }
+      .pf-step { display: none; }
+      .pf-step.active { display: block; }
+
+      /* ── Progress dots ── */
+      .pf-progress { display: flex; gap: 6px; margin-bottom: 20px; }
+      .pf-dot { width: 8px; height: 8px; border-radius: 50%; background: #dde3ed; transition: background 0.2s; }
       .pf-dot.done { background: var(--h-teal); }
-      .pf-nav { display: flex; gap: 12px; margin-top: 24px; align-items: center; }
-      .pf-back { background: white; color: var(--h-navy); border: 1.5px solid var(--h-gray-light); border-radius: 6px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; }
-      .pf-card { border: 1.5px solid var(--h-gray-light); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; background: white; }
-      .pf-card-rank { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--h-teal); margin-bottom: 4px; }
-      .pf-card-name { font-size: 20px; font-weight: 700; color: var(--h-navy); margin-bottom: 6px; font-family: var(--font-serif); }
-      .pf-card-tag { display: inline-block; background: var(--h-teal); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; margin-right: 6px; margin-bottom: 10px; }
+
+      /* ── Step header ── */
+      .pf-step-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--h-gray-text); margin-bottom: 5px; }
+      .pf-step-q { font-size: 19px; font-weight: 700; color: var(--h-navy); margin: 0 0 16px; line-height: 1.3; }
+      .pf-step-hint { font-size: 13px; font-weight: 400; color: var(--h-gray-text); }
+
+      /* ── Option grid — equal-width cells via CSS grid ── */
+      .pf-options { display: grid; gap: 8px; margin-bottom: 4px; }
+      .pf-options.cols-2 { grid-template-columns: 1fr 1fr; }
+      .pf-options.cols-4 { grid-template-columns: repeat(4, 1fr); }
+      .pf-options.cols-3 { grid-template-columns: repeat(3, 1fr); }
+      @media (max-width: 480px) {
+        .pf-options.cols-4 { grid-template-columns: 1fr 1fr; }
+        .pf-options.cols-3 { grid-template-columns: 1fr 1fr; }
+      }
+      .pf-options input { display: none; }
+      .pf-options label {
+        display: flex; align-items: center; justify-content: center; text-align: center;
+        padding: 10px 10px; background: #fff;
+        border: 1.5px solid #dde3ed; border-radius: 7px;
+        cursor: pointer; font-size: 13px; font-weight: 500; line-height: 1.35;
+        transition: border-color 0.15s, color 0.15s; user-select: none; min-height: 42px;
+      }
+      .pf-options label:hover { border-color: var(--h-teal); color: var(--h-teal); }
+      .pf-options label:has(input:checked) { background: var(--h-teal); border-color: var(--h-teal); color: #fff; font-weight: 600; }
+
+      /* ── Nav buttons ── */
+      .pf-nav { display: flex; gap: 8px; margin-top: 18px; align-items: center; }
+      .pf-next { padding: 8px 20px; background: var(--h-teal); color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; font-family: var(--font-sans); }
+      .pf-next:hover { background: var(--h-navy); }
+      .pf-back { padding: 7px 16px; background: #fff; color: var(--h-navy); border: 1.5px solid #dde3ed; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--font-sans); }
+      .pf-back:hover { border-color: var(--h-navy); }
+
+      /* ── Result cards ── */
+      .pf-card { border: 1.5px solid #dde3ed; border-radius: 10px; padding: 18px 20px; margin-bottom: 12px; background: #fff; }
+      .pf-card-rank { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--h-teal); margin-bottom: 3px; }
+      .pf-card-name { font-size: 19px; font-weight: 700; color: var(--h-navy); margin-bottom: 8px; font-family: var(--font-serif); }
+      .pf-card-tag { display: inline-block; background: var(--h-teal); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 100px; margin: 0 4px 8px 0; }
       .pf-card-tag.gray { background: var(--h-gray-text); }
-      .pf-card-why { font-size: 14px; line-height: 1.6; color: var(--h-dark-text); margin-bottom: 12px; }
-      .pf-card-protocol { background: var(--h-gray-bg); border-radius: 6px; padding: 12px 16px; font-size: 13px; line-height: 1.6; }
-      .pf-card-link { display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--h-teal); text-decoration: none; }
+      .pf-card-why { font-size: 13px; line-height: 1.6; color: var(--h-dark-text); margin-bottom: 10px; }
+      .pf-card-protocol { background: var(--h-gray-bg); border-radius: 6px; padding: 10px 14px; font-size: 12px; line-height: 1.6; }
+      .pf-card-link { display: inline-block; margin-top: 10px; font-size: 13px; font-weight: 600; color: var(--h-teal); text-decoration: none; }
       .pf-card-link:hover { text-decoration: underline; }
-      .pf-disclaimer { font-size: 12px; color: var(--h-gray-text); margin-top: 20px; padding: 12px 16px; background: var(--h-gray-bg); border-radius: 6px; line-height: 1.5; }
+      .pf-disclaimer { font-size: 11px; color: var(--h-gray-text); margin-top: 16px; padding: 10px 14px; background: var(--h-gray-bg); border-radius: 6px; line-height: 1.5; }
     </style>
-    <div id="pf-quiz">
+
+    <div class="pf-wrap" id="pf-quiz">
       <div class="pf-progress" id="pf-dots">
-        <div class="pf-dot active" id="pf-d0"></div>
+        <div class="pf-dot done" id="pf-d0"></div>
         <div class="pf-dot" id="pf-d1"></div>
         <div class="pf-dot" id="pf-d2"></div>
         <div class="pf-dot" id="pf-d3"></div>
@@ -222,84 +255,84 @@
         <div class="pf-dot" id="pf-d5"></div>
       </div>
 
-      {# Step 0: Primary Goal #}
+      {# Step 0: Primary Goal — 2-col grid #}
       <div class="pf-step active" id="pf-s0">
-        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 1 of 6</p>
-        <h3 style="font-size:22px;margin-bottom:16px;">What is your primary goal?</h3>
-        <div class="pf-options">
-          <label><input type="radio" name="goal" value="healing"><span>🩹 Healing an injury or chronic pain</span></label>
-          <label><input type="radio" name="goal" value="muscle"><span>💪 Muscle growth & body composition</span></label>
-          <label><input type="radio" name="goal" value="cognitive"><span>🧠 Cognitive performance & focus</span></label>
-          <label><input type="radio" name="goal" value="longevity"><span>🧬 Longevity & anti-aging</span></label>
-          <label><input type="radio" name="goal" value="weight"><span>⚖️ Weight & fat loss</span></label>
-          <label><input type="radio" name="goal" value="anxiety"><span>😌 Stress, anxiety & sleep</span></label>
+        <p class="pf-step-label">Step 1 of 6</p>
+        <h3 class="pf-step-q">What is your primary goal?</h3>
+        <div class="pf-options cols-2">
+          <label><input type="radio" name="goal" value="healing"><span>🩹 Healing &amp; injury recovery</span></label>
+          <label><input type="radio" name="goal" value="muscle"><span>💪 Muscle &amp; body composition</span></label>
+          <label><input type="radio" name="goal" value="cognitive"><span>🧠 Cognitive performance</span></label>
+          <label><input type="radio" name="goal" value="longevity"><span>🧬 Longevity &amp; anti-aging</span></label>
+          <label><input type="radio" name="goal" value="weight"><span>⚖️ Weight &amp; fat loss</span></label>
+          <label><input type="radio" name="goal" value="anxiety"><span>😌 Stress &amp; anxiety</span></label>
         </div>
-        <div class="pf-nav"><button class="tool-btn" onclick="pfNext(0)">Next →</button></div>
+        <div class="pf-nav"><button class="pf-next" onclick="pfNext(0)">Next →</button></div>
       </div>
 
-      {# Step 1: Age #}
+      {# Step 1: Age — 4-col grid #}
       <div class="pf-step" id="pf-s1">
-        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 2 of 6</p>
-        <h3 style="font-size:22px;margin-bottom:16px;">What is your age range?</h3>
-        <div class="pf-options">
+        <p class="pf-step-label">Step 2 of 6</p>
+        <h3 class="pf-step-q">What is your age range?</h3>
+        <div class="pf-options cols-4">
           <label><input type="radio" name="age" value="young"><span>18–29</span></label>
           <label><input type="radio" name="age" value="mid"><span>30–44</span></label>
           <label><input type="radio" name="age" value="mature"><span>45–59</span></label>
           <label><input type="radio" name="age" value="senior"><span>60+</span></label>
         </div>
-        <div class="pf-nav"><button class="pf-back" onclick="pfBack(1)">← Back</button><button class="tool-btn" onclick="pfNext(1)">Next →</button></div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(1)">← Back</button><button class="pf-next" onclick="pfNext(1)">Next →</button></div>
       </div>
 
-      {# Step 2: Experience #}
+      {# Step 2: Experience — 1-col stacked #}
       <div class="pf-step" id="pf-s2">
-        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 3 of 6</p>
-        <h3 style="font-size:22px;margin-bottom:16px;">What is your experience with peptides?</h3>
+        <p class="pf-step-label">Step 3 of 6</p>
+        <h3 class="pf-step-q">Your experience with peptides?</h3>
         <div class="pf-options">
-          <label><input type="radio" name="exp" value="none"><span>None — completely new to peptides</span></label>
+          <label><input type="radio" name="exp" value="none"><span>None — completely new</span></label>
           <label><input type="radio" name="exp" value="some"><span>Some — researched but not used</span></label>
-          <label><input type="radio" name="exp" value="exp"><span>Experienced — have used peptides before</span></label>
+          <label><input type="radio" name="exp" value="exp"><span>Experienced — have used before</span></label>
         </div>
-        <div class="pf-nav"><button class="pf-back" onclick="pfBack(2)">← Back</button><button class="tool-btn" onclick="pfNext(2)">Next →</button></div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(2)">← Back</button><button class="pf-next" onclick="pfNext(2)">Next →</button></div>
       </div>
 
-      {# Step 3: Admin route #}
+      {# Step 3: Admin route — 1-col stacked #}
       <div class="pf-step" id="pf-s3">
-        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 4 of 6</p>
-        <h3 style="font-size:22px;margin-bottom:16px;">What administration route are you comfortable with?</h3>
+        <p class="pf-step-label">Step 4 of 6</p>
+        <h3 class="pf-step-q">Preferred administration route?</h3>
         <div class="pf-options">
           <label><input type="radio" name="route" value="inject"><span>💉 Injectable (subcutaneous)</span></label>
           <label><input type="radio" name="route" value="nasal"><span>👃 Nasal spray or oral only</span></label>
           <label><input type="radio" name="route" value="any"><span>Either — open to both</span></label>
         </div>
-        <div class="pf-nav"><button class="pf-back" onclick="pfBack(3)">← Back</button><button class="tool-btn" onclick="pfNext(3)">Next →</button></div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(3)">← Back</button><button class="pf-next" onclick="pfNext(3)">Next →</button></div>
       </div>
 
-      {# Step 4: Budget #}
+      {# Step 4: Budget — 1-col stacked #}
       <div class="pf-step" id="pf-s4">
-        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 5 of 6</p>
-        <h3 style="font-size:22px;margin-bottom:16px;">What is your monthly budget for peptides?</h3>
+        <p class="pf-step-label">Step 5 of 6</p>
+        <h3 class="pf-step-q">Monthly budget for peptides?</h3>
         <div class="pf-options">
-          <label><input type="radio" name="budget" value="low"><span>Under $100/month</span></label>
-          <label><input type="radio" name="budget" value="mid"><span>$100–$300/month</span></label>
-          <label><input type="radio" name="budget" value="high"><span>$300+/month (clinical access)</span></label>
+          <label><input type="radio" name="budget" value="low"><span>Under $100 / month</span></label>
+          <label><input type="radio" name="budget" value="mid"><span>$100 – $300 / month</span></label>
+          <label><input type="radio" name="budget" value="high"><span>$300+ / month (clinical access)</span></label>
         </div>
-        <div class="pf-nav"><button class="pf-back" onclick="pfBack(4)">← Back</button><button class="tool-btn" onclick="pfNext(4)">Next →</button></div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(4)">← Back</button><button class="pf-next" onclick="pfNext(4)">Next →</button></div>
       </div>
 
-      {# Step 5: Specific considerations #}
+      {# Step 5: Considerations — 2-col grid #}
       <div class="pf-step" id="pf-s5">
-        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 6 of 6</p>
-        <h3 style="font-size:22px;margin-bottom:8px;">Any specific considerations? <span style="font-weight:400;font-size:16px;color:var(--h-gray-text)">(select all that apply)</span></h3>
-        <div class="pf-options">
+        <p class="pf-step-label">Step 6 of 6</p>
+        <h3 class="pf-step-q">Any specific considerations? <span class="pf-step-hint">(select all that apply)</span></h3>
+        <div class="pf-options cols-2">
           <label><input type="checkbox" name="consider" value="gut"><span>Gut or digestive issues</span></label>
-          <label><input type="checkbox" name="consider" value="tendon"><span>Joint, tendon, or ligament injury</span></label>
+          <label><input type="checkbox" name="consider" value="tendon"><span>Joint or tendon injury</span></label>
           <label><input type="checkbox" name="consider" value="sleep"><span>Poor sleep quality</span></label>
-          <label><input type="checkbox" name="consider" value="focus"><span>Focus / brain fog issues</span></label>
+          <label><input type="checkbox" name="consider" value="focus"><span>Focus / brain fog</span></label>
           <label><input type="checkbox" name="consider" value="stress"><span>Chronic stress or anxiety</span></label>
-          <label><input type="checkbox" name="consider" value="visceral"><span>Visceral fat / midsection weight</span></label>
-          <label><input type="checkbox" name="consider" value="competition"><span>Competitive athlete (WADA-tested)</span></label>
+          <label><input type="checkbox" name="consider" value="visceral"><span>Visceral / midsection fat</span></label>
+          <label><input type="checkbox" name="consider" value="competition"><span>Competitive athlete (WADA)</span></label>
         </div>
-        <div class="pf-nav"><button class="pf-back" onclick="pfBack(5)">← Back</button><button class="tool-btn" onclick="pfCalc()">Get My Recommendations →</button></div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(5)">← Back</button><button class="pf-next" onclick="pfCalc()">Get My Recommendations →</button></div>
       </div>
     </div>
 
