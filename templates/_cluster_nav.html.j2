@@ -19,7 +19,9 @@
     .cluster-nav { flex-wrap: wrap; }
     .cluster-nav a { flex: 1 1 50%; border-bottom: 1px solid var(--h-gray-light); }
     .cluster-nav a:nth-child(2) { border-right: 0; }
-    .cluster-nav a:nth-child(3), .cluster-nav a:nth-child(4) { border-bottom: 0; }
+    .cluster-nav a:nth-child(4) { border-right: 0; }
+    .cluster-nav a:nth-child(5) { flex: 1 1 100%; border-right: 0; border-bottom: 0; }
+    .cluster-nav a:nth-child(3):not(:nth-last-child(-n+2)) { border-bottom: 1px solid var(--h-gray-light); }
   }
 </style>
 {% endmacro %}
@@ -30,6 +32,7 @@
   {'slug': 'hormones', 'label': 'Hormones', 'href': '/hormone-optimization'},
   {'slug': 'recovery', 'label': 'Sleep & Recovery', 'href': '/sleep-recovery'},
   {'slug': 'testing', 'label': 'Testing & Biomarkers', 'href': '/lab-testing'},
+  {'slug': 'peptides', 'label': 'Peptides', 'href': '/peptides'},
 ] %}
 <nav class="cluster-nav" aria-label="Health topics">
   {% for c in clusters %}
