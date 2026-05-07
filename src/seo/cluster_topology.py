@@ -25,6 +25,24 @@ from typing import Optional
 # Canonical anchor text for every page in the cluster topology.
 # Every internal link uses these exact phrases for consistent topical signal.
 _ANCHOR: dict[str, str] = {
+    # ── Peptides hub + spokes ──
+    "/peptides": "Peptide therapy — what peptides are, how they work, and which ones to consider",
+    "/peptide-therapy": "Peptide therapy: what it is, how it works, and who it's for",
+    "/peptides/bpc-157": "BPC-157: healing peptide benefits, dosage, and safety",
+    "/peptides/ipamorelin": "Ipamorelin: growth hormone peptide benefits, dosage & results",
+    "/peptides/sermorelin": "Sermorelin: anti-aging growth hormone therapy guide",
+    "/peptides/cjc-1295": "CJC-1295: GHRH analog benefits, dosage, and stacking guide",
+    "/peptides/tb-500": "TB-500 (Thymosin Beta-4): tissue repair peptide guide",
+    "/peptides/epithalon": "Epithalon: the longevity peptide — research, benefits & dosage",
+    "/peptides/semax": "Semax: cognitive peptide — nootropic effects and research",
+    "/peptides/selank": "Selank: anti-anxiety peptide — effects, research & dosage",
+    "/peptides/healing": "Peptides for healing: tissue repair, injury recovery & inflammation",
+    "/peptides/muscle-growth": "Peptides for muscle growth: best options, stacks & protocols",
+    "/peptides/anti-aging": "Longevity peptides: anti-aging options and the research behind them",
+    "/compare/bpc-157-vs-tb-500": "BPC-157 vs TB-500: tissue repair peptides compared",
+    "/faq/are-peptides-legal": "Are peptides legal? FDA status, research chemicals & what's allowed",
+    "/tools/peptide-finder": "Peptide Finder — personalized peptide recommendations based on your goals",
+
     # ── Metabolism hub + spokes ──
     "/metabolic-health": "Metabolic health — insulin resistance, blood sugar, body composition",
     "/insulin-resistance": "What is insulin resistance? Causes, symptoms & how to reverse it",
@@ -152,6 +170,37 @@ def _ck(path: str, description: str = "") -> ClusterLink:
 # ──────────────────────────────────────────────────────────────────────
 
 CLUSTERS: dict[str, Cluster] = {
+    "peptides": Cluster(
+        key="peptides",
+        name="Peptide Therapy",
+        summary=(
+            "Peptide therapy for healing, muscle growth, cognitive enhancement, "
+            "and longevity — evidence-based profiles for BPC-157, ipamorelin, "
+            "sermorelin, TB-500, epithalon, semax, and more."
+        ),
+        pillar=_ck(
+            "/peptides",
+            "Peptide therapy guide — what peptides are, how they work, and which to consider.",
+        ),
+        members=(
+            _ck("/peptide-therapy", "What peptide therapy is, how it works, and how to access it."),
+            _ck("/peptides/bpc-157", "BPC-157 benefits, dosage, research, and tissue repair mechanism."),
+            _ck("/peptides/ipamorelin", "Ipamorelin for growth hormone release, body composition, and recovery."),
+            _ck("/peptides/sermorelin", "Sermorelin therapy for HGH stimulation, aging, and body composition."),
+            _ck("/peptides/cjc-1295", "CJC-1295 dosage, benefits, and how to stack with ipamorelin."),
+            _ck("/peptides/tb-500", "TB-500 for injury repair, inflammation, and tissue regeneration."),
+            _ck("/peptides/epithalon", "Epithalon's telomere and longevity research — what the evidence shows."),
+            _ck("/peptides/semax", "Semax for focus, neuroprotection, and BDNF upregulation."),
+            _ck("/peptides/selank", "Selank for anxiety, mood stability, and cognitive calm."),
+            _ck("/peptides/healing", "Which peptides help with healing — BPC-157, TB-500, and the wolverine stack."),
+            _ck("/peptides/muscle-growth", "Best peptides for muscle growth, recovery, and performance."),
+            _ck("/peptides/anti-aging", "Longevity peptides — epithalon, GHK-Cu, and the anti-aging research."),
+            _ck("/compare/bpc-157-vs-tb-500", "BPC-157 vs TB-500: differences, use cases, and how to stack."),
+            _ck("/faq/are-peptides-legal", "Peptide legality: FDA status, research chemical regulations, and what's allowed."),
+            _ck("/tools/peptide-finder", "Answer 6 questions to get personalized peptide recommendations."),
+        ),
+    ),
+
     "metabolism": Cluster(
         key="metabolism",
         name="Metabolic Health",
@@ -372,7 +421,17 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/guides/hormones", "hormones"),
     ("/guides/recovery", "recovery"),
 
+    # Peptides
+    ("/peptides", "peptides"),
+    ("/peptide-therapy", "peptides"),
+    ("/tools/peptide-finder", "peptides"),
+    ("/compare/bpc-157-vs-tb-500", "peptides"),
+    ("/compare/tesamorelin-vs-sermorelin", "peptides"),
+    ("/compare/sarms-vs-peptides", "peptides"),
+    ("/faq/are-peptides-legal", "peptides"),
+
     # Broad prefix fallbacks (last resort)
+    ("/peptides/", "peptides"),
     ("/symptoms/", "metabolism"),
     ("/guides/", "metabolism"),
     ("/conditions/", "hormones"),

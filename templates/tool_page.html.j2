@@ -187,6 +187,124 @@
     </form>
     <div id="energy-result" class="tool-result"></div>
 
+    {# ── Peptide Finder ── #}
+    {% elif tool.slug == 'peptide-finder' %}
+    <style>
+      .pf-step { display: none; } .pf-step.active { display: block; }
+      .pf-options { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+      .pf-options label { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; background: white; border: 2px solid var(--h-gray-light); border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.15s; user-select: none; }
+      .pf-options label:hover { border-color: var(--h-teal); }
+      .pf-options input[type=radio], .pf-options input[type=checkbox] { display: none; }
+      .pf-options label:has(input:checked) { background: var(--h-teal); border-color: var(--h-teal); color: white; }
+      .pf-progress { display: flex; gap: 6px; margin-bottom: 24px; }
+      .pf-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--h-gray-light); transition: background 0.2s; }
+      .pf-dot.done { background: var(--h-teal); }
+      .pf-nav { display: flex; gap: 12px; margin-top: 24px; align-items: center; }
+      .pf-back { background: white; color: var(--h-navy); border: 1.5px solid var(--h-gray-light); border-radius: 6px; padding: 10px 24px; font-size: 14px; font-weight: 600; cursor: pointer; }
+      .pf-card { border: 1.5px solid var(--h-gray-light); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; background: white; }
+      .pf-card-rank { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--h-teal); margin-bottom: 4px; }
+      .pf-card-name { font-size: 20px; font-weight: 700; color: var(--h-navy); margin-bottom: 6px; font-family: var(--font-serif); }
+      .pf-card-tag { display: inline-block; background: var(--h-teal); color: white; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 100px; margin-right: 6px; margin-bottom: 10px; }
+      .pf-card-tag.gray { background: var(--h-gray-text); }
+      .pf-card-why { font-size: 14px; line-height: 1.6; color: var(--h-dark-text); margin-bottom: 12px; }
+      .pf-card-protocol { background: var(--h-gray-bg); border-radius: 6px; padding: 12px 16px; font-size: 13px; line-height: 1.6; }
+      .pf-card-link { display: inline-block; margin-top: 12px; font-size: 13px; font-weight: 600; color: var(--h-teal); text-decoration: none; }
+      .pf-card-link:hover { text-decoration: underline; }
+      .pf-disclaimer { font-size: 12px; color: var(--h-gray-text); margin-top: 20px; padding: 12px 16px; background: var(--h-gray-bg); border-radius: 6px; line-height: 1.5; }
+    </style>
+    <div id="pf-quiz">
+      <div class="pf-progress" id="pf-dots">
+        <div class="pf-dot active" id="pf-d0"></div>
+        <div class="pf-dot" id="pf-d1"></div>
+        <div class="pf-dot" id="pf-d2"></div>
+        <div class="pf-dot" id="pf-d3"></div>
+        <div class="pf-dot" id="pf-d4"></div>
+        <div class="pf-dot" id="pf-d5"></div>
+      </div>
+
+      {# Step 0: Primary Goal #}
+      <div class="pf-step active" id="pf-s0">
+        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 1 of 6</p>
+        <h3 style="font-size:22px;margin-bottom:16px;">What is your primary goal?</h3>
+        <div class="pf-options">
+          <label><input type="radio" name="goal" value="healing"><span>🩹 Healing an injury or chronic pain</span></label>
+          <label><input type="radio" name="goal" value="muscle"><span>💪 Muscle growth & body composition</span></label>
+          <label><input type="radio" name="goal" value="cognitive"><span>🧠 Cognitive performance & focus</span></label>
+          <label><input type="radio" name="goal" value="longevity"><span>🧬 Longevity & anti-aging</span></label>
+          <label><input type="radio" name="goal" value="weight"><span>⚖️ Weight & fat loss</span></label>
+          <label><input type="radio" name="goal" value="anxiety"><span>😌 Stress, anxiety & sleep</span></label>
+        </div>
+        <div class="pf-nav"><button class="tool-btn" onclick="pfNext(0)">Next →</button></div>
+      </div>
+
+      {# Step 1: Age #}
+      <div class="pf-step" id="pf-s1">
+        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 2 of 6</p>
+        <h3 style="font-size:22px;margin-bottom:16px;">What is your age range?</h3>
+        <div class="pf-options">
+          <label><input type="radio" name="age" value="young"><span>18–29</span></label>
+          <label><input type="radio" name="age" value="mid"><span>30–44</span></label>
+          <label><input type="radio" name="age" value="mature"><span>45–59</span></label>
+          <label><input type="radio" name="age" value="senior"><span>60+</span></label>
+        </div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(1)">← Back</button><button class="tool-btn" onclick="pfNext(1)">Next →</button></div>
+      </div>
+
+      {# Step 2: Experience #}
+      <div class="pf-step" id="pf-s2">
+        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 3 of 6</p>
+        <h3 style="font-size:22px;margin-bottom:16px;">What is your experience with peptides?</h3>
+        <div class="pf-options">
+          <label><input type="radio" name="exp" value="none"><span>None — completely new to peptides</span></label>
+          <label><input type="radio" name="exp" value="some"><span>Some — researched but not used</span></label>
+          <label><input type="radio" name="exp" value="exp"><span>Experienced — have used peptides before</span></label>
+        </div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(2)">← Back</button><button class="tool-btn" onclick="pfNext(2)">Next →</button></div>
+      </div>
+
+      {# Step 3: Admin route #}
+      <div class="pf-step" id="pf-s3">
+        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 4 of 6</p>
+        <h3 style="font-size:22px;margin-bottom:16px;">What administration route are you comfortable with?</h3>
+        <div class="pf-options">
+          <label><input type="radio" name="route" value="inject"><span>💉 Injectable (subcutaneous)</span></label>
+          <label><input type="radio" name="route" value="nasal"><span>👃 Nasal spray or oral only</span></label>
+          <label><input type="radio" name="route" value="any"><span>Either — open to both</span></label>
+        </div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(3)">← Back</button><button class="tool-btn" onclick="pfNext(3)">Next →</button></div>
+      </div>
+
+      {# Step 4: Budget #}
+      <div class="pf-step" id="pf-s4">
+        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 5 of 6</p>
+        <h3 style="font-size:22px;margin-bottom:16px;">What is your monthly budget for peptides?</h3>
+        <div class="pf-options">
+          <label><input type="radio" name="budget" value="low"><span>Under $100/month</span></label>
+          <label><input type="radio" name="budget" value="mid"><span>$100–$300/month</span></label>
+          <label><input type="radio" name="budget" value="high"><span>$300+/month (clinical access)</span></label>
+        </div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(4)">← Back</button><button class="tool-btn" onclick="pfNext(4)">Next →</button></div>
+      </div>
+
+      {# Step 5: Specific considerations #}
+      <div class="pf-step" id="pf-s5">
+        <p style="font-weight:700;color:var(--h-navy);font-size:16px;margin-bottom:4px;">Step 6 of 6</p>
+        <h3 style="font-size:22px;margin-bottom:8px;">Any specific considerations? <span style="font-weight:400;font-size:16px;color:var(--h-gray-text)">(select all that apply)</span></h3>
+        <div class="pf-options">
+          <label><input type="checkbox" name="consider" value="gut"><span>Gut or digestive issues</span></label>
+          <label><input type="checkbox" name="consider" value="tendon"><span>Joint, tendon, or ligament injury</span></label>
+          <label><input type="checkbox" name="consider" value="sleep"><span>Poor sleep quality</span></label>
+          <label><input type="checkbox" name="consider" value="focus"><span>Focus / brain fog issues</span></label>
+          <label><input type="checkbox" name="consider" value="stress"><span>Chronic stress or anxiety</span></label>
+          <label><input type="checkbox" name="consider" value="visceral"><span>Visceral fat / midsection weight</span></label>
+          <label><input type="checkbox" name="consider" value="competition"><span>Competitive athlete (WADA-tested)</span></label>
+        </div>
+        <div class="pf-nav"><button class="pf-back" onclick="pfBack(5)">← Back</button><button class="tool-btn" onclick="pfCalc()">Get My Recommendations →</button></div>
+      </div>
+    </div>
+
+    <div id="pf-result" class="tool-result"></div>
+
     {% else %}
     <div class="placeholder">
       <h3>{{ tool.name }}</h3>
@@ -381,6 +499,212 @@ function calcSleep(e){
   }
   _show('sleep-result',html);
   return false;
+}
+
+/* ── Peptide Finder ── */
+var PF_PEPTIDES = {
+  'bpc157': {
+    name: 'BPC-157',
+    url: '/peptides/bpc-157',
+    tags: ['Healing', 'Tissue Repair'],
+    scores: { healing: 10, muscle: 2, cognitive: 0, longevity: 2, weight: 0, anxiety: 1 },
+    considerations: { gut: 5, tendon: 5, sleep: 0, focus: 0, stress: 0, visceral: 0, competition: -3 },
+    routePenalty: { nasal: 1 }, // partial oral activity
+    ageBonus: { young: 0, mid: 0, mature: 0, senior: 0 },
+    budgetOk: { low: true, mid: true, high: true },
+    protocol: '250–350 mcg subcutaneous daily (inject near injury site when possible). For gut: 500 mcg oral daily away from food. Cycle 4–12 weeks.',
+    why: 'BPC-157 is the top healing peptide — 600+ animal studies show accelerated repair of tendons, ligaments, gut tissue, and nerves. Its strongest evidence is for tendon and gut healing. Note: FDA reclassification in 2024 limits US compounding access; available as a research chemical.'
+  },
+  'tb500': {
+    name: 'TB-500 (Thymosin Beta-4)',
+    url: '/peptides/tb-500',
+    tags: ['Healing', 'Angiogenesis'],
+    scores: { healing: 8, muscle: 3, cognitive: 0, longevity: 1, weight: 0, anxiety: 0 },
+    considerations: { gut: 0, tendon: 4, sleep: 0, focus: 0, stress: 0, visceral: 0, competition: -3 },
+    routePenalty: { nasal: 3 },
+    budgetOk: { low: false, mid: true, high: true },
+    protocol: '2–2.5 mg subcutaneous twice weekly × 4–6 weeks (loading), then 2 mg weekly (maintenance). Often stacked with BPC-157.',
+    why: 'TB-500 promotes systemic angiogenesis and fibroblast migration, supporting healing from any injection site. Ideal partner to BPC-157 in the wolverine stack — TB-500 handles vascular supply while BPC-157 drives local repair signaling.'
+  },
+  'ipamorelin': {
+    name: 'Ipamorelin + CJC-1295',
+    url: '/peptides/ipamorelin',
+    tags: ['GH Secretagogue', 'Body Composition', 'Recovery'],
+    scores: { healing: 3, muscle: 9, cognitive: 1, longevity: 6, weight: 6, anxiety: 1 },
+    considerations: { gut: 0, tendon: 1, sleep: 3, focus: 1, stress: 1, visceral: 3, competition: -2 },
+    routePenalty: { nasal: 3 },
+    budgetOk: { low: false, mid: true, high: true },
+    protocol: 'Ipamorelin 200–300 mcg + CJC-1295 100–200 mcg, subcutaneous, once daily at bedtime. Cycle 3–6 months, then 1–2 months off.',
+    why: 'The most selective GH secretagogue stack — stimulates pituitary GH release without raising cortisol or prolactin. Best for body composition, recovery improvement, and sleep quality. Produces physiologically normal pulsatile GH rather than constant elevation.'
+  },
+  'sermorelin': {
+    name: 'Sermorelin',
+    url: '/peptides/sermorelin',
+    tags: ['FDA History', 'GH Stimulation', 'Anti-Aging'],
+    scores: { healing: 2, muscle: 7, cognitive: 2, longevity: 8, weight: 5, anxiety: 1 },
+    considerations: { gut: 0, tendon: 0, sleep: 3, focus: 1, stress: 0, visceral: 2, competition: -2 },
+    routePenalty: { nasal: 3 },
+    ageBonus: { young: -2, mid: 2, mature: 3, senior: 3 },
+    budgetOk: { low: false, mid: true, high: true },
+    protocol: '200–500 mcg subcutaneous at bedtime (most common: 300 mcg). Fasting 2–3 hours before injection. Monitor IGF-1 at 6–8 weeks.',
+    why: 'Sermorelin is the most prescribed growth hormone peptide in US functional medicine — FDA-approved since 1997, widely compounded, and physician-familiar. Best for adults 30+ addressing GH decline (somatopause). Preserves pituitary function unlike exogenous HGH.'
+  },
+  'tesamorelin': {
+    name: 'Tesamorelin',
+    url: '/peptides/tesamorelin',
+    tags: ['FDA Approved', 'Visceral Fat', 'Clinical Evidence'],
+    scores: { healing: 1, muscle: 4, cognitive: 3, longevity: 5, weight: 10, anxiety: 0 },
+    considerations: { gut: 0, tendon: 0, sleep: 2, focus: 2, stress: 0, visceral: 5, competition: -2 },
+    routePenalty: { nasal: 4 },
+    ageBonus: { young: -3, mid: 1, mature: 3, senior: 3 },
+    budgetOk: { low: false, mid: false, high: true },
+    protocol: '1–2 mg subcutaneous daily. Physician prescription required. Monitor IGF-1 at 3 months. Strong evidence for visceral fat reduction.',
+    why: 'Tesamorelin has the strongest clinical evidence base of any GHRH peptide (multiple Phase III RCTs) specifically for visceral fat reduction — 15–25% VAT reduction in trials. Requires physician access and $300+/month budget, but delivers the most evidence-backed GH-axis fat loss.'
+  },
+  'epithalon': {
+    name: 'Epithalon',
+    url: '/peptides/epithalon',
+    tags: ['Longevity', 'Telomere Support'],
+    scores: { healing: 1, muscle: 0, cognitive: 1, longevity: 10, weight: 0, anxiety: 1 },
+    considerations: { gut: 0, tendon: 0, sleep: 1, focus: 0, stress: 0, visceral: 0, competition: 0 },
+    ageBonus: { young: -3, mid: 1, mature: 3, senior: 4 },
+    budgetOk: { low: true, mid: true, high: true },
+    protocol: '5–10 mg subcutaneous daily × 10–20 days, 1–2 courses per year. Research chemical sourcing required.',
+    why: 'Epithalon targets telomere biology — activating telomerase to potentially slow cellular aging. Best for those 40+ specifically focused on longevity rather than acute performance. Used in annual or semi-annual courses, not continuous dosing. The most research-backed longevity peptide with 40+ years of Russian institutional study.'
+  },
+  'semax': {
+    name: 'Semax',
+    url: '/peptides/semax',
+    tags: ['Cognitive', 'BDNF', 'Neuroprotection'],
+    scores: { healing: 1, muscle: 0, cognitive: 10, longevity: 3, weight: 0, anxiety: 2 },
+    considerations: { gut: 0, tendon: 0, sleep: 1, focus: 5, stress: 1, visceral: 0, competition: 0 },
+    routePenalty: { inject: 0 }, // nasal is preferred, no penalty for inject
+    budgetOk: { low: true, mid: true, high: true },
+    protocol: '200–900 mcg intranasally per day (nasal spray preferred). Cycle 2–4 weeks on, 1–2 weeks off. N-Acetyl Semax Amidate is the most potent form.',
+    why: 'Semax is the strongest BDNF-upregulating peptide available — brain-derived neurotrophic factor supports neuroplasticity and memory. Used clinically in Russia for stroke recovery and cognitive impairment since the 1990s. Intranasal administration avoids injections, making it accessible to peptide newcomers.'
+  },
+  'selank': {
+    name: 'Selank',
+    url: '/peptides/selank',
+    tags: ['Anxiolytic', 'GABA Modulation', 'No Dependence'],
+    scores: { healing: 0, muscle: 0, cognitive: 4, longevity: 1, weight: 0, anxiety: 10 },
+    considerations: { gut: 0, tendon: 0, sleep: 3, focus: 2, stress: 5, visceral: 0, competition: 0 },
+    routePenalty: { inject: 0 }, // nasal preferred
+    budgetOk: { low: true, mid: true, high: true },
+    protocol: '250–750 mcg intranasally per day. Cycle 2–4 weeks on, 1–2 weeks off. Can be used alone or stacked with semax for calm cognitive enhancement.',
+    why: 'Selank is the go-to anxiolytic peptide — modulates GABA without the tolerance, dependence, or cognitive impairment of benzodiazepines. Used clinically in Russia for anxiety disorders since the 2000s. Intranasal spray makes it beginner-friendly. Ideal for stress + sleep improvement without affecting hormonal function.'
+  },
+  'mk677': {
+    name: 'MK-677 (Ibutamoren)',
+    url: '/peptides/muscle-growth',
+    tags: ['Oral GH Secretagogue', 'Sleep', 'No Injection'],
+    scores: { healing: 1, muscle: 7, cognitive: 1, longevity: 4, weight: 4, anxiety: 0 },
+    considerations: { gut: 0, tendon: 0, sleep: 4, focus: 0, stress: 0, visceral: 1, competition: -4 },
+    routePenalty: { inject: 0, nasal: 0, any: 0 }, // bonus for non-injectable seekers
+    budgetOk: { low: true, mid: true, high: true },
+    protocol: '12.5–25 mg orally at bedtime. Once daily oral dosing. Monitor blood glucose and insulin (can elevate). Cycle 4–6 months.',
+    why: 'MK-677 is unique: an oral growth hormone secretagogue that significantly raises GH and IGF-1 without injections. Best for those who want GH benefits without needles. Side effects include increased appetite and water retention. Sleep quality improvement (enhanced deep sleep) is one of the most consistently reported effects.'
+  }
+};
+
+function pfGetVal(name){ var els=document.querySelectorAll('[name='+name+']:checked'); return els.length>0?els[0].value:null; }
+function pfGetChecks(name){ var out=[]; document.querySelectorAll('[name='+name+']:checked').forEach(function(e){out.push(e.value)}); return out; }
+
+function pfNext(step){
+  var vals = {0:'goal',1:'age',2:'exp',3:'route',4:'budget'};
+  if(vals[step]){
+    var v=pfGetVal(vals[step]);
+    if(!v){ alert('Please make a selection to continue.'); return; }
+  }
+  document.getElementById('pf-s'+step).classList.remove('active');
+  document.getElementById('pf-s'+(step+1)).classList.add('active');
+  document.getElementById('pf-d'+step).classList.add('done');
+  document.getElementById('pf-d'+(step+1)).classList.add('done');
+}
+function pfBack(step){
+  document.getElementById('pf-s'+step).classList.remove('active');
+  document.getElementById('pf-s'+(step-1)).classList.add('active');
+  document.getElementById('pf-d'+step).classList.remove('done');
+}
+
+function pfCalc(){
+  var goal=pfGetVal('goal'), age=pfGetVal('age'), exp=pfGetVal('exp'),
+      route=pfGetVal('route'), budget=pfGetVal('budget'),
+      considers=pfGetChecks('consider');
+
+  var scored=[];
+  Object.keys(PF_PEPTIDES).forEach(function(key){
+    var p=PF_PEPTIDES[key];
+    var s=0;
+    // Goal score
+    s += (p.scores[goal]||0);
+    // Consideration bonuses
+    considers.forEach(function(c){ s += (p.considerations[c]||0); });
+    // Route penalty
+    if(route==='nasal' && p.routePenalty && p.routePenalty.nasal) s -= p.routePenalty.nasal;
+    // MK-677 bonus for non-injectable
+    if(key==='mk677' && route==='nasal') s += 4;
+    if(key==='semax' && route==='nasal') s += 1;
+    if(key==='selank' && route==='nasal') s += 1;
+    // Age bonus
+    if(p.ageBonus && p.ageBonus[age]) s += p.ageBonus[age];
+    // Budget filter
+    if(p.budgetOk && !p.budgetOk[budget]) s -= 8;
+    // Experience: beginners get simpler options
+    if(exp==='none'){
+      if(key==='tb500' || key==='ipamorelin') s -= 1;
+      if(key==='semax' || key==='selank' || key==='mk677') s += 1;
+    }
+    // WADA competition penalty
+    if(considers.indexOf('competition')>-1){
+      if(p.considerations.competition) s += p.considerations.competition;
+    }
+    scored.push({key:key, peptide:p, score:s});
+  });
+
+  // Sort descending, take top 3
+  scored.sort(function(a,b){return b.score-a.score});
+  var top=scored.slice(0,3);
+
+  var rankLabels=['#1 Best Match', '#2 Strong Match', '#3 Consider'];
+  var rankColors=['var(--h-teal)', '#2563eb', '#7c3aed'];
+  var goalLabels={healing:'injury healing & tissue repair',muscle:'muscle growth & body composition',cognitive:'cognitive performance & focus',longevity:'longevity & anti-aging',weight:'weight & fat loss',anxiety:'stress, anxiety & sleep'};
+
+  var html='<h3 style="font-family:var(--font-serif);font-size:22px;color:var(--h-navy);margin-bottom:4px;">Your Peptide Recommendations</h3>';
+  html+='<p style="font-size:14px;color:var(--h-gray-text);margin-bottom:20px;">Based on your goal: <strong>'+goalLabels[goal]+'</strong></p>';
+
+  top.forEach(function(item,i){
+    var p=item.peptide;
+    html+='<div class="pf-card">';
+    html+='<div class="pf-card-rank" style="color:'+rankColors[i]+'">'+rankLabels[i]+'</div>';
+    html+='<div class="pf-card-name">'+p.name+'</div>';
+    p.tags.forEach(function(t){ html+='<span class="pf-card-tag">'+t+'</span>'; });
+    html+='<div class="pf-card-why">'+p.why+'</div>';
+    html+='<div class="pf-card-protocol"><strong>Suggested starting protocol:</strong><br>'+p.protocol+'</div>';
+    html+='<a class="pf-card-link" href="'+p.url+'">Read the full '+p.name+' guide →</a>';
+    html+='</div>';
+  });
+
+  // Wolverine stack suggestion
+  var topKeys=top.map(function(t){return t.key});
+  if(goal==='healing' || considers.indexOf('tendon')>-1){
+    if(topKeys.indexOf('bpc157')>-1 || topKeys.indexOf('tb500')>-1){
+      html+='<div style="padding:16px;background:#f0fdf9;border:1.5px solid var(--h-teal);border-radius:8px;margin-top:4px;">';
+      html+='<strong style="color:var(--h-teal)">💡 Stack Suggestion: The Wolverine Stack</strong>';
+      html+='<p style="font-size:14px;margin-top:8px;line-height:1.6;">For maximum healing results, consider combining BPC-157 + TB-500. BPC-157 handles local repair signaling; TB-500 provides systemic angiogenesis support. Together they address complementary aspects of tissue repair. <a href="/compare/bpc-157-vs-tb-500" style="color:var(--h-teal);font-weight:600;">See the full comparison →</a></p></div>';
+    }
+  }
+
+  if(considers.indexOf('competition')>-1){
+    html+='<div style="padding:14px 16px;background:#fff7ed;border:1.5px solid #d97706;border-radius:8px;margin-top:12px;">';
+    html+='<strong style="color:#d97706;">⚠️ Competitive Athlete Note</strong>';
+    html+='<p style="font-size:13px;margin-top:6px;line-height:1.5;">Several peptides are prohibited by WADA and most sports governing bodies. Verify the status of any peptide with your sport\'s governing body before use. Cognitive peptides (semax, selank) and some longevity peptides (epithalon) are generally not on WADA\'s prohibited list, but confirm for your specific sport.</p></div>';
+  }
+
+  html+='<div class="pf-disclaimer">This tool provides educational information only. Peptides carry regulatory and safety considerations that vary by compound, country, and individual health status. Consult a licensed physician before using any peptide therapeutically. <a href="/faq/are-peptides-legal" style="color:var(--h-teal);">Learn about peptide legality →</a></div>';
+
+  var qz=document.getElementById('pf-quiz'); qz.style.display='none';
+  _show('pf-result', html);
 }
 
 /* ── Energy Optimization Assessment ── */
