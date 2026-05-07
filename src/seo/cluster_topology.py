@@ -42,6 +42,12 @@ _ANCHOR: dict[str, str] = {
     "/compare/bpc-157-vs-tb-500": "BPC-157 vs TB-500: tissue repair peptides compared",
     "/faq/are-peptides-legal": "Are peptides legal? FDA status, research chemicals & what's allowed",
     "/tools/peptide-finder": "Peptide Finder — personalized peptide recommendations based on your goals",
+    "/peptides/weight-loss": "Peptides for weight loss: GLP-1, tesamorelin & what actually works",
+    "/peptides/nad": "NAD+ therapy and peptides: benefits, injections & the research",
+    "/peptides/glp-1": "GLP-1 peptides: semaglutide, tirzepatide, retatrutide & how they work",
+    "/peptides/hgh": "HGH peptides vs. human growth hormone: differences, safety & access",
+    "/peptides/skin": "Peptides for skin: GHK-Cu, collagen peptides & topical vs systemic",
+    "/peptides/collagen": "Collagen peptides: benefits, types, dosing & RCT evidence",
 
     # ── Metabolism hub + spokes ──
     "/metabolic-health": "Metabolic health — insulin resistance, blood sugar, body composition",
@@ -198,6 +204,12 @@ CLUSTERS: dict[str, Cluster] = {
             _ck("/compare/bpc-157-vs-tb-500", "BPC-157 vs TB-500: differences, use cases, and how to stack."),
             _ck("/faq/are-peptides-legal", "Peptide legality: FDA status, research chemical regulations, and what's allowed."),
             _ck("/tools/peptide-finder", "Answer 6 questions to get personalized peptide recommendations."),
+            _ck("/peptides/weight-loss", "GLP-1 peptides, tesamorelin, and GH secretagogues for weight loss and body recomposition."),
+            _ck("/peptides/nad", "NAD+ therapy, IV infusions, and NMN/NR supplementation for cellular energy and longevity."),
+            _ck("/peptides/glp-1", "GLP-1 receptor agonists — semaglutide, tirzepatide, retatrutide — compared and explained."),
+            _ck("/peptides/hgh", "HGH peptides vs synthetic HGH: mechanisms, side effects, and who needs each."),
+            _ck("/peptides/skin", "GHK-Cu, matrixyl, and collagen peptides for skin health — topical and systemic options."),
+            _ck("/peptides/collagen", "Collagen peptides: RCT evidence, types, dosing, and how they actually work."),
         ),
     ),
 

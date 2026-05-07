@@ -2316,6 +2316,12 @@ _PEPTIDE_PROFILES = {
     "healing": "Peptides for Healing: Tissue Repair & Recovery",
     "muscle-growth": "Peptides for Muscle Growth: Best Options & Protocols",
     "anti-aging": "Longevity Peptides: Anti-Aging Research & Guide",
+    "weight-loss": "Peptides for Weight Loss: GLP-1, Tesamorelin & What Works",
+    "nad": "NAD+ Peptides and Therapy: Benefits, Injections & Research",
+    "glp-1": "GLP-1 Peptides: Semaglutide, Tirzepatide, Retatrutide & How They Work",
+    "hgh": "HGH Peptides vs. Human Growth Hormone: What's the Difference?",
+    "skin": "Peptides for Skin: GHK-Cu, Collagen Peptides & What Actually Works",
+    "collagen": "Collagen Peptides: Benefits, Types & What the Research Shows",
 }
 
 
@@ -2790,6 +2796,13 @@ _SITEMAP_PEPTIDES = [
     ("/compare/sarms-vs-peptides", "0.7", "monthly"),
     ("/faq/are-peptides-legal", "0.7", "monthly"),
     ("/tools/peptide-finder", "0.7", "monthly"),
+    # New pages from keyword gap analysis
+    ("/peptides/weight-loss", "0.8", "monthly"),
+    ("/peptides/nad", "0.7", "monthly"),
+    ("/peptides/glp-1", "0.8", "monthly"),
+    ("/peptides/hgh", "0.7", "monthly"),
+    ("/peptides/skin", "0.7", "monthly"),
+    ("/peptides/collagen", "0.7", "monthly"),
 ]
 
 _SITEMAP_TOOLS = [
