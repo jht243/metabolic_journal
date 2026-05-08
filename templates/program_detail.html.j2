@@ -282,7 +282,8 @@
 
   {{ cta_assessment(heading="Want a Personalized Snapshot?", subtext="Our free assessment maps your symptoms to the most relevant guides, tools, and recommendations.") }}
 
-  {{ cta_doctor(heading="Need a Specialist?", subtext="We can match you with a vetted doctor who specializes in this area — no marketplace, just a direct match.") }}
+  {% set specialist_concern = 'metabolic' if program.slug == 'metabolic' else 'hormones' if program.slug == 'hormones' else 'sleep' if program.slug == 'recovery' else 'general' %}
+  {{ cta_doctor(heading="Need a Specialist?", subtext="We can match you with a vetted doctor who specializes in this area — no marketplace, just a direct match.", concern=specialist_concern, source='guide-' ~ program.slug) }}
 </div>
 
 <script>

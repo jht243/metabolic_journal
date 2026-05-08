@@ -35,6 +35,9 @@
   .symptom-grid input[type="checkbox"] { display: none; }
   .symptom-grid input[type="checkbox"]:checked + span { color: white; }
   .symptom-grid label:has(input:checked) { background: var(--h-teal); border-color: var(--h-teal); color: white; }
+  .result-specialist-cta { text-align: center; padding: 20px; margin-top: 20px; background: var(--h-gray-bg); border: 1px solid var(--h-gray-light); border-radius: 8px; }
+  .result-specialist-cta h4 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin: 0 0 8px; }
+  .result-specialist-cta p { color: var(--h-gray-text); font-size: 14px; line-height: 1.5; margin: 0 auto 14px; max-width: 460px; }
 </style>
 {% endblock %}
 
@@ -394,6 +397,10 @@ function _show(id,html){var el=_$(id);el.innerHTML=html;el.classList.add('show')
 function _bar(pct,color){return '<div class="result-bar"><div class="result-bar-fill" style="width:'+pct+'%;background:'+color+'"></div></div>'}
 function _riskClass(level){return level==='low'?'risk-low':level==='moderate'?'risk-moderate':'risk-high'}
 function _riskColor(level){return level==='low'?'#059669':level==='moderate'?'#d97706':'#dc2626'}
+function _specialistCta(concern, source, context){
+  var href='/book?concern='+encodeURIComponent(concern)+'&source='+encodeURIComponent(source)+'&result_context='+encodeURIComponent(context);
+  return '<div class="result-specialist-cta"><h4>Review this with a specialist</h4><p>Your result suggests a clinician with the right specialty may help interpret the next steps.</p><a class="btn-primary" href="'+href+'">Book An Appointment With A Specialist →</a></div>';
+}
 
 /* ── Metabolic Health Score Calculator ── */
 function calcMetabolic(e){
@@ -440,6 +447,7 @@ function calcMetabolic(e){
     html+='<div class="result-item"><div class="ri-label">'+d.label+'</div><div class="ri-value '+_riskClass(d.risk)+'">'+d.val+' — '+d.status+'</div></div>';
   }
   if(total<5) html+='<p style="margin-top:16px;font-size:13px;color:var(--h-gray-text);">You left '+(5-total)+' marker(s) blank. Enter all five for the most complete picture.</p>';
+  if(risk!=='low') html+=_specialistCta('metabolic','tool-{{ tool.slug }}','metabolic-score:'+score+'/'+total+';risk:'+risk);
   _show('metabolic-result',html);
   return false;
 }
@@ -478,6 +486,7 @@ function calcIR(e){
     var d=details[i];
     html+='<div class="result-item"><div class="ri-label">'+d.label+'</div><div class="ri-value '+_riskClass(d.risk)+'">'+d.val+' — '+d.status+'</div></div>';
   }
+  if(irRisk!=='low') html+=_specialistCta('metabolic','tool-{{ tool.slug }}','homa-ir:'+homa.toFixed(2)+';risk:'+irRisk);
   _show('ir-result',html);
   return false;
 }
@@ -515,6 +524,8 @@ function calcHormone(e){
   if(scores.e>=2) html+='<li>Estradiol, progesterone'+(sex==='female'?' (cycle day 21 if premenopausal)':'')+', SHBG</li>';
   if(scores.t<2&&scores.th<2&&scores.c<2&&scores.e<2) html+='<li>Comprehensive hormone panel (few strong symptom clusters — broad testing recommended)</li>';
   html+='</ul></div>';
+  var maxHormoneScore=Math.max(scores.t,scores.th,scores.c,scores.e);
+  if(maxHormoneScore>=2) html+=_specialistCta('hormones','tool-{{ tool.slug }}','symptoms:'+checks.length+';testosterone:'+scores.t+';thyroid:'+scores.th+';cortisol:'+scores.c+';estrogen:'+scores.e);
   _show('hormone-result',html);
   return false;
 }
@@ -550,6 +561,7 @@ function calcSleep(e){
   if(pct<60){
     html+='<div style="padding:16px;background:var(--h-gray-bg);border-radius:6px;margin-top:16px;"><strong>Recommended Testing:</strong><ul style="margin:8px 0 0 20px;font-size:14px;"><li>4-point salivary cortisol (assess cortisol rhythm)</li><li>Thyroid panel (TSH, free T3, free T4)</li><li>Iron/ferritin (ferritin below 50 impairs sleep quality)</li><li>Sleep study referral if snoring/apnea symptoms present</li></ul></div>';
   }
+  if(risk!=='low') html+=_specialistCta('sleep','tool-{{ tool.slug }}','sleep-score:'+pct+'/100;risk:'+risk);
   _show('sleep-result',html);
   return false;
 }
@@ -823,6 +835,10 @@ function calcEnergy(e){
     recovery:'Your recovery domain scored lowest. This may indicate poor sleep quality, chronic stress, or autonomic dysfunction. Recommended: 4-point salivary cortisol, iron/ferritin, sleep study if snoring is present, HRV tracking.'
   };
   html+='<div style="padding:16px;background:var(--h-gray-bg);border-radius:6px;margin-top:16px;"><strong>Primary Focus Area:</strong><p style="margin-top:8px;font-size:14px;line-height:1.6;">'+recs[weakest]+'</p></div>';
+  if(risk!=='low'){
+    var concern=weakest==='hormonal'?'hormones':weakest==='recovery'?'fatigue':'metabolic';
+    html+=_specialistCta(concern,'tool-{{ tool.slug }}','energy-score:'+pct+'/100;focus:'+weakest+';risk:'+risk);
+  }
   _show('energy-result',html);
   return false;
 }

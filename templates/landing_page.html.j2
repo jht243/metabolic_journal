@@ -1,7 +1,7 @@
 {% extends "_base.html.j2" %}
 {% from "_cluster_nav.html.j2" import cluster_nav, cluster_nav_css %}
 {% from "_recent_briefings.html.j2" import recent_briefings %}
-{% from "_cta.html.j2" import cta_assessment, cta_lead_magnet %}
+{% from "_cta.html.j2" import cta_assessment, cta_doctor, cta_lead_magnet %}
 {% from "_eeat.html.j2" import reviewer_badge, last_reviewed, medical_schema %}
 
 {% block head_extra %}
@@ -69,11 +69,17 @@
     {{ page.body_html | safe }}
   </div>
 
+  {% set page_path = page.canonical_path|default('', true) %}
+  {% set specialist_concern = 'sleep' if page_path.startswith('/sleep-recovery') or 'sleep' in page_path else 'hormones' if page_path.startswith('/hormone-optimization') or page_path in ['/low-testosterone', '/hormone-imbalance', '/thyroid-symptoms'] else 'metabolic' if page_path in ['/insulin-resistance', '/metabolic-syndrome', '/metabolic-health'] else 'fatigue' if 'fatigue' in page_path else 'general' %}
+  {% set specialist_section_headings = ['When to Get Tested', 'Treatment Options', 'Testing and Biomarkers'] %}
   {% if page.sections_json %}
   {% for section in page.sections_json %}
   <section class="generated-section">
     {% if section.heading %}<h2>{{ section.heading }}</h2>{% endif %}
     {% if section.content %}{{ section.content | safe }}{% endif %}
+    {% if section.heading in specialist_section_headings %}
+    {{ cta_doctor(heading="Need help with this next step?", subtext="We can match you with a vetted specialist who understands this area and can help you decide what to do next.", concern=specialist_concern, source='section-' ~ page_path.strip('/') ~ '-' ~ section.heading|lower|replace(' ', '-')) }}
+    {% endif %}
   </section>
   {% endfor %}
   {% endif %}
