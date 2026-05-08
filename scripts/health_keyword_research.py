@@ -64,7 +64,22 @@ RECOVERY_SEEDS = [
     "afternoon energy crash",
 ]
 
-ALL_SEEDS = METABOLISM_SEEDS + HORMONE_SEEDS + RECOVERY_SEEDS
+BONE_DENSITY_SEEDS = [
+    "bone density",
+    "how to increase bone density",
+    "osteopenia",
+    "osteoporosis",
+    "DEXA scan",
+    "bone density test",
+    "calcium rich foods",
+    "weight bearing exercises",
+    "bone health supplements",
+    "T score bone density",
+    "bone density after menopause",
+    "can osteopenia be reversed",
+]
+
+ALL_SEEDS = METABOLISM_SEEDS + HORMONE_SEEDS + RECOVERY_SEEDS + BONE_DENSITY_SEEDS
 
 DEFAULT_COMPETITORS = [
     "levelshealth.com",
@@ -103,6 +118,7 @@ def run_health_keyword_research(
                 "metabolism": METABOLISM_SEEDS,
                 "hormones": HORMONE_SEEDS,
                 "recovery": RECOVERY_SEEDS,
+                "bone_density": BONE_DENSITY_SEEDS,
             },
         },
         "seed_overviews": {},
@@ -146,6 +162,7 @@ def run_health_keyword_research(
         category = (
             "metabolism" if seed in METABOLISM_SEEDS
             else "hormones" if seed in HORMONE_SEEDS
+            else "bone_density" if seed in BONE_DENSITY_SEEDS
             else "recovery"
         )
         print(f"  [{i+1}/{len(ALL_SEEDS)}] {seed} ({category})")

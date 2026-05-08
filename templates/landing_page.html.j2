@@ -70,7 +70,8 @@
   </div>
 
   {% set page_path = page.canonical_path|default('', true) %}
-  {% set specialist_concern = 'sleep' if page_path.startswith('/sleep-recovery') or 'sleep' in page_path else 'hormones' if page_path.startswith('/hormone-optimization') or page_path in ['/low-testosterone', '/hormone-imbalance', '/thyroid-symptoms'] else 'metabolic' if page_path in ['/insulin-resistance', '/metabolic-syndrome', '/metabolic-health'] else 'fatigue' if 'fatigue' in page_path else 'general' %}
+  {% set _bone_paths = ['/guides/bone-density-menopause', '/guides/exercises-bone-density', '/guides/calcium-rich-foods-bones', '/guides/reverse-osteopenia', '/conditions/osteopenia', '/conditions/osteoporosis', '/labs/dexa-scan', '/biomarkers/bone-density-t-score'] %}
+  {% set specialist_concern = 'sleep' if page_path.startswith('/sleep-recovery') or 'sleep' in page_path else 'hormones' if page_path.startswith('/hormone-optimization') or page_path in ['/low-testosterone', '/hormone-imbalance', '/thyroid-symptoms'] or page_path in _bone_paths else 'metabolic' if page_path in ['/insulin-resistance', '/metabolic-syndrome', '/metabolic-health'] else 'fatigue' if 'fatigue' in page_path else 'general' %}
   {% set specialist_section_headings = ['When to Get Tested', 'Treatment Options', 'Testing and Biomarkers'] %}
   {% if page.sections_json %}
   {% for section in page.sections_json %}

@@ -95,6 +95,12 @@ _ANCHOR: dict[str, str] = {
     "/conditions/cortisol-imbalance": "Cortisol imbalance: testing, symptoms, and protocol",
     "/conditions/cushings-syndrome": "Cushing's syndrome: symptoms, diagnosis, and treatment",
     "/conditions/pcos": "PCOS and hormone imbalance: what you need to know",
+    "/conditions/osteopenia": "Osteopenia: causes, T-score ranges, and how to reverse bone loss",
+    "/conditions/osteoporosis": "Osteoporosis: diagnosis, prevention, and evidence-based treatment",
+    "/guides/bone-density-menopause": "Bone density and menopause: why bone loss accelerates and how to protect your skeleton",
+    "/guides/exercises-bone-density": "Weight-bearing exercises for bone density: what works and how much you need",
+    "/guides/calcium-rich-foods-bones": "Calcium-rich foods for bone health: the complete list with daily targets",
+    "/guides/reverse-osteopenia": "How to reverse osteopenia: evidence-based strategies that rebuild bone",
 
     # ── Recovery hub + spokes ──
     "/sleep-recovery": "Sleep and recovery — fatigue, sleep quality, HRV, stress recovery",
@@ -121,6 +127,8 @@ _ANCHOR: dict[str, str] = {
     "/biomarkers/cortisol-levels": "Cortisol levels: normal range and what high or low means",
     "/biomarkers/shbg": "SHBG (sex hormone binding globulin): what your levels mean",
     "/biomarkers/testosterone-by-age": "Testosterone levels by age: what's normal and what's optimal",
+    "/labs/dexa-scan": "DEXA scan: what it measures, what it costs, and how to read your results",
+    "/biomarkers/bone-density-t-score": "Bone density T-score and Z-score: charts by age and what your numbers mean",
 
     # ── Tools ──
     "/tools": "Health optimization tools and calculators",
@@ -288,6 +296,12 @@ CLUSTERS: dict[str, Cluster] = {
             _ck("/conditions/cortisol-imbalance", "AM/PM cortisol patterns, flat curves, and clinical significance."),
             _ck("/conditions/cushings-syndrome", "Cushing's syndrome: symptoms, diagnosis, and treatment."),
             _ck("/conditions/pcos", "PCOS, insulin resistance, and the hormonal cascade."),
+            _ck("/conditions/osteopenia", "Osteopenia: early bone loss, T-score ranges, and reversal strategies."),
+            _ck("/conditions/osteoporosis", "Osteoporosis: diagnosis criteria, fracture risk, and treatment options."),
+            _ck("/guides/bone-density-menopause", "How menopause accelerates bone loss and what to do about it."),
+            _ck("/guides/exercises-bone-density", "Weight-bearing and resistance exercises proven to increase bone density."),
+            _ck("/guides/calcium-rich-foods-bones", "Calcium-rich foods ranked by bioavailability for bone health."),
+            _ck("/guides/reverse-osteopenia", "Evidence-based strategies to reverse osteopenia and rebuild bone."),
             _ck("/biomarkers/cortisol-levels", "Cortisol levels: normal range, AM/PM patterns, and what they mean."),
             _ck("/tools/hormone-checker", "Map your symptoms to testosterone, thyroid, cortisol, and estrogen pathways."),
         ),
@@ -344,6 +358,8 @@ CLUSTERS: dict[str, Cluster] = {
             _ck("/biomarkers/shbg", "How SHBG affects bioavailable testosterone and estrogen."),
             _ck("/biomarkers/testosterone-by-age", "Reference ranges by decade and the difference between normal and optimal."),
             _ck("/biomarkers/heart-rate-variability", "HRV as a recovery and autonomic health marker."),
+            _ck("/labs/dexa-scan", "DEXA scan: what it measures, cost, preparation, and how to read results."),
+            _ck("/biomarkers/bone-density-t-score", "Bone density T-score and Z-score charts by age — what your numbers mean."),
         ),
     ),
 }
@@ -360,6 +376,11 @@ _CROSS_CLUSTER: dict[str, list[str]] = {
     "/hormone-optimization/menopause": ["hormones", "metabolism", "recovery"],
     "/hormone-optimization/perimenopause": ["hormones", "metabolism", "recovery"],
     "/sleep-recovery/sleep-apnea": ["recovery", "metabolism", "hormones"],
+    "/guides/bone-density-menopause": ["hormones", "testing"],
+    "/conditions/osteopenia": ["hormones", "testing"],
+    "/conditions/osteoporosis": ["hormones", "testing"],
+    "/labs/dexa-scan": ["testing", "hormones"],
+    "/biomarkers/bone-density-t-score": ["testing", "hormones"],
 }
 
 
@@ -408,6 +429,12 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/conditions/cortisol-imbalance", "hormones"),
     ("/conditions/cushings-syndrome", "hormones"),
     ("/conditions/pcos", "hormones"),
+    ("/conditions/osteopenia", "hormones"),
+    ("/conditions/osteoporosis", "hormones"),
+    ("/guides/bone-density-menopause", "hormones"),
+    ("/guides/exercises-bone-density", "hormones"),
+    ("/guides/calcium-rich-foods-bones", "hormones"),
+    ("/guides/reverse-osteopenia", "hormones"),
     ("/biomarkers/cortisol-levels", "hormones"),
     ("/tools/hormone-checker", "hormones"),
 
@@ -438,6 +465,8 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/biomarkers/cortisol-levels", "hormones"),
     ("/biomarkers/shbg", "testing"),
     ("/biomarkers/testosterone-by-age", "testing"),
+    ("/biomarkers/bone-density-t-score", "testing"),
+    ("/labs/dexa-scan", "testing"),
 
     ("/guides/metabolic", "metabolism"),
     ("/guides/hormones", "hormones"),
