@@ -2352,6 +2352,13 @@ _HUB_PAGES = {
     "sleep-recovery": "Sleep & Recovery",
     "sleep-recovery/sleep-apnea": "Sleep Apnea, Fatigue & Weight Gain",
     "lab-testing": "Lab Testing & Biomarkers",
+    "symptoms": "Metabolic & Hormonal Symptoms",
+    "biomarkers": "Key Biomarkers for Metabolic Health",
+    "conditions": "Conditions Linked to Metabolic Dysfunction",
+    "causes": "Root Causes of Hormonal Imbalance",
+    "labs": "Lab Tests for Metabolic & Hormone Health",
+    "compare": "Treatment Comparisons",
+    "why-am-i": "Why Am I...? Symptom Explainers",
 }
 
 
@@ -2362,10 +2369,22 @@ _HUB_PAGES = {
 @app.route("/sleep-recovery")
 @app.route("/sleep-recovery/sleep-apnea")
 @app.route("/lab-testing")
+@app.route("/symptoms")
+@app.route("/biomarkers")
+@app.route("/conditions")
+@app.route("/causes")
+@app.route("/labs")
+@app.route("/compare")
+@app.route("/why-am-i")
 def hub_page():
     slug = request.path.lstrip("/")
     title = _HUB_PAGES.get(slug, slug.replace("-", " ").title())
     return _db_landing_page_or_stub(page_key=f"hub-{slug}", page_type="hub", title=title)
+
+
+@app.route("/recommendations")
+def recommendations_page():
+    return render_template("recommendations.html.j2")
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -2860,6 +2879,14 @@ _SITEMAP_PRIMARY = [
     ("/hormone-optimization", "0.9", "weekly"),
     ("/sleep-recovery", "0.9", "weekly"),
     ("/lab-testing", "0.9", "weekly"),
+    ("/symptoms", "0.9", "weekly"),
+    ("/biomarkers", "0.9", "weekly"),
+    ("/conditions", "0.9", "weekly"),
+    ("/causes", "0.8", "weekly"),
+    ("/labs", "0.8", "weekly"),
+    ("/compare", "0.8", "weekly"),
+    ("/why-am-i", "0.8", "weekly"),
+    ("/recommendations", "0.8", "weekly"),
     ("/assessment", "0.8", "monthly"),
     ("/how-it-works", "0.8", "monthly"),
     ("/about", "0.7", "monthly"),
