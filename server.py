@@ -2636,6 +2636,7 @@ _TOOLS = {
     "energy-assessment": {
         "name": "Energy Optimization Assessment",
         "slug": "energy-assessment",
+        "cluster": "recovery",
         "description": "Evaluate your energy levels across metabolic, hormonal, and recovery domains. Based on validated clinical symptom scales, this assessment identifies which systems may be contributing to fatigue, brain fog, or low performance.",
         "inputs": ["Age and sex", "Energy patterns throughout the day", "Sleep quality and duration", "Exercise habits and recovery", "Stress levels", "Dietary patterns", "Current symptoms"],
         "outputs": ["Overall energy score (0-100)", "Metabolic health risk indicator", "Hormonal health risk indicator", "Recovery quality indicator", "Recommended lab panel based on your symptoms", "Personalized next steps"],
@@ -2643,6 +2644,7 @@ _TOOLS = {
     "metabolic-score": {
         "name": "Metabolic Health Score Calculator",
         "slug": "metabolic-score",
+        "cluster": "metabolism",
         "description": "Estimate your metabolic health status using the five criteria defined by the AHA/NHLBI: waist circumference, triglycerides, HDL cholesterol, blood pressure, and fasting glucose. Research published in the Journal of the American College of Cardiology found only ~7% of US adults meet optimal levels for all five markers.",
         "inputs": ["Waist circumference (inches)", "Triglycerides (mg/dL) — if known", "HDL cholesterol (mg/dL) — if known", "Blood pressure (systolic/diastolic)", "Fasting glucose (mg/dL) — if known", "Age and sex"],
         "outputs": ["Metabolic health score (0-5 criteria met)", "Risk category (optimal, at-risk, metabolic syndrome)", "Which markers need attention", "Recommended lab tests for markers you don't know", "Comparison to population averages by age group"],
@@ -2650,6 +2652,7 @@ _TOOLS = {
     "hormone-checker": {
         "name": "Hormone Symptom Checker",
         "slug": "hormone-checker",
+        "cluster": "hormones",
         "description": "Identify which hormonal systems may be driving your symptoms. Maps your reported symptoms to testosterone, estrogen, thyroid, cortisol, and other hormonal pathways using clinically validated symptom-to-hormone associations from endocrinology literature.",
         "inputs": ["Age, sex, and menstrual status (if applicable)", "Fatigue patterns", "Weight and body composition changes", "Mood and cognitive symptoms", "Sexual health symptoms", "Hair, skin, and temperature changes", "Menstrual irregularities (women)"],
         "outputs": ["Likelihood scores for: low testosterone, thyroid dysfunction, cortisol dysregulation, estrogen imbalance, DHEA decline", "Gender-specific hormone panel recommendation", "Symptom-to-hormone mapping explanation", "Suggested next steps"],
@@ -2657,6 +2660,7 @@ _TOOLS = {
     "sleep-score": {
         "name": "Sleep Recovery Score",
         "slug": "sleep-score",
+        "cluster": "recovery",
         "description": "Assess your sleep quality and recovery capacity beyond just hours in bed. Incorporates elements from validated sleep assessment tools (Pittsburgh Sleep Quality Index, Epworth Sleepiness Scale) to evaluate sleep onset, continuity, architecture, and daytime impact.",
         "inputs": ["Typical bedtime and wake time", "Time to fall asleep", "Number of nighttime awakenings", "How refreshed you feel on waking (1-10)", "Daytime sleepiness level", "Snoring or breathing issues", "Caffeine and alcohol use", "Wearable sleep data (optional)"],
         "outputs": ["Sleep quality score (0-100)", "Sleep efficiency estimate", "Sleep apnea risk indicator (based on STOP-BANG screening criteria)", "Recovery capacity rating", "Recommended lab tests (cortisol, ferritin, thyroid, vitamin D)", "Actionable recommendations"],
@@ -2664,6 +2668,7 @@ _TOOLS = {
     "insulin-resistance-calculator": {
         "name": "Insulin Resistance Risk Calculator",
         "slug": "insulin-resistance-calculator",
+        "cluster": "metabolism",
         "description": "Estimate your insulin resistance risk using surrogate markers validated in clinical research. The gold standard test (hyperinsulinemic euglycemic clamp) is impractical for routine use, but HOMA-IR, triglyceride-to-HDL ratio, and waist circumference provide reliable clinical estimates per ADA guidelines.",
         "inputs": ["Fasting insulin (μIU/mL) — if known", "Fasting glucose (mg/dL) — if known", "Triglycerides (mg/dL) — if known", "HDL cholesterol (mg/dL) — if known", "Waist circumference (inches)", "Age, sex, and ethnicity", "Family history of type 2 diabetes", "Physical activity level"],
         "outputs": ["HOMA-IR score (if fasting insulin and glucose provided; optimal <1.5, insulin resistant >2.9)", "Triglyceride-to-HDL ratio (optimal <2.0; >3.0 signals insulin resistance)", "Clinical risk category (low, moderate, high)", "Which additional labs to order if data is incomplete", "Evidence-based recommendations"],
@@ -2671,6 +2676,7 @@ _TOOLS = {
     "peptide-finder": {
         "name": "Peptide Finder",
         "slug": "peptide-finder",
+        "cluster": "peptides",
         "description": "Answer 6 questions about your primary goal, health status, and preferences to get personalized peptide recommendations ranked by relevance. Based on the clinical research profiles of 12 therapeutic peptides.",
         "inputs": ["Primary goal (healing/recovery, muscle & performance, cognitive, anti-aging, weight & body composition, anxiety & stress)", "Age range", "Experience level with peptides", "Preferred administration route (injectable vs non-injectable)", "Budget range", "Any relevant health conditions or considerations"],
         "outputs": ["Top 2–3 peptide recommendations with rationale", "Evidence summary for each recommended peptide", "Suggested starting protocol (dose range, timing, cycle length)", "Notes on access and legal status", "Links to detailed peptide profile pages"],
@@ -2738,7 +2744,10 @@ def tool_page(slug: str):
             "url": settings.canonical_site_url,
         },
     }
-    return render_template("tool_page.html.j2", tool=tool, seo=seo, jsonld=json.dumps(jsonld_obj))
+    cluster = tool.get("cluster", "")
+    return render_template(
+        "tool_page.html.j2", tool=tool, seo=seo, jsonld=json.dumps(jsonld_obj), cluster=cluster
+    )
 
 
 # ═══════════════════════════════════════════════════════════════════════

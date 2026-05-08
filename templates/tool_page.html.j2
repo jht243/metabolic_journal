@@ -1,6 +1,8 @@
 {% extends "_base.html.j2" %}
+{% from "_cluster_nav.html.j2" import cluster_nav, cluster_nav_css %}
 
 {% block head_extra %}
+{{ cluster_nav_css() }}
 <style>
   .tool-form-area { background: var(--h-gray-bg); border: 1px solid var(--h-gray-light); border-radius: 8px; padding: 32px; margin: 24px 0 32px; }
   .tool-form-area label { display: block; font-size: 14px; font-weight: 600; color: var(--h-navy); margin-bottom: 6px; margin-top: 16px; }
@@ -384,6 +386,9 @@
     <strong>Medical Disclaimer:</strong> This tool provides estimates for educational purposes only. Results are not a diagnosis. Consult a healthcare provider for clinical interpretation of your results.
   </div>
 
+  {% if cluster %}
+  {{ cluster_nav(cluster) }}
+  {% endif %}
 
 </article>
 {% endblock %}
