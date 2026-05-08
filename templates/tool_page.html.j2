@@ -268,7 +268,7 @@
       {# Step 0: Primary Goal — 2-col grid, 7 options (last spans full width) #}
       <div class="pf-step active" id="pf-s0">
         <p class="pf-step-label">Step 1 of 7</p>
-        <h3 class="pf-step-q">What is your primary goal?</h3>
+        <h2 class="pf-step-q">What is your primary goal?</h3>
         <div class="pf-options cols-2">
           <label><input type="radio" name="goal" value="healing"><span>🩹 Healing &amp; injury recovery</span></label>
           <label><input type="radio" name="goal" value="muscle"><span>💪 Muscle &amp; body composition</span></label>
@@ -284,7 +284,7 @@
       {# Step 1: Age — 4-col grid #}
       <div class="pf-step" id="pf-s1">
         <p class="pf-step-label">Step 2 of 7</p>
-        <h3 class="pf-step-q">What is your age range?</h3>
+        <h2 class="pf-step-q">What is your age range?</h3>
         <div class="pf-options cols-4">
           <label><input type="radio" name="age" value="young"><span>18–29</span></label>
           <label><input type="radio" name="age" value="mid"><span>30–44</span></label>
@@ -297,7 +297,7 @@
       {# Step 2: Experience — stacked #}
       <div class="pf-step" id="pf-s2">
         <p class="pf-step-label">Step 3 of 7</p>
-        <h3 class="pf-step-q">Your experience with peptides?</h3>
+        <h2 class="pf-step-q">Your experience with peptides?</h3>
         <div class="pf-options">
           <label><input type="radio" name="exp" value="none"><span>None — completely new</span></label>
           <label><input type="radio" name="exp" value="some"><span>Some — researched but not used</span></label>
@@ -309,7 +309,7 @@
       {# Step 3: Admin route — stacked #}
       <div class="pf-step" id="pf-s3">
         <p class="pf-step-label">Step 4 of 7</p>
-        <h3 class="pf-step-q">Preferred administration route?</h3>
+        <h2 class="pf-step-q">Preferred administration route?</h3>
         <div class="pf-options">
           <label><input type="radio" name="route" value="inject"><span>💉 Injectable (subcutaneous)</span></label>
           <label><input type="radio" name="route" value="nasal"><span>👃 Nasal spray or oral only</span></label>
@@ -321,7 +321,7 @@
       {# Step 4: Budget — stacked #}
       <div class="pf-step" id="pf-s4">
         <p class="pf-step-label">Step 5 of 7</p>
-        <h3 class="pf-step-q">Monthly budget for peptides?</h3>
+        <h2 class="pf-step-q">Monthly budget for peptides?</h3>
         <div class="pf-options">
           <label><input type="radio" name="budget" value="low"><span>Under $100 / month</span></label>
           <label><input type="radio" name="budget" value="mid"><span>$100 – $300 / month</span></label>
@@ -333,7 +333,7 @@
       {# Step 5 (NEW): Natural vs synthetic preference — left-aligned with subtext #}
       <div class="pf-step" id="pf-s5">
         <p class="pf-step-label">Step 6 of 7</p>
-        <h3 class="pf-step-q">What type of peptides are you open to?</h3>
+        <h2 class="pf-step-q">What type of peptides are you open to?</h3>
         <div class="pf-options left">
           <label><input type="radio" name="source" value="natural"><span>🌿 Naturally occurring / bioidentical<small>BPC-157, TB-500, sermorelin, epithalon — found in the body</small></span></label>
           <label><input type="radio" name="source" value="synthetic"><span>🔬 Synthetic analogs are fine<small>CJC-1295, PT-141, tesamorelin — engineered for potency or half-life</small></span></label>
@@ -345,7 +345,7 @@
       {# Step 6: Health factors — renamed for clarity #}
       <div class="pf-step" id="pf-s6">
         <p class="pf-step-label">Step 7 of 7</p>
-        <h3 class="pf-step-q">Do any of these health factors apply to you? <span class="pf-step-hint">(select all that apply — used to refine your matches)</span></h3>
+        <h2 class="pf-step-q">Do any of these health factors apply to you? <span class="pf-step-hint">(select all that apply — used to refine your matches)</span></h3>
         <div class="pf-options cols-2">
           <label><input type="checkbox" name="consider" value="gut"><span>Gut or digestive issues</span></label>
           <label><input type="checkbox" name="consider" value="tendon"><span>Joint or tendon injury</span></label>
@@ -363,7 +363,7 @@
 
     {% else %}
     <div class="placeholder">
-      <h3>{{ tool.name }}</h3>
+      <h2>{{ tool.name }}</h2>
       <p>Interactive calculator coming soon.</p>
     </div>
     {% endif %}
@@ -371,7 +371,7 @@
 
   {% if tool.outputs %}
   <div class="tool-outputs">
-    <h3>What You'll Get</h3>
+    <h2>What You'll Get</h2>
     <ul>
       {% for output in tool.outputs %}
       <li>{{ output }}</li>

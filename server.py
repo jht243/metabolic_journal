@@ -68,6 +68,117 @@ logger = logging.getLogger(__name__)
 
 OUTPUT_DIR = settings.output_dir
 
+# SEO metadata for core pages that don't use _landing_page_seo()
+_CORE_PAGE_SEO: dict[str, dict[str, str]] = {
+    "/": {
+        "title": f"Evidence-Based Metabolic & Hormone Health | {settings.site_name}",
+        "description": "Free tools, guides, and evidence-based resources for optimizing your metabolism, hormones, and recovery. Take our assessment to get personalized insights.",
+    },
+    "/about": {
+        "title": f"About Us | {settings.site_name}",
+        "description": "Learn about our mission to make metabolic and hormonal health accessible through evidence-based education, free tools, and expert guidance.",
+    },
+    "/assessment": {
+        "title": f"Free Metabolic Health Assessment | {settings.site_name}",
+        "description": "Take our free 5-minute assessment to understand your metabolic health risks, hormone balance, and get personalized recommendations.",
+    },
+    "/assessment/quiz": {
+        "title": f"Metabolic Health Quiz | {settings.site_name}",
+        "description": "Answer a few questions about your symptoms, lifestyle, and goals to receive a personalized metabolic health action plan.",
+    },
+    "/book": {
+        "title": f"Book a Specialist Consultation | {settings.site_name}",
+        "description": "Connect with hormone and metabolic health specialists for personalized guidance on your lab results, symptoms, and treatment options.",
+    },
+    "/briefing": {
+        "title": f"Health Briefings & Articles | {settings.site_name}",
+        "description": "In-depth articles on metabolic health, hormone optimization, peptide therapy, and recovery — grounded in current clinical research.",
+    },
+    "/doctors": {
+        "title": f"Find a Metabolic Health Specialist | {settings.site_name}",
+        "description": "Browse vetted specialists in hormone therapy, metabolic health, and functional medicine. Book a consultation matched to your concerns.",
+    },
+    "/faq": {
+        "title": f"Frequently Asked Questions | {settings.site_name}",
+        "description": "Answers to common questions about metabolic health, hormone testing, insulin resistance, peptide therapy, and our assessment tools.",
+    },
+    "/guides": {
+        "title": f"Health Optimization Guides | {settings.site_name}",
+        "description": "Comprehensive guides on metabolic health, hormone balance, and recovery — from understanding biomarkers to actionable lifestyle protocols.",
+    },
+    "/guides/hormones": {
+        "title": f"Hormone Health Guide | {settings.site_name}",
+        "description": "Understand testosterone, estrogen, thyroid, and cortisol: what optimal levels look like, symptoms of imbalance, and evidence-based interventions.",
+    },
+    "/guides/metabolic": {
+        "title": f"Metabolic Health Guide | {settings.site_name}",
+        "description": "Master insulin resistance, blood sugar regulation, and metabolic dysfunction — key biomarkers, optimal ranges, and proven interventions.",
+    },
+    "/guides/recovery": {
+        "title": f"Recovery & Sleep Guide | {settings.site_name}",
+        "description": "Optimize sleep, HRV, and recovery with evidence-based protocols for better energy, cognitive function, and metabolic health.",
+    },
+    "/how-it-works": {
+        "title": f"How It Works | {settings.site_name}",
+        "description": "Learn how our metabolic health platform helps you understand your body through assessments, biomarker tracking, and specialist connections.",
+    },
+    "/pricing": {
+        "title": f"Plans & Pricing | {settings.site_name}",
+        "description": "Explore our free tools and premium options for metabolic health optimization, hormone tracking, and specialist consultations.",
+    },
+    "/programs": {
+        "title": f"Health Programs | {settings.site_name}",
+        "description": "Structured programs for metabolic health, hormone optimization, and recovery — combining education, tools, and expert guidance.",
+    },
+    "/recommendations": {
+        "title": f"Personalized Recommendations | {settings.site_name}",
+        "description": "Get evidence-based recommendations for supplements, lifestyle changes, and specialist referrals based on your metabolic health profile.",
+    },
+    "/results": {
+        "title": f"Member Results & Case Studies | {settings.site_name}",
+        "description": "Real outcomes from members who improved their metabolic health, hormone balance, and energy through our evidence-based approach.",
+    },
+    "/tools": {
+        "title": f"Free Health Tools & Calculators | {settings.site_name}",
+        "description": "Free calculators and tools for insulin resistance, metabolic score, hormone levels, sleep quality, and peptide research.",
+    },
+}
+
+
+@app.context_processor
+def _inject_default_seo():
+    """Provide fallback SEO dict and JSON-LD for pages that don't explicitly pass one."""
+    path = request.path.rstrip("/") or "/"
+    core = _CORE_PAGE_SEO.get(path)
+    if core:
+        base = settings.canonical_site_url
+        canonical = f"{base}{path}"
+        seo = {
+            "title": core["title"],
+            "description": core["description"],
+            "canonical": canonical,
+            "site_name": settings.site_name,
+            "site_url": base,
+            "locale": settings.site_locale,
+            "og_image": f"{base}/static/og-image.png",
+            "og_type": "website",
+        }
+        jsonld_obj = {
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": core["title"],
+            "description": core["description"],
+            "url": canonical,
+            "publisher": {
+                "@type": "Organization",
+                "name": settings.site_name,
+                "url": base,
+            },
+        }
+        return {"seo": seo, "jsonld": json.dumps(jsonld_obj)}
+    return {}
+
+
 _LANDING_SEO_OVERRIDES = {
     "/hormone-optimization/menopause": {
         "title": "Menopause Fatigue & Weight Gain Guide",
@@ -461,8 +572,13 @@ def _landing_page_seo(page) -> dict:
     raw_section = (getattr(page, "page_type", "") or "Health").title()
     section = "Guide" if raw_section == "Hub" else raw_section
 
+    suffix = f" | {settings.site_name}"
+    full_title = f"{title}{suffix}"
+    if len(full_title) > 70:
+        full_title = title[:70] if len(title) > 70 else title
+
     return {
-        "title": f"{title} | {settings.site_name}",
+        "title": full_title,
         "description": description,
         "keywords": ", ".join(keywords) if keywords else "",
         "canonical": canonical,
@@ -474,6 +590,24 @@ def _landing_page_seo(page) -> dict:
         "section": section,
         "article_tags": keywords[:10],
     }
+
+
+def _landing_page_jsonld(page, seo: dict) -> str:
+    """Generate Article JSON-LD for a landing page."""
+    obj = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": seo.get("title", ""),
+        "description": seo.get("description", ""),
+        "url": seo.get("canonical", ""),
+        "image": seo.get("og_image", ""),
+        "publisher": {
+            "@type": "Organization",
+            "name": settings.site_name,
+            "url": settings.canonical_site_url,
+        },
+    }
+    return json.dumps(obj)
 
 
 def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Response:
@@ -500,12 +634,14 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
             sp.page_type = static.page_type
             sp.reviewed_by = None
             sp.reviewed_at = None
+            seo = _landing_page_seo(sp)
             return Response(
                 render_template(
                     "landing_page.html.j2",
                     page=sp,
                     cluster_ctx=cluster_ctx,
-                    seo=_landing_page_seo(sp),
+                    seo=seo,
+                    jsonld=_landing_page_jsonld(sp, seo),
                 ),
                 content_type="text/html; charset=utf-8",
             )
@@ -520,12 +656,14 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
         try:
             page = db.query(LandingPage).filter_by(page_key=page_key).first()
             if page:
+                seo = _landing_page_seo(page)
                 return Response(
                     render_template(
                         "landing_page.html.j2",
                         page=page,
                         cluster_ctx=cluster_ctx,
-                        seo=_landing_page_seo(page),
+                        seo=seo,
+                        jsonld=_landing_page_jsonld(page, seo),
                     ),
                     content_type="text/html; charset=utf-8",
                 )
@@ -548,12 +686,14 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
     fake.canonical_path = request.path
     fake.keywords_json = None
     fake.page_type = page_type
+    seo = _landing_page_seo(fake)
     return Response(
         render_template(
             "landing_page.html.j2",
             page=fake,
             cluster_ctx=cluster_ctx,
-            seo=_landing_page_seo(fake),
+            seo=seo,
+            jsonld=_landing_page_jsonld(fake, seo),
         ),
         content_type="text/html; charset=utf-8",
     )
@@ -653,7 +793,7 @@ _PROGRAM_DATA = {
 </ol>
 
 <div class="callout-box">
-<h4>Key Takeaway</h4>
+<h3>Key Takeaway</h3>
 <p>The earlier you intervene, the more reversible the damage. Stage 1 and Stage 2 are largely reversible through dietary, exercise, and lifestyle changes. By Stage 3, reversal is still possible but requires more aggressive intervention. Don't wait for a diabetes diagnosis — test your fasting insulin now.</p>
 </div>
 
@@ -780,7 +920,7 @@ _PROGRAM_DATA = {
 </ul>
 
 <div class="callout-box">
-<h4>Self-Assessment Checklist</h4>
+<h3>Self-Assessment Checklist</h3>
 <p>If you have 3 or more of the signs listed above, request a fasting insulin and HOMA-IR test from your doctor. If your doctor is unfamiliar with fasting insulin testing, an endocrinologist or functional medicine physician can order it. You can also order it yourself through direct-to-consumer lab services.</p>
 </div>
 
@@ -864,7 +1004,7 @@ _PROGRAM_DATA = {
 <p>A simple 10–15 minute walk after meals reduces postprandial glucose excursions by 30–50%, according to a 2022 meta-analysis in <em>Sports Medicine</em>. This is one of the highest-yield metabolic interventions available, requiring no equipment and minimal time. The mechanism is straightforward: contracting muscles absorb glucose from the bloodstream via insulin-independent GLUT4 translocation.</p>
 
 <div class="callout-box">
-<h4>Minimum Effective Exercise Protocol for Insulin Resistance</h4>
+<h3>Minimum Effective Exercise Protocol for Insulin Resistance</h3>
 <p>If you do nothing else: walk for 15 minutes after each meal (45 min/day total) and perform 2 full-body resistance training sessions per week. This combination addresses both acute postprandial glucose management and long-term insulin sensitivity through increased muscle mass. Build from there.</p>
 </div>
 
@@ -990,7 +1130,7 @@ _PROGRAM_DATA = {
 <p style="margin-top:20px;"><a class="btn-primary" href="/book?concern=metabolic&source=guide-metabolic-referral">Book An Appointment With A Specialist →</a></p>
 
 <div class="callout-box">
-<h4>Your Next Steps</h4>
+<h3>Your Next Steps</h3>
 <p>1. Order a fasting insulin test and calculate your HOMA-IR. 2. Measure your waist circumference and waist-to-hip ratio. 3. Review the optimal ranges table above — not the standard lab ranges. 4. Start with one dietary change: eliminate liquid sugar (soda, juice, sweetened coffee) for 30 days. 5. Add a 15-minute walk after your largest meal. These five steps cost little, require no prescription, and can produce measurable changes in your metabolic biomarkers within 4–8 weeks.</p>
 </div>
 
@@ -1094,7 +1234,7 @@ _PROGRAM_DATA = {
 <p>Approximately 98% of circulating testosterone is bound — either tightly to sex hormone-binding globulin (SHBG) or loosely to albumin. Only free testosterone (about 2-3% of total) is bioavailable and able to activate androgen receptors. A man with a total testosterone of 550 ng/dL but elevated SHBG may have less bioavailable testosterone than someone with a total of 400 ng/dL and low SHBG.</p>
 
 <div class="callout-box">
-<h4>Action Step: The Minimum Male Hormone Panel</h4>
+<h3>Action Step: The Minimum Male Hormone Panel</h3>
 <p>Request these labs (drawn between 7-10 AM, fasting): Total testosterone, free testosterone (equilibrium dialysis, not analog), SHBG, estradiol (sensitive assay), LH, FSH, prolactin, and a CBC. This distinguishes primary (testicular) from secondary (pituitary) hypogonadism and identifies aromatization issues.</p>
 </div>
 
@@ -1178,7 +1318,7 @@ _PROGRAM_DATA = {
 </blockquote>
 
 <div class="callout-box">
-<h4>Action Step: The Complete Thyroid Panel</h4>
+<h3>Action Step: The Complete Thyroid Panel</h3>
 <p>Don't accept "thyroid is fine" based on TSH alone. Request: TSH, free T4, free T3, reverse T3, TPO antibodies, and thyroglobulin antibodies. If your provider refuses, direct-to-consumer lab testing is available through services like Quest or Ulta Labs for $100-150.</p>
 </div>
 
@@ -1270,7 +1410,7 @@ _PROGRAM_DATA = {
 <p>Symptoms of relative estrogen excess include: heavy or prolonged periods, fibroids, breast tenderness, weight gain (hips and thighs), mood swings, headaches, and fluid retention.</p>
 
 <div class="callout-box">
-<h4>Action Step: Perimenopause Assessment</h4>
+<h3>Action Step: Perimenopause Assessment</h3>
 <p>If you're a woman over 38 experiencing cycle changes, new anxiety, sleep disruption, or PMS intensification, request: estradiol, progesterone (day 19-21 if still cycling), FSH, LH, DHEA-S, total and free testosterone, and a full thyroid panel. Track symptoms with cycle timing for 2-3 months before your appointment to provide data your provider can act on.</p>
 </div>
 
@@ -1440,7 +1580,7 @@ _PROGRAM_DATA = {
 </ul>
 
 <div class="callout-box">
-<h4>Clinical Implication</h4>
+<h3>Clinical Implication</h3>
 <p>If you have low testosterone AND subclinical hypothyroidism AND signs of cortisol dysregulation, treating the testosterone alone (with TRT) without addressing thyroid and adrenal function typically provides incomplete relief and may require escalating doses. Address the upstream cause first: cortisol → thyroid → testosterone, in that order.</p>
 </div>
 
@@ -1538,7 +1678,7 @@ _PROGRAM_DATA = {
 <p>Involved in 600+ enzymatic reactions, including steroid hormone synthesis and SHBG binding. Magnesium deficiency (common with modern agriculture) increases SHBG, reduces free testosterone, and impairs sleep quality. Dose: 200-400 mg of magnesium glycinate or threonate at bedtime. Glycinate form has the best bioavailability and a calming effect on sleep.</p>
 
 <div class="callout-box">
-<h4>Supplement Priority Order</h4>
+<h3>Supplement Priority Order</h3>
 <p>Before adding supplements, fix foundations first: sleep, nutrition, stress. Then address confirmed deficiencies via testing. Priority: (1) Vitamin D — test 25-OH-D and dose accordingly, (2) Magnesium — most adults benefit, (3) Zinc — especially if low testosterone or poor immunity, (4) Selenium — especially if thyroid antibodies are elevated, (5) Ashwagandha — if cortisol is a primary driver. Don't supplement blindly.</p>
 </div>
 
@@ -1595,7 +1735,7 @@ _PROGRAM_DATA = {
 </ul>
 
 <div class="callout-box">
-<h4>Red Flags in Hormone Providers</h4>
+<h3>Red Flags in Hormone Providers</h3>
 <p>Beware of providers who: prescribe testosterone without baseline labs or follow-up monitoring, refuse to check free T3 or reverse T3 for symptomatic thyroid patients, dismiss perimenopause symptoms in women under 50, push expensive proprietary supplements without evidence, or put everyone on bioidentical hormones without individual assessment. Good hormone medicine is personalized, evidence-based, and monitored.</p>
 </div>
 
@@ -1710,7 +1850,7 @@ _PROGRAM_DATA = {
 </ul>
 
 <div class="callout-box">
-<h4>Why This Matters for Your Wearable Data</h4>
+<h3>Why This Matters for Your Wearable Data</h3>
 <p>When your Oura ring or Whoop strap reports low deep sleep, it's telling you that N3 — your physical repair stage — is compromised. Common causes include alcohol within 3 hours of sleep (reduces N3 by up to 30%), elevated resting heart rate, and sleep apnea. Low REM, meanwhile, often signals early-morning cortisol surges, alcohol use, or REM-suppressing medications like SSRIs and beta-blockers.</p>
 </div>
 
@@ -1803,7 +1943,7 @@ _PROGRAM_DATA = {
 </table>
 
 <div class="callout-box">
-<h4>The Ferritin Problem</h4>
+<h3>The Ferritin Problem</h3>
 <p>A ferritin of 15 ng/mL is technically "normal" by most lab standards. But research from the <em>Journal of Clinical Sleep Medicine</em> (2019) shows that ferritin levels below 50 ng/mL are strongly associated with restless leg syndrome, increased periodic limb movements during sleep, and reduced sleep efficiency. If you've been told your iron is "fine" but you're fatigued with disrupted sleep, ask for a ferritin recheck and push for levels above 50.</p>
 </div>
 
@@ -1903,7 +2043,7 @@ _PROGRAM_DATA = {
 <p>The practical implication: <strong>trust the trends, not the nightly absolutes</strong>. If your Oura ring says you got 45 minutes of deep sleep last night, that specific number may be off by 30%. But if it says your deep sleep has declined by 40% over the past three months, that trend is clinically meaningful and worth investigating.</p>
 
 <div class="callout-box">
-<h4>The Alcohol Test</h4>
+<h3>The Alcohol Test</h3>
 <p>Want to see how accurate your wearable is at detecting sleep quality changes? Have two or more alcoholic drinks after 7 PM and compare that night's data to your baseline. You should see: elevated resting heart rate (+5–15 bpm), suppressed HRV (−20–40%), reduced deep sleep, and a lower overall sleep or readiness score. If your wearable doesn't detect these changes, it may not be sensitive enough to guide recovery decisions.</p>
 </div>
 
@@ -2020,7 +2160,7 @@ _PROGRAM_DATA = {
 </ul>
 
 <div class="callout-box">
-<h4>A Practical Sleep Supplement Stack</h4>
+<h3>A Practical Sleep Supplement Stack</h3>
 <p>If you're looking for a single protocol to start with, this combination has the broadest evidence base and safety profile: <strong>200–400 mg magnesium glycinate + 200 mg L-theanine</strong>, taken 60 minutes before bed. Add 3 g glycine if sleep onset is the primary issue. This stack targets GABA activation, cortisol reduction, and core temperature drop — the three main physiological prerequisites for sleep initiation. Cycle off for one week every 8 weeks to assess baseline.</p>
 </div>
 
@@ -2093,7 +2233,7 @@ _PROGRAM_DATA = {
 </ol>
 
 <div class="callout-box">
-<h4>How to Find a Sleep Medicine Specialist</h4>
+<h3>How to Find a Sleep Medicine Specialist</h3>
 <p>Look for a physician who is <strong>board-certified in sleep medicine</strong> by the American Board of Medical Specialties (ABMS). You can verify certification at <strong>certificationmatters.org</strong>. Sleep medicine is a subspecialty — doctors can come from backgrounds in pulmonology, neurology, psychiatry, or internal medicine. For complex cases involving both sleep and fatigue, a neurologist or internist with sleep medicine fellowship training often provides the most comprehensive evaluation.</p>
 </div>
 
@@ -2556,8 +2696,13 @@ def _tool_page_seo(tool: dict) -> dict:
         "metabolic health tool",
     ]
 
+    suffix = f" | {settings.site_name}"
+    full_title = f"{tool['name']}{suffix}"
+    if len(full_title) > 70:
+        full_title = tool["name"][:70] if len(tool["name"]) > 70 else tool["name"]
+
     return {
-        "title": f"{tool['name']} | {settings.site_name}",
+        "title": full_title,
         "description": description,
         "keywords": ", ".join(keywords),
         "canonical": canonical,
@@ -2579,7 +2724,21 @@ def tool_page(slug: str):
     tool = _TOOLS.get(slug)
     if not tool:
         abort(404)
-    return render_template("tool_page.html.j2", tool=tool, seo=_tool_page_seo(tool))
+    seo = _tool_page_seo(tool)
+    jsonld_obj = {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": tool["name"],
+        "description": seo.get("description", ""),
+        "url": seo.get("canonical", ""),
+        "applicationCategory": "HealthApplication",
+        "publisher": {
+            "@type": "Organization",
+            "name": settings.site_name,
+            "url": settings.canonical_site_url,
+        },
+    }
+    return render_template("tool_page.html.j2", tool=tool, seo=seo, jsonld=json.dumps(jsonld_obj))
 
 
 # ═══════════════════════════════════════════════════════════════════════
