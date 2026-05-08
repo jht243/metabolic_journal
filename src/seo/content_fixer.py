@@ -1,8 +1,13 @@
 """SEO content auto-fixer.
 
-Applies only the fixes that are safe to automate on LandingPage-backed
-content pages: missing H1s and thin body copy. Tool and hub/index pages
-that are not backed by LandingPage rows are ignored.
+Applies fixes to LandingPage-backed content pages:
+- Missing H1 (LLM-assisted)
+- Thin content under 200 words (LLM-assisted)
+- Title too long (>70 chars) — mechanical truncation in DB
+- Missing meta description — uses subtitle/summary or LLM
+- Heading hierarchy skips — mechanical regex fix in body_html
+
+Tool and hub/index pages that are not backed by LandingPage rows are ignored.
 """
 from __future__ import annotations
 
@@ -202,7 +207,143 @@ Return JSON with:
         return None
 
 
-def _find_landing_page(db, path: str) -> LandingPage | None:
+_TITLE_MAX = 70
+_TITLE_MIN = 20
+_DESC_MIN = 50
+_DESC_MAX = 160
+
+_HEADING_RE = re.compile(r"<(h[1-6])(\s[^>]*)?>", re.IGNORECASE)
+
+
+def _fix_title_too_long(page: "LandingPage") -> bool:
+    """Truncate title to fit within max length. Returns True if fixed."""
+    title = (page.title or "").strip()
+    if len(title) <= _TITLE_MAX:
+        return False
+    truncated = title[:_TITLE_MAX - 1].rsplit(" ", 1)[0].rstrip(" ,.;:-–") + "…"
+    page.title = truncated
+    page.updated_at = datetime.utcnow()
+    return True
+
+
+def _fix_title_too_short(client: "OpenAI", page: "LandingPage") -> dict | None:
+    """Use LLM to expand a too-short title. Returns usage dict or None."""
+    title = (page.title or "").strip()
+    if len(title) >= _TITLE_MIN:
+        return None
+    prompt = f"""This page title is too short ({len(title)} chars, minimum {_TITLE_MIN}).
+Rewrite it to be descriptive and SEO-friendly (20-60 chars).
+
+Current title: {title}
+Page path: {page.canonical_path}
+Page summary: {(page.summary or page.subtitle or '')[:200]}
+
+Return JSON with:
+- title: string, 20-60 chars, descriptive"""
+
+    try:
+        raw, usage = _premium_call(client, system=_SYSTEM_PROMPT, user=prompt, max_tokens=200)
+        data = json.loads(raw)
+        new_title = str(data.get("title", "")).strip()
+        if _TITLE_MIN <= len(new_title) <= _TITLE_MAX:
+            page.title = new_title
+            page.updated_at = datetime.utcnow()
+            return usage
+    except Exception as exc:
+        logger.warning("fix_title_too_short failed for %s: %s", page.canonical_path, exc)
+    return None
+
+
+def _fix_missing_meta_description(client: "OpenAI", page: "LandingPage") -> dict | None:
+    """Generate a meta description from page content. Returns usage dict or None."""
+    if page.summary and _DESC_MIN <= len(page.summary) <= _DESC_MAX:
+        return None
+    if page.subtitle and _DESC_MIN <= len(page.subtitle) <= _DESC_MAX:
+        page.summary = page.subtitle
+        page.updated_at = datetime.utcnow()
+        return {"cost_usd": 0, "model": "mechanical", "input_tokens": 0, "output_tokens": 0}
+
+    prompt = f"""Generate a meta description for this health page (50-155 chars).
+Be specific, include the primary topic, and make it compelling for search results.
+
+Page title: {page.title}
+Page path: {page.canonical_path}
+Page type: {page.page_type}
+Current body preview: {_ANY_TAG_RE.sub(' ', (page.body_html or ''))[:300]}
+
+Return JSON with:
+- description: string, 50-155 chars"""
+
+    try:
+        raw, usage = _premium_call(client, system=_SYSTEM_PROMPT, user=prompt, max_tokens=200)
+        data = json.loads(raw)
+        desc = str(data.get("description", "")).strip()
+        if _DESC_MIN <= len(desc) <= _DESC_MAX:
+            page.summary = desc
+            page.updated_at = datetime.utcnow()
+            return usage
+    except Exception as exc:
+        logger.warning("fix_missing_meta_description failed for %s: %s", page.canonical_path, exc)
+    return None
+
+
+def _fix_heading_hierarchy(page: "LandingPage") -> bool:
+    """Fix heading level skips in body_html (e.g. h1->h3 becomes h1->h2). Returns True if fixed."""
+    body = page.body_html or ""
+    if not body:
+        return False
+
+    headings = _HEADING_RE.findall(body)
+    if not headings:
+        return False
+
+    tag_levels = [int(h[0][1]) for h in headings]
+    needs_fix = False
+    for i in range(1, len(tag_levels)):
+        if tag_levels[i] > tag_levels[i - 1] + 1:
+            needs_fix = True
+            break
+
+    if not needs_fix:
+        return False
+
+    min_level = min(tag_levels) if tag_levels else 2
+    level_map: dict[int, int] = {}
+    current_max = min_level
+
+    for level in tag_levels:
+        if level not in level_map:
+            if level <= current_max + 1:
+                level_map[level] = level
+            else:
+                level_map[level] = current_max + 1
+            current_max = max(current_max, level_map[level])
+
+    def _remap_heading(match: re.Match) -> str:
+        tag = match.group(1).lower()
+        attrs = match.group(2) or ""
+        old_level = int(tag[1])
+        new_level = level_map.get(old_level, old_level)
+        return f"<h{new_level}{attrs}>"
+
+    new_body = _HEADING_RE.sub(_remap_heading, body)
+    closing_re = re.compile(r"</h([1-6])>", re.IGNORECASE)
+
+    def _remap_closing(match: re.Match) -> str:
+        old_level = int(match.group(1))
+        new_level = level_map.get(old_level, old_level)
+        return f"</h{new_level}>"
+
+    new_body = closing_re.sub(_remap_closing, new_body)
+
+    if new_body != body:
+        page.body_html = new_body
+        page.updated_at = datetime.utcnow()
+        return True
+    return False
+
+
+def _find_landing_page(db, path: str) -> "LandingPage | None":
     norm = "/" + path.lstrip("/").rstrip("/")
     return db.query(LandingPage).filter(LandingPage.canonical_path == norm).first()
 
@@ -214,6 +355,10 @@ def fix_content_issues(report: AuditReport, *, max_fixes: int = _MAX_FIXES_PER_R
 
     missing_h1_paths: list[str] = []
     thin_content_paths: list[tuple[str, int]] = []
+    title_too_long_paths: list[str] = []
+    title_too_short_paths: list[str] = []
+    missing_desc_paths: list[str] = []
+    heading_skip_paths: list[str] = []
 
     for page in report.page_audits:
         if page.status_code != 200:
@@ -223,8 +368,24 @@ def fix_content_issues(report: AuditReport, *, max_fixes: int = _MAX_FIXES_PER_R
                 missing_h1_paths.append(page.path)
             if finding.category == "content" and "Thin content" in finding.message and page.body_word_count < 200:
                 thin_content_paths.append((page.path, page.body_word_count))
+            if finding.category == "meta" and "Title too long" in finding.message:
+                title_too_long_paths.append(page.path)
+            if finding.category == "meta" and "Title too short" in finding.message:
+                title_too_short_paths.append(page.path)
+            if finding.category == "meta" and "Missing meta description" in finding.message:
+                missing_desc_paths.append(page.path)
+            if finding.category == "heading" and "Skipped heading level" in finding.message:
+                heading_skip_paths.append(page.path)
 
-    if not missing_h1_paths and not thin_content_paths:
+    all_fixable = (
+        missing_h1_paths
+        or thin_content_paths
+        or title_too_long_paths
+        or title_too_short_paths
+        or missing_desc_paths
+        or heading_skip_paths
+    )
+    if not all_fixable:
         return {"status": "ok", "fixed": 0, "reason": "no fixable issues"}
 
     init_db()
@@ -236,6 +397,38 @@ def fix_content_issues(report: AuditReport, *, max_fixes: int = _MAX_FIXES_PER_R
     details: list[dict] = []
 
     try:
+        # --- Mechanical fixes first (no LLM cost, no budget cap) ---
+
+        for path in title_too_long_paths:
+            page = _find_landing_page(db, path)
+            if page is None:
+                skipped += 1
+                continue
+            if _fix_title_too_long(page):
+                db.commit()
+                fixed += 1
+                details.append({"path": path, "fix": "title_truncated", "new_title": page.title})
+            else:
+                skipped += 1
+
+        seen_heading_paths: set[str] = set()
+        for path in heading_skip_paths:
+            if path in seen_heading_paths:
+                continue
+            seen_heading_paths.add(path)
+            page = _find_landing_page(db, path)
+            if page is None:
+                skipped += 1
+                continue
+            if _fix_heading_hierarchy(page):
+                db.commit()
+                fixed += 1
+                details.append({"path": path, "fix": "heading_hierarchy"})
+            else:
+                skipped += 1
+
+        # --- LLM-assisted fixes (budget-capped) ---
+
         for path in missing_h1_paths:
             if fixed >= max_fixes:
                 break
@@ -291,6 +484,40 @@ def fix_content_issues(report: AuditReport, *, max_fixes: int = _MAX_FIXES_PER_R
                     "cost_usd": cost,
                 }
             )
+
+        for path in title_too_short_paths:
+            if fixed >= max_fixes:
+                break
+            page = _find_landing_page(db, path)
+            if page is None:
+                skipped += 1
+                continue
+            usage = _fix_title_too_short(client, page)
+            if usage:
+                db.commit()
+                cost = float(usage.get("cost_usd", 0))
+                total_cost += cost
+                fixed += 1
+                details.append({"path": path, "fix": "title_expanded", "new_title": page.title, "cost_usd": cost})
+            else:
+                skipped += 1
+
+        for path in missing_desc_paths:
+            if fixed >= max_fixes:
+                break
+            page = _find_landing_page(db, path)
+            if page is None:
+                skipped += 1
+                continue
+            usage = _fix_missing_meta_description(client, page)
+            if usage:
+                db.commit()
+                cost = float(usage.get("cost_usd", 0))
+                total_cost += cost
+                fixed += 1
+                details.append({"path": path, "fix": "meta_description", "cost_usd": cost})
+            else:
+                skipped += 1
 
         return {
             "status": "ok",
