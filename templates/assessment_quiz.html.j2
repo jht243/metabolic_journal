@@ -343,8 +343,13 @@
     btnN.textContent=cur===total-1?'Get My Results':'Continue →';
   }
 
+  var stepNames=['symptoms_metabolic','symptoms_hormonal','symptoms_recovery','lifestyle','stress_sleep'];
   btnN.addEventListener('click',function(){
-    if(cur<total-1){cur++;show();window.scrollTo({top:0,behavior:'smooth'});}
+    if(cur<total-1){
+      cur++;show();window.scrollTo({top:0,behavior:'smooth'});
+      /* Decision: "Where do users drop off in the assessment quiz?" */
+      if(window._ga) window._ga('funnel_step',{funnel_name:'assessment_quiz',step_number:String(cur+1),step_label:stepNames[cur]||''});
+    }
     else{computeResults();}
   });
   btnB.addEventListener('click',function(){
@@ -421,6 +426,9 @@
     var recHtml='';
     recs.forEach(function(r){recHtml+='<li><span class="rec-icon">→</span><span>'+r+'</span></li>'});
     document.getElementById('recList').innerHTML=recHtml;
+
+    /* Decision: "What % complete the assessment, and what's their health profile?" */
+    if(window._ga) window._ga('tool_used',{tool_name:'assessment_quiz',overall_score:overall.toString(),weakest_domain:domains.reduce(function(a,b){return a.score<=b.score?a:b}).name});
 
     var lowest=domains.reduce(function(a,b){return a.score<=b.score?a:b});
     var specialistConcern=lowest.name==='Metabolic Health'?'metabolic':lowest.name==='Hormonal Health'?'hormones':'sleep';

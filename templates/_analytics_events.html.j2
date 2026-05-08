@@ -1,0 +1,73 @@
+{#
+  Custom GA4 event tracking — fires only when gtag is loaded.
+  Included at end of <body> in _base.html.j2 (after gtag config).
+
+  Event taxonomy (small number of event names, parameters for variation):
+    - form_submit:   conversion forms (newsletter, lead magnet, doctor request)
+    - tool_used:     calculator/tool activated (not page load — actual usage)
+    - funnel_step:   multi-step wizard/quiz progression
+    - share_action:  Web Share API or clipboard copy (non-navigation)
+    - cta_click:     high-intent CTA clicks (specialist booking from tool results)
+#}
+{% if ga_id is defined and ga_id %}
+<script>
+(function(){
+  if(typeof gtag!=='function') return;
+
+  /* ── Helper: safe event fire with string-coerced params ── */
+  window._ga=function(name,params){
+    var p={};
+    for(var k in params){
+      if(params.hasOwnProperty(k)){
+        var v=params[k];
+        p[k]=(v===null||v===undefined)?'':String(v).substring(0,100);
+      }
+    }
+    gtag('event',name,p);
+  };
+
+  /* ── Form submissions — Decision: "Which lead-gen forms convert, and from where?" ── */
+  document.addEventListener('submit',function(e){
+    var form=e.target;
+    if(!form||form.tagName!=='FORM') return;
+    var action=form.getAttribute('action')||'';
+    var params=null;
+
+    if(action==='/api/lead-magnet'||action==='/subscribe'){
+      var magnetInput=form.querySelector('[name="magnet"]');
+      params={
+        form_name:action==='/subscribe'?'newsletter':'lead_magnet',
+        magnet_slug:magnetInput?magnetInput.value:'newsletter',
+        page_path:location.pathname
+      };
+    } else if(action==='/api/doctor-request'){
+      var concern=form.querySelector('[name="concern"]');
+      var source=form.querySelector('[name="source"]');
+      params={
+        form_name:'doctor_request',
+        concern:concern?concern.value:'',
+        referral_source:source?source.value:'direct',
+        page_path:location.pathname
+      };
+    }
+
+    if(params) window._ga('form_submit',params);
+  });
+
+  /* ── Specialist CTA clicks — Decision: "Which tools drive specialist intent?" ── */
+  document.addEventListener('click',function(e){
+    var link=e.target.closest('a.btn-primary[href*="/book"]');
+    if(!link) return;
+    var href=link.getAttribute('href')||'';
+    var params=new URLSearchParams(href.split('?')[1]||'');
+    window._ga('cta_click',{
+      cta_type:'specialist_booking',
+      concern:params.get('concern')||'',
+      source:params.get('source')||location.pathname,
+      result_context:params.get('result_context')||''
+    });
+  });
+
+})();
+</script>
+{% endif %}

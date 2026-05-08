@@ -454,6 +454,8 @@ function calcMetabolic(e){
   if(total<5) html+='<p style="margin-top:16px;font-size:13px;color:var(--h-gray-text);">You left '+(5-total)+' marker(s) blank. Enter all five for the most complete picture.</p>';
   if(risk!=='low') html+=_specialistCta('metabolic','tool-{{ tool.slug }}','metabolic-score:'+score+'/'+total+';risk:'+risk);
   _show('metabolic-result',html);
+  /* Decision: "What % of tool-page visitors actually use the calculator?" */
+  if(window._ga) window._ga('tool_used',{tool_name:'metabolic-score',risk_level:risk,score:score+'/'+total});
   return false;
 }
 
@@ -493,6 +495,8 @@ function calcIR(e){
   }
   if(irRisk!=='low') html+=_specialistCta('metabolic','tool-{{ tool.slug }}','homa-ir:'+homa.toFixed(2)+';risk:'+irRisk);
   _show('ir-result',html);
+  /* Decision: "What % of tool-page visitors actually use the calculator?" */
+  if(window._ga) window._ga('tool_used',{tool_name:'insulin-resistance',risk_level:irRisk,score:homa.toFixed(2)});
   return false;
 }
 
@@ -532,6 +536,8 @@ function calcHormone(e){
   var maxHormoneScore=Math.max(scores.t,scores.th,scores.c,scores.e);
   if(maxHormoneScore>=2) html+=_specialistCta('hormones','tool-{{ tool.slug }}','symptoms:'+checks.length+';testosterone:'+scores.t+';thyroid:'+scores.th+';cortisol:'+scores.c+';estrogen:'+scores.e);
   _show('hormone-result',html);
+  /* Decision: "What % of tool-page visitors actually use the checker?" */
+  if(window._ga) window._ga('tool_used',{tool_name:'hormone-checker',symptoms_count:checks.length.toString(),top_pathway:sorted[0]});
   return false;
 }
 
@@ -568,6 +574,8 @@ function calcSleep(e){
   }
   if(risk!=='low') html+=_specialistCta('sleep','tool-{{ tool.slug }}','sleep-score:'+pct+'/100;risk:'+risk);
   _show('sleep-result',html);
+  /* Decision: "What % of tool-page visitors actually use the calculator?" */
+  if(window._ga) window._ga('tool_used',{tool_name:'sleep-score',risk_level:risk,score:pct.toString()});
   return false;
 }
 
@@ -712,6 +720,8 @@ function pfNext(step){
   document.getElementById('pf-s'+(step+1)).classList.add('active');
   document.getElementById('pf-d'+step).classList.add('done');
   document.getElementById('pf-d'+(step+1)).classList.add('done');
+  /* Decision: "Where do users drop off in the peptide finder wizard?" */
+  if(window._ga) window._ga('funnel_step',{funnel_name:'peptide_finder',step_number:String(step+2),step_label:vals[step]||'health_factors',selection:pfGetVal(vals[step])||''});
 }
 function pfBack(step){
   document.getElementById('pf-s'+step).classList.remove('active');
@@ -800,6 +810,8 @@ function pfCalc(){
 
   var qz=document.getElementById('pf-quiz'); qz.style.display='none';
   _show('pf-result', html);
+  /* Decision: "Which goals/profiles complete the finder, and what do they get?" */
+  if(window._ga) window._ga('tool_used',{tool_name:'peptide-finder',goal:goal,age_range:age,top_match:top[0].peptide.name});
 }
 
 /* ── Energy Optimization Assessment ── */
@@ -845,6 +857,8 @@ function calcEnergy(e){
     html+=_specialistCta(concern,'tool-{{ tool.slug }}','energy-score:'+pct+'/100;focus:'+weakest+';risk:'+risk);
   }
   _show('energy-result',html);
+  /* Decision: "What % of tool-page visitors actually use the calculator?" */
+  if(window._ga) window._ga('tool_used',{tool_name:'energy-assessment',risk_level:risk,score:pct.toString(),weakest_domain:weakest});
   return false;
 }
 </script>

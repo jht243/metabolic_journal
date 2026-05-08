@@ -333,17 +333,22 @@
     btn.addEventListener('click', function() {
       var url = btn.getAttribute('data-share-url') || window.location.href;
       var title = btn.getAttribute('data-share-title') || document.title;
+      /* Decision: "Which content earns shares, and via which method?" */
+      function trackShare(method){
+        if(window._ga) window._ga('share_action',{method:method,page_path:location.pathname,content_title:title});
+      }
       if (navigator.share) {
-        navigator.share({ title: title, url: url }).catch(function() {
-          copyToClipboard(url).then(function() { showToast('Link copied'); });
+        navigator.share({ title: title, url: url }).then(function(){trackShare('share_api')}).catch(function() {
+          copyToClipboard(url).then(function() { showToast('Link copied'); trackShare('clipboard'); });
         });
         return;
       }
-      copyToClipboard(url).then(function() { showToast('Link copied'); }).catch(function() { showToast('Could not copy link'); });
+      copyToClipboard(url).then(function() { showToast('Link copied'); trackShare('clipboard'); }).catch(function() { showToast('Could not copy link'); });
     });
   });
 })();
 </script>
 {% block scripts_extra %}{% endblock %}
+{% include "_analytics_events.html.j2" %}
 </body>
 </html>
