@@ -21,3 +21,26 @@ services:
       - key: LOG_LEVEL
         value: INFO
     healthCheckPath: /health
+
+  - type: cron
+    name: metabolic-health-daily
+    runtime: python
+    plan: starter
+    schedule: "0 14 * * *"
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python run_daily.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o
+      - key: SITE_URL
+        value: https://themetabolicjournal.com
+      - key: INDEXNOW_KEY
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO

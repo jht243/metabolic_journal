@@ -17,6 +17,7 @@ import secrets
 import time
 from datetime import datetime, date, timezone
 from pathlib import Path
+from urllib.parse import urlencode
 from xml.sax.saxutils import escape as _xml_escape
 
 import httpx
@@ -62,6 +63,44 @@ app.jinja_env.globals.update(
     ga_id=getattr(settings, "google_analytics_id", ""),
     current_year=datetime.now().year,
 )
+
+
+def _truncate_seo_title(value: str | None, max_chars: int = 70) -> str:
+    """Clamp SEO titles at a word boundary without adding an ellipsis."""
+    text = " ".join(str(value or "").split())
+    if len(text) <= max_chars:
+        return text
+    clipped = text[:max_chars].rstrip()
+    if " " in clipped:
+        clipped = clipped.rsplit(" ", 1)[0].rstrip()
+    clipped = clipped.rstrip(" |,-:;")
+    return clipped or text[:max_chars].rstrip(" |,-:;")
+
+
+def _truncate_seo_description(value: str | None, max_chars: int = 160) -> str:
+    """Clamp SEO descriptions at a natural boundary and append an ellipsis."""
+    text = " ".join(str(value or "").split())
+    if len(text) <= max_chars:
+        return text
+
+    limit = max(1, max_chars - 3)
+    clipped = text[:limit].rstrip()
+    boundary_idx = -1
+    for marker in (". ", "— ", "; ", ", "):
+        idx = clipped.rfind(marker)
+        if idx > boundary_idx:
+            boundary_idx = idx + len(marker.strip())
+    if boundary_idx <= 0 and " " in clipped:
+        boundary_idx = clipped.rfind(" ")
+    if boundary_idx > 0:
+        clipped = clipped[:boundary_idx].rstrip(" ,.;:—")
+    else:
+        clipped = clipped.rstrip(" ,.;:—")
+    return (clipped or text[:limit].rstrip()) + "..."
+
+
+app.jinja_env.filters["seo_title"] = _truncate_seo_title
+app.jinja_env.filters["seo_desc"] = _truncate_seo_description
 
 logger = logging.getLogger(__name__)
 
@@ -343,16 +382,68 @@ def _send_booking_notification(stripe_session: dict) -> bool:
     from_addr = _order_from_address()
     try:
         send_email(
-            subject=subject,
-            html=html,
             to=recipient,
-            provider=provider,
-            from_addr=from_addr,
+            subject=subject,
+            html_body=html,
+            provider_name=provider,
+            from_override=from_addr,
         )
         logger.info("Booking notification sent to %s", recipient)
         return True
     except Exception as exc:
         logger.exception("Failed to send booking notification: %s", exc)
+        return False
+
+
+def _send_doctor_request_notification(
+    *,
+    name: str,
+    email: str,
+    concern: str,
+    location: str,
+    preferences: str,
+    source: str,
+    result_context: str,
+    submitted_at: str,
+) -> bool:
+    """Email the site owner when someone requests a specialist match."""
+    from src.newsletter import send_email
+
+    recipient = _order_email_recipient()
+    if not recipient:
+        logger.info("Doctor request notification skipped: notification email not set")
+        return False
+
+    subject = f"New specialist appointment request - {concern or 'general'}"
+    html = f"""
+    <h2>New Specialist Appointment Request</h2>
+    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+      <tr><td><strong>Name</strong></td><td>{_xml_escape(name or 'Unknown')}</td></tr>
+      <tr><td><strong>Email</strong></td><td>{_xml_escape(email)}</td></tr>
+      <tr><td><strong>Concern</strong></td><td>{_xml_escape(concern or 'general')}</td></tr>
+      <tr><td><strong>Location / Telehealth</strong></td><td>{_xml_escape(location or 'Not provided')}</td></tr>
+      <tr><td><strong>Source</strong></td><td>{_xml_escape(source or 'unknown')}</td></tr>
+      <tr><td><strong>Result Context</strong></td><td>{_xml_escape(result_context or 'None')}</td></tr>
+      <tr><td><strong>Submitted</strong></td><td>{_xml_escape(submitted_at)}</td></tr>
+    </table>
+    <p><strong>Notes</strong></p>
+    <p>{_xml_escape(preferences or 'None')}</p>
+    """
+
+    provider = (settings.order_email_provider or "resend").strip().lower()
+    from_addr = _order_from_address()
+    try:
+        send_email(
+            to=recipient,
+            subject=subject,
+            html_body=html,
+            provider_name=provider,
+            from_override=from_addr,
+        )
+        logger.info("Doctor request notification sent to %s", recipient)
+        return True
+    except Exception as exc:
+        logger.exception("Failed to send doctor request notification: %s", exc)
         return False
 
 
@@ -933,6 +1024,8 @@ _PROGRAM_DATA = {
 <li><strong>Registered dietitian (with low-carb or metabolic health expertise):</strong> for structured dietary guidance, meal planning, and behavior change support</li>
 <li><strong>Cardiologist (preventive):</strong> if you have metabolic syndrome with elevated cardiovascular risk markers (coronary calcium score, Lp(a), apoB)</li>
 </ul>
+
+<p style="margin-top:20px;"><a class="btn-primary" href="/book?concern=metabolic&source=guide-metabolic-referral">Book An Appointment With A Specialist →</a></p>
 
 <div class="callout-box">
 <h4>Your Next Steps</h4>
@@ -1544,6 +1637,8 @@ _PROGRAM_DATA = {
 <p>Beware of providers who: prescribe testosterone without baseline labs or follow-up monitoring, refuse to check free T3 or reverse T3 for symptomatic thyroid patients, dismiss perimenopause symptoms in women under 50, push expensive proprietary supplements without evidence, or put everyone on bioidentical hormones without individual assessment. Good hormone medicine is personalized, evidence-based, and monitored.</p>
 </div>
 
+<p style="margin-top:20px;"><a class="btn-primary" href="/book?concern=hormones&source=guide-hormones-referral">Book An Appointment With A Specialist →</a></p>
+
 <h2>Frequently Missed Diagnoses in Hormone Health</h2>
 
 <h3>Subclinical Hypothyroidism</h3>
@@ -2040,6 +2135,8 @@ _PROGRAM_DATA = {
 <p>Look for a physician who is <strong>board-certified in sleep medicine</strong> by the American Board of Medical Specialties (ABMS). You can verify certification at <strong>certificationmatters.org</strong>. Sleep medicine is a subspecialty — doctors can come from backgrounds in pulmonology, neurology, psychiatry, or internal medicine. For complex cases involving both sleep and fatigue, a neurologist or internist with sleep medicine fellowship training often provides the most comprehensive evaluation.</p>
 </div>
 
+<p style="margin-top:20px;"><a class="btn-primary" href="/book?concern=sleep&source=guide-recovery-referral">Book An Appointment With A Specialist →</a></p>
+
 <h2>Putting It All Together: A Decision Framework for Chronic Fatigue</h2>
 
 <p>If you've read this far, you now understand that fatigue and poor sleep rarely have a single cause. Here's the systematic approach we recommend:</p>
@@ -2153,7 +2250,21 @@ def faq():
 @app.route("/book")
 @app.route("/doctors")
 def doctors():
-    return render_template("doctors.html.j2")
+    allowed_concerns = {"metabolic", "hormones", "sleep", "fatigue", "general"}
+    concern = (request.args.get("concern") or "general").strip().lower()
+    if concern not in allowed_concerns:
+        concern = "general"
+    return render_template(
+        "doctors.html.j2",
+        selected_concern=concern,
+        source=(request.args.get("source") or "direct").strip(),
+        result_context=(request.args.get("result_context") or "").strip(),
+    )
+
+
+@app.route("/book/confirmation")
+def doctor_request_confirmation():
+    return render_template("doctor_request_confirmation.html.j2")
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -2279,8 +2390,6 @@ _HUB_PAGES = {
     "sleep-recovery": "Sleep & Recovery",
     "sleep-recovery/sleep-apnea": "Sleep Apnea, Fatigue & Weight Gain",
     "lab-testing": "Lab Testing & Biomarkers",
-    "peptides": "Peptide Therapy — BPC-157, Ipamorelin, Sermorelin & More",
-    "peptide-therapy": "Peptide Therapy: What It Is, How It Works, and Who It's For",
 }
 
 
@@ -2291,49 +2400,10 @@ _HUB_PAGES = {
 @app.route("/sleep-recovery")
 @app.route("/sleep-recovery/sleep-apnea")
 @app.route("/lab-testing")
-@app.route("/peptides")
-@app.route("/peptide-therapy")
 def hub_page():
     slug = request.path.lstrip("/")
     title = _HUB_PAGES.get(slug, slug.replace("-", " ").title())
     return _db_landing_page_or_stub(page_key=f"hub-{slug}", page_type="hub", title=title)
-
-
-# ═══════════════════════════════════════════════════════════════════════
-#  ROUTES — Peptide Profile Pages
-# ═══════════════════════════════════════════════════════════════════════
-
-_PEPTIDE_PROFILES = {
-    "bpc-157": "BPC-157: Benefits, Dosage, Side Effects & Research",
-    "ipamorelin": "Ipamorelin: Growth Hormone Peptide Guide",
-    "sermorelin": "Sermorelin: Anti-Aging GH Therapy Guide",
-    "cjc-1295": "CJC-1295: GHRH Analog Benefits & Dosage",
-    "tb-500": "TB-500 (Thymosin Beta-4): Tissue Repair Guide",
-    "epithalon": "Epithalon: Longevity Peptide Research & Dosage",
-    "semax": "Semax: Cognitive Peptide & Nootropic Guide",
-    "selank": "Selank: Anti-Anxiety Peptide Guide",
-    "tesamorelin": "Tesamorelin: FDA-Approved GH Peptide Guide",
-    "healing": "Peptides for Healing: Tissue Repair & Recovery",
-    "muscle-growth": "Peptides for Muscle Growth: Best Options & Protocols",
-    "anti-aging": "Longevity Peptides: Anti-Aging Research & Guide",
-    "weight-loss": "Peptides for Weight Loss: GLP-1, Tesamorelin & What Works",
-    "nad": "NAD+ Peptides and Therapy: Benefits, Injections & Research",
-    "glp-1": "GLP-1 Peptides: Semaglutide, Tirzepatide, Retatrutide & How They Work",
-    "hgh": "HGH Peptides vs. Human Growth Hormone: What's the Difference?",
-    "skin": "Peptides for Skin: GHK-Cu, Collagen Peptides & What Actually Works",
-    "collagen": "Collagen Peptides: Benefits, Types & What the Research Shows",
-    "igf-1-lr3": "IGF-1 LR3: Mechanism, Risks, and What the Research Actually Shows",
-    "wolverine-stack": "The Wolverine Stack: BPC-157 + TB-500 Protocol for Injury Recovery",
-    "aod-9604": "AOD-9604: The Fat-Loss Peptide That Failed Phase III (And What Works Instead)",
-}
-
-
-@app.route("/peptides/<slug>")
-def peptide_profile_page(slug: str):
-    title = _PEPTIDE_PROFILES.get(slug, slug.replace("-", " ").title())
-    page_key = f"guide-peptides-{slug}"
-    cluster_ctx = build_cluster_ctx(f"/peptides/{slug}")
-    return _db_landing_page_or_stub(page_key=page_key, page_type="guide", title=title)
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -2435,14 +2505,6 @@ _TOOLS = {
         "description": "Estimate your insulin resistance risk using surrogate markers validated in clinical research. The gold standard test (hyperinsulinemic euglycemic clamp) is impractical for routine use, but HOMA-IR, triglyceride-to-HDL ratio, and waist circumference provide reliable clinical estimates per ADA guidelines.",
         "inputs": ["Fasting insulin (μIU/mL) — if known", "Fasting glucose (mg/dL) — if known", "Triglycerides (mg/dL) — if known", "HDL cholesterol (mg/dL) — if known", "Waist circumference (inches)", "Age, sex, and ethnicity", "Family history of type 2 diabetes", "Physical activity level"],
         "outputs": ["HOMA-IR score (if fasting insulin and glucose provided; optimal <1.5, insulin resistant >2.9)", "Triglyceride-to-HDL ratio (optimal <2.0; >3.0 signals insulin resistance)", "Clinical risk category (low, moderate, high)", "Which additional labs to order if data is incomplete", "Evidence-based recommendations"],
-    },
-    "peptide-finder": {
-        "name": "Peptide Finder",
-        "slug": "peptide-finder",
-        "description": "Answer 6 questions about your primary goal, health status, and preferences to get personalized peptide recommendations ranked by relevance. Based on the clinical research profiles of 12 therapeutic peptides.",
-        "inputs": ["Primary goal (healing/recovery, muscle & performance, cognitive, anti-aging, weight & body composition, anxiety & stress)", "Age range", "Experience level with peptides", "Preferred administration route (injectable vs non-injectable)", "Budget range", "Any relevant health conditions or considerations"],
-        "outputs": ["Top 2–3 peptide recommendations with rationale", "Evidence summary for each recommended peptide", "Suggested starting protocol (dose range, timing, cycle length)", "Notes on access and legal status", "Links to detailed peptide profile pages"],
-        "interactive": True,
     },
 }
 
@@ -2651,9 +2713,12 @@ def api_lead_magnet():
         try:
             existing = db.query(Subscriber).filter_by(email=email).first()
             if existing:
-                existing.tags = list(set((existing.tags or []) + [tag]))
+                interests = set(existing.interests_json or [])
+                interests.add(tag)
+                existing.interests_json = sorted(interests)
+                existing.source = existing.source or "lead-magnet"
             else:
-                sub = Subscriber(email=email, tags=[tag])
+                sub = Subscriber(email=email, source="lead-magnet", interests_json=[tag])
                 db.add(sub)
             db.commit()
         finally:
@@ -2682,31 +2747,91 @@ def api_doctor_request():
     name = (request.form.get("name") or "").strip()
     email = (request.form.get("email") or "").strip().lower()
     concern = (request.form.get("concern") or "").strip()
+    location = (request.form.get("location") or "").strip()
     preferences = (request.form.get("preferences") or "").strip()
+    source = (request.form.get("source") or "direct").strip()
+    result_context = (request.form.get("result_context") or "").strip()
+    submitted_at = datetime.now(timezone.utc).isoformat()
 
     if not email or "@" not in email:
-        return redirect("/doctors?error=invalid-email")
+        return redirect(
+            "/book?"
+            + urlencode(
+                {
+                    "concern": concern or "general",
+                    "source": source or "direct",
+                    "result_context": result_context,
+                    "error": "invalid-email",
+                }
+            )
+        )
 
     tag = f"doctor-request-{concern}" if concern else "doctor-request"
 
     try:
-        from src.models import Subscriber, SessionLocal, init_db
+        from src.models import ConsultationBooking, BookingStatus, Subscriber, SessionLocal, init_db
         init_db()
         db = SessionLocal()
         try:
             existing = db.query(Subscriber).filter_by(email=email).first()
             if existing:
-                existing.tags = list(set((existing.tags or []) + [tag, "doctor-request"]))
+                interests = set(existing.interests_json or [])
+                interests.update([tag, "doctor-request"])
+                existing.interests_json = sorted(interests)
+                existing.source = existing.source or "doctor-request"
             else:
-                sub = Subscriber(email=email, tags=[tag, "doctor-request"])
+                sub = Subscriber(
+                    email=email,
+                    name=name,
+                    source="doctor-request",
+                    interests_json=[tag, "doctor-request"],
+                )
                 db.add(sub)
+            notes = json.dumps(
+                {
+                    "concern": concern,
+                    "location": location,
+                    "preferences": preferences,
+                    "source": source,
+                    "result_context": result_context,
+                    "submitted_at": submitted_at,
+                },
+                ensure_ascii=True,
+            )
+            db.add(
+                ConsultationBooking(
+                    email=email,
+                    name=name,
+                    booking_type=f"specialist-{concern or 'general'}",
+                    notes=notes,
+                    status=BookingStatus.PENDING,
+                )
+            )
             db.commit()
         finally:
             db.close()
     except Exception as exc:
         logger.warning("Doctor request DB save failed: %s", exc)
 
-    return redirect("/doctors?submitted=true")
+    logger.info(
+        "Doctor request submitted: concern=%s source=%s result_context=%s email=%s",
+        concern or "general",
+        source or "direct",
+        result_context or "none",
+        email,
+    )
+    _send_doctor_request_notification(
+        name=name,
+        email=email,
+        concern=concern,
+        location=location,
+        preferences=preferences,
+        source=source,
+        result_context=result_context,
+        submitted_at=submitted_at,
+    )
+
+    return redirect("/book/confirmation")
 
 
 @app.route("/lead-magnet/thank-you")
@@ -2773,45 +2898,10 @@ _SITEMAP_PRIMARY = [
     ("/hormone-optimization", "0.9", "weekly"),
     ("/sleep-recovery", "0.9", "weekly"),
     ("/lab-testing", "0.9", "weekly"),
-    ("/peptides", "0.9", "weekly"),
-    ("/peptide-therapy", "0.8", "monthly"),
     ("/assessment", "0.8", "monthly"),
     ("/how-it-works", "0.8", "monthly"),
     ("/about", "0.7", "monthly"),
     ("/tools", "0.7", "monthly"),
-]
-
-_SITEMAP_PEPTIDES = [
-    ("/peptides/bpc-157", "0.8", "monthly"),
-    ("/peptides/ipamorelin", "0.8", "monthly"),
-    ("/peptides/sermorelin", "0.8", "monthly"),
-    ("/peptides/cjc-1295", "0.7", "monthly"),
-    ("/peptides/tb-500", "0.7", "monthly"),
-    ("/peptides/epithalon", "0.7", "monthly"),
-    ("/peptides/semax", "0.7", "monthly"),
-    ("/peptides/selank", "0.7", "monthly"),
-    ("/peptides/tesamorelin", "0.7", "monthly"),
-    ("/peptides/healing", "0.7", "monthly"),
-    ("/peptides/muscle-growth", "0.7", "monthly"),
-    ("/peptides/anti-aging", "0.7", "monthly"),
-    ("/compare/bpc-157-vs-tb-500", "0.7", "monthly"),
-    ("/compare/tesamorelin-vs-sermorelin", "0.7", "monthly"),
-    ("/compare/sarms-vs-peptides", "0.7", "monthly"),
-    ("/faq/are-peptides-legal", "0.7", "monthly"),
-    ("/tools/peptide-finder", "0.7", "monthly"),
-    # New pages from keyword gap analysis
-    ("/peptides/weight-loss", "0.8", "monthly"),
-    ("/peptides/nad", "0.7", "monthly"),
-    ("/peptides/glp-1", "0.8", "monthly"),
-    ("/peptides/hgh", "0.7", "monthly"),
-    ("/peptides/skin", "0.7", "monthly"),
-    ("/peptides/collagen", "0.7", "monthly"),
-    # Gap pages — May 2026 keyword analysis
-    ("/compare/cjc-1295-ipamorelin-stack", "0.8", "monthly"),
-    ("/guides/how-to-reconstitute-peptides", "0.7", "monthly"),
-    ("/peptides/igf-1-lr3", "0.7", "monthly"),
-    ("/peptides/wolverine-stack", "0.7", "monthly"),
-    ("/peptides/aod-9604", "0.7", "monthly"),
 ]
 
 _SITEMAP_TOOLS = [
@@ -2820,7 +2910,6 @@ _SITEMAP_TOOLS = [
     ("/tools/hormone-checker", "0.6", "monthly"),
     ("/tools/sleep-score", "0.6", "monthly"),
     ("/tools/insulin-resistance-calculator", "0.6", "monthly"),
-    ("/tools/peptide-finder", "0.7", "monthly"),
     ("/results", "0.4", "monthly"),
     ("/faq", "0.4", "monthly"),
     ("/doctors", "0.4", "monthly"),
@@ -2855,10 +2944,6 @@ def sitemap_index():
   </sitemap>
   <sitemap>
     <loc>{base}/sitemap-content.xml</loc>
-    <lastmod>{today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>{base}/sitemap-peptides.xml</loc>
     <lastmod>{today}</lastmod>
   </sitemap>
   <sitemap>
@@ -2900,11 +2985,6 @@ def sitemap_content():
     if not entries:
         entries.append(("/briefing", "0.6", "weekly"))
     return Response(_build_urlset(entries), content_type="application/xml; charset=utf-8")
-
-
-@app.route("/sitemap-peptides.xml")
-def sitemap_peptides():
-    return Response(_build_urlset(_SITEMAP_PEPTIDES), content_type="application/xml; charset=utf-8")
 
 
 @app.route("/sitemap-tools.xml")

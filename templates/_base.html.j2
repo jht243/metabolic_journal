@@ -12,21 +12,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   {% set _seo = seo|default({}) %}
-  <title>{{ _seo.title|default(site_name|default('REPLACE_ME_SITE_NAME')) }}</title>
-  <meta name="description" content="{{ _seo.description|default('') }}">
+  {% set _canonical = _seo.canonical|default(request.url if request is defined else '', true) %}
+  <title>{{ _seo.title|default(site_name|default('REPLACE_ME_SITE_NAME'), true)|seo_title(70) }}</title>
+  <meta name="description" content="{{ _seo.description|default('', true)|seo_desc(160) }}">
   {% if _seo.keywords %}<meta name="keywords" content="{{ _seo.keywords }}">{% endif %}
   <meta name="author" content="{{ _seo.site_name|default(site_name|default('REPLACE_ME_SITE_NAME')) }}">
   <meta name="robots" content="{{ _seo.robots|default('index, follow, max-image-preview:large, max-snippet:-1') }}">
-  <link rel="canonical" href="{{ _seo.canonical|default('') }}">
-  <link rel="alternate" hreflang="en" href="{{ _seo.canonical|default('') }}">
-  <link rel="alternate" hreflang="x-default" href="{{ _seo.canonical|default('') }}">
+  <link rel="canonical" href="{{ _canonical }}">
+  <link rel="alternate" hreflang="en" href="{{ _canonical }}">
+  <link rel="alternate" hreflang="x-default" href="{{ _canonical }}">
 
   <meta property="og:type" content="{{ _seo.og_type|default('website') }}">
   <meta property="og:site_name" content="{{ _seo.site_name|default(site_name|default('REPLACE_ME_SITE_NAME')) }}">
   <meta property="og:locale" content="{{ _seo.locale|default('en_US') }}">
-  <meta property="og:url" content="{{ _seo.canonical|default('') }}">
-  <meta property="og:title" content="{{ _seo.title|default('') }}">
-  <meta property="og:description" content="{{ _seo.description|default('') }}">
+  <meta property="og:url" content="{{ _canonical }}">
+  <meta property="og:title" content="{{ _seo.title|default('', true)|seo_title(70) }}">
+  <meta property="og:description" content="{{ _seo.description|default('', true)|seo_desc(160) }}">
   <meta property="og:image" content="{{ _seo.og_image|default('') }}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -37,8 +38,8 @@
   {% endfor %}
 
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="{{ _seo.title|default('') }}">
-  <meta name="twitter:description" content="{{ _seo.description|default('') }}">
+  <meta name="twitter:title" content="{{ _seo.title|default('', true)|seo_title(70) }}">
+  <meta name="twitter:description" content="{{ _seo.description|default('', true)|seo_desc(160) }}">
   <meta name="twitter:image" content="{{ _seo.og_image|default('') }}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -207,7 +208,6 @@
     .cluster-pill.hormones { background: #fef3c7; color: #92400e; }
     .cluster-pill.recovery { background: #d1fae5; color: #065f46; }
     .cluster-pill.testing { background: #ede9fe; color: #5b21b6; }
-    .cluster-pill.peptides { background: #fce7f3; color: #9d174d; }
 
     /* ── Share Button ── */
     .share-btn { background: transparent; border: 1px solid var(--h-gray-light); border-radius: 999px; padding: 6px 14px; font-family: var(--font-sans); font-size: 12px; font-weight: 600; color: var(--h-gray-text); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; line-height: 1; transition: color 0.15s, border-color 0.15s, background 0.15s; text-decoration: none; }
@@ -260,11 +260,13 @@
 
 {% block content %}{% endblock %}
 
+{% block footer_action %}
 <div class="footer-action">
   <h3>Understand your health — on your terms</h3>
   <p>Use our free tools and evidence-based guides to make smarter decisions about your metabolism, hormones, and recovery.</p>
   <a class="btn-primary" href="/assessment">Take the Free Assessment →</a>
 </div>
+{% endblock %}
 
 <footer class="site-footer">
   &copy; {{ current_year|default(2026) }} {{ site_name|default('REPLACE_ME_SITE_NAME') }} ·
