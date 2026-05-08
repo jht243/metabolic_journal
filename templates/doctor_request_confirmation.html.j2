@@ -1,0 +1,46 @@
+{% extends "_base.html.j2" %}
+
+{% block head_extra %}
+<style>
+  .confirm-wrap {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 72px 24px 96px;
+    text-align: center;
+  }
+  .confirm-mark {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--h-teal);
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 20px;
+  }
+  .confirm-wrap h1 {
+    font-family: var(--font-serif);
+    color: var(--h-navy);
+    font-size: clamp(30px, 5vw, 42px);
+    margin-bottom: 14px;
+  }
+  .confirm-wrap p {
+    color: var(--h-gray-text);
+    font-size: 17px;
+    line-height: 1.6;
+    margin: 0 auto;
+    max-width: 520px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="confirm-wrap">
+  <div class="confirm-mark" aria-hidden="true">✓</div>
+  <h1>We received your request.</h1>
+  <p>We'll review your context and follow up with specialist options.</p>
+</main>
+{% endblock %}

@@ -1,48 +1,57 @@
 {% extends "_base.html.j2" %}
-{% from "_cta.html.j2" import cta_assessment %}
 
 {% block head_extra %}
 <style>
   .page-hero {
     background: linear-gradient(135deg, var(--h-navy) 0%, var(--h-navy-dark) 100%);
     color: var(--white);
-    padding: 72px 24px 64px;
+    padding: 56px 24px 52px;
     text-align: center;
   }
   .page-hero h1 {
     font-family: var(--font-serif);
-    font-size: clamp(28px, 5vw, 42px);
-    margin-bottom: 16px;
+    font-size: clamp(32px, 3.8vw, 48px);
+    line-height: 1.12;
+    max-width: 980px;
+    margin: 0 auto 16px;
+    text-wrap: balance;
   }
   .page-hero p {
     color: rgba(255,255,255,0.75);
-    font-size: 18px;
-    max-width: 560px;
+    font-size: 17px;
+    max-width: 680px;
     margin: 0 auto;
-    line-height: 1.55;
+    line-height: 1.6;
   }
 
   .doc-section { padding: 48px 0; border-bottom: 1px solid var(--h-gray-light); }
   .doc-section:last-of-type { border-bottom: 0; }
   .doc-section h2 { font-family: var(--font-serif); font-size: 24px; color: var(--h-navy); margin-bottom: 16px; }
 
+  .spec-intro { color: var(--h-dark-text); margin-bottom: 20px; }
   .spec-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 20px;
-    margin-top: 24px;
+    grid-template-columns: 1fr;
+    gap: 0;
+    border-top: 1px solid var(--h-gray-light);
   }
   .spec-card {
-    border: 1px solid var(--h-gray-light);
-    border-radius: 8px;
-    padding: 28px 24px;
-    text-align: center;
-    transition: border-color 0.15s;
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: 18px 0;
+    border-bottom: 1px solid var(--h-gray-light);
+    text-align: left;
   }
-  .spec-card:hover { border-color: var(--h-teal); }
-  .spec-icon { font-size: 36px; margin-bottom: 12px; }
-  .spec-card h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 8px; }
-  .spec-card p { font-size: 14px; color: var(--h-gray-text); line-height: 1.55; }
+  .spec-icon { display: none; }
+  .spec-card h3 { font-family: var(--font-sans); font-size: 14px; color: var(--h-navy); margin: 2px 0 0; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+  .spec-card p { font-size: 14.5px; color: var(--h-gray-text); line-height: 1.55; margin: 0; }
+  @media (max-width: 640px) {
+    .page-hero { padding: 44px 22px 42px; }
+    .page-hero h1 { font-size: clamp(30px, 9vw, 38px); }
+    .spec-card { grid-template-columns: 1fr; gap: 6px; }
+  }
 
   .process-list { list-style: none; padding: 0; counter-reset: proc; margin-top: 20px; }
   .process-list li {
@@ -124,38 +133,36 @@
 </style>
 {% endblock %}
 
+{% block footer_action %}{% endblock %}
+
 {% block content %}
 <section class="page-hero">
-  <h1>Talk to a Vetted Specialist</h1>
-  <p>We match you with a doctor who specializes in your specific area of concern — metabolic health, hormones, or sleep. No marketplace browsing. We do the work.</p>
+  <h1>Book a specialist appointment</h1>
+  <p>Tell us what you need help with. We'll match you with the right specialist for metabolic health, hormones, sleep, or complex fatigue.</p>
 </section>
 
 <div class="container">
   <nav class="breadcrumbs">
-    <a href="/">Home</a> <span>/</span> Find a Doctor
+    <a href="/">Home</a> <span>/</span> Book a Specialist
   </nav>
 
   <div class="doc-section">
     <h2>Specialties We Cover</h2>
-    <p>Our network includes board-certified physicians and specialists in:</p>
+    <p class="spec-intro">These are the clinical areas we use to route your request. You do not need to choose from this list here; the form below captures your concern.</p>
     <div class="spec-grid">
       <div class="spec-card">
-        <div class="spec-icon">🔬</div>
         <h3>Endocrinology</h3>
         <p>Hormone imbalances, thyroid disorders, testosterone, estrogen, cortisol, and adrenal function.</p>
       </div>
       <div class="spec-card">
-        <div class="spec-icon">⚡</div>
         <h3>Metabolic Medicine</h3>
         <p>Insulin resistance, type 2 diabetes prevention, metabolic syndrome, and weight management.</p>
       </div>
       <div class="spec-card">
-        <div class="spec-icon">🛌</div>
         <h3>Sleep Medicine</h3>
         <p>Sleep apnea, chronic insomnia, circadian rhythm disorders, and fatigue investigation.</p>
       </div>
       <div class="spec-card">
-        <div class="spec-icon">🧬</div>
         <h3>Functional Medicine</h3>
         <p>Root-cause approaches to chronic fatigue, autoimmune patterns, gut health, and complex cases.</p>
       </div>
@@ -196,9 +203,14 @@
   </div>
 
   <div class="booking-cta">
-    <h2>Request a Doctor Match</h2>
+    <h2>Book An Appointment With A Specialist</h2>
     <p>Tell us what you're dealing with. We'll find the right specialist and introduce you within 48 hours.</p>
+    {% if request.args.get('error') == 'invalid-email' %}
+    <p style="color:#b91c1c; font-size:14px; margin-bottom:16px;">Please enter a valid email address.</p>
+    {% endif %}
     <form class="booking-form" action="/api/doctor-request" method="POST">
+      <input type="hidden" name="source" value="{{ source|default('direct') }}">
+      <input type="hidden" name="result_context" value="{{ result_context|default('') }}">
       <div class="form-group">
         <label for="dr-name">Your Name</label>
         <input type="text" id="dr-name" name="name" required>
@@ -211,23 +223,25 @@
         <label for="dr-concern">Primary Concern</label>
         <select id="dr-concern" name="concern" required>
           <option value="">Select one...</option>
-          <option value="hormones">Hormone imbalance (testosterone, thyroid, estrogen, cortisol)</option>
-          <option value="metabolic">Metabolic issues (insulin resistance, weight, blood sugar)</option>
-          <option value="sleep">Sleep problems (apnea, insomnia, fatigue)</option>
-          <option value="fatigue">Chronic fatigue (unexplained tiredness)</option>
-          <option value="general">Not sure — need help figuring it out</option>
+          <option value="hormones" {% if selected_concern == 'hormones' %}selected{% endif %}>Hormone imbalance (testosterone, thyroid, estrogen, cortisol)</option>
+          <option value="metabolic" {% if selected_concern == 'metabolic' %}selected{% endif %}>Metabolic issues (insulin resistance, weight, blood sugar)</option>
+          <option value="sleep" {% if selected_concern == 'sleep' %}selected{% endif %}>Sleep problems (apnea, insomnia, fatigue)</option>
+          <option value="fatigue" {% if selected_concern == 'fatigue' %}selected{% endif %}>Chronic fatigue (unexplained tiredness)</option>
+          <option value="general" {% if selected_concern == 'general' %}selected{% endif %}>Not sure — need help figuring it out</option>
         </select>
       </div>
       <div class="form-group">
-        <label for="dr-pref">Preferences (optional)</label>
-        <textarea id="dr-pref" name="preferences" placeholder="Telehealth vs. in-person, location, insurance, etc."></textarea>
+        <label for="dr-location">Location / Telehealth Preference</label>
+        <input type="text" id="dr-location" name="location" placeholder="City, state, or telehealth only" required>
       </div>
-      <button type="submit" class="btn-primary" style="width:100%; text-align:center;">Submit Request →</button>
+      <div class="form-group">
+        <label for="dr-pref">What are you hoping to get help with?</label>
+        <textarea id="dr-pref" name="preferences" placeholder="Symptoms, abnormal labs, treatment questions, insurance preferences, or anything else we should know."></textarea>
+      </div>
+      <button type="submit" class="btn-primary" style="width:100%; text-align:center;">Book An Appointment With A Specialist →</button>
       <p style="font-size:12px; color:var(--h-gray-text); text-align:center; margin-top:10px;">Free to submit. No obligation. We'll respond within 48 hours.</p>
     </form>
   </div>
-
-  {{ cta_assessment(heading="Not Ready for a Doctor Yet?", subtext="Start with our free assessment to understand your risk factors and get personalized recommendations first.") }}
 
   <div class="medical-disclaimer" style="margin-top:32px;">
     <strong>Disclaimer:</strong> We facilitate introductions to qualified healthcare providers. We are not a medical practice and do not provide medical advice, diagnoses, or treatment. All medical decisions are made between you and your doctor. The doctors in our network are independent practitioners — we do not employ them or control their clinical decisions.

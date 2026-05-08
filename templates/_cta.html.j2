@@ -34,15 +34,12 @@
 </div>
 {% endmacro %}
 
-{# Doctor booking CTA — used on product and results pages #}
-{% macro cta_doctor(heading="Need Expert Guidance?", subtext="We match you with a vetted specialist in metabolic health, endocrinology, or sleep medicine — so you get the right doctor, not just any doctor.") %}
+{# Doctor booking CTA — used only where specialist intent is explicit #}
+{% macro cta_doctor(heading="Need Expert Guidance?", subtext="We match you with a vetted specialist in metabolic health, endocrinology, or sleep medicine — so you get the right doctor, not just any doctor.", concern="general", source="site") %}
 <div class="action-block action-doctor" style="text-align:center; padding:32px 24px; margin:40px 0; border-radius:8px; background:var(--h-gray-bg); border:1px solid var(--h-gray-light);">
   <h3 style="font-family:var(--font-serif); font-size:22px; color:var(--h-navy); margin-bottom:8px;">{{ heading }}</h3>
   <p style="color:var(--h-gray-text); margin-bottom:16px; font-size:15px; max-width:480px; margin-left:auto; margin-right:auto;">{{ subtext }}</p>
-  <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-    <a href="/doctors" class="btn-primary">Find a Specialist →</a>
-    <a href="/assessment" style="display:inline-block; padding:12px 24px; border:2px solid var(--h-navy); color:var(--h-navy); border-radius:6px; font-weight:600; text-decoration:none; font-size:15px;">Or Take Free Assessment</a>
-  </div>
+  <a href="/book?concern={{ concern|urlencode }}&source={{ source|urlencode }}" class="btn-primary">Book An Appointment With A Specialist →</a>
 </div>
 {% endmacro %}
 
