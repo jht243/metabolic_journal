@@ -23,17 +23,25 @@ services:
     healthCheckPath: /health
 
   - type: cron
-    name: nightly-sitemap-sync
+    name: metabolic-health-daily
     runtime: python
-    schedule: "0 2 * * *"
+    schedule: "0 14 * * *"
     plan: starter
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python scripts/sync_sitemap.py"
+    startCommand: "python run_daily.py"
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.9
+      - key: DATABASE_URL
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_MODEL
+        value: gpt-4o
       - key: SITE_URL
         value: https://themetabolicjournal.com
+      - key: LOG_LEVEL
+        value: INFO
       - key: GITHUB_TOKEN
         sync: false
       - key: GITHUB_REPO
