@@ -3216,6 +3216,7 @@ def sitemap_primary():
 @app.route("/sitemap-content.xml")
 def sitemap_content():
     entries: list[tuple[str, str, str]] = []
+    adapter = app.url_map.bind("")
     try:
         from src.models import BlogPost, SessionLocal, init_db
         init_db()
@@ -3223,7 +3224,12 @@ def sitemap_content():
         try:
             posts = db.query(BlogPost.slug).order_by(BlogPost.published_date.desc()).all()
             for (slug,) in posts:
-                entries.append((f"/briefing/{slug}", "0.7", "weekly"))
+                path = f"/briefing/{slug}"
+                try:
+                    adapter.match(path)
+                    entries.append((path, "0.7", "weekly"))
+                except Exception:
+                    logger.warning("sitemap: %s has no matching route, skipping", path)
         finally:
             db.close()
     except Exception:

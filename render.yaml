@@ -21,3 +21,20 @@ services:
       - key: LOG_LEVEL
         value: INFO
     healthCheckPath: /health
+
+  - type: cron
+    name: nightly-sitemap-sync
+    runtime: python
+    schedule: "0 2 * * *"
+    plan: starter
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python scripts/sync_sitemap.py"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: SITE_URL
+        value: https://themetabolicjournal.com
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: GITHUB_REPO
+        value: jht243/metabolic_health
