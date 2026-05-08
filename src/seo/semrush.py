@@ -147,6 +147,8 @@ class SemrushClient:
         target: str,
         *,
         limit: int = 500,
+        offset: int = 0,
+        sort: str = "page_ascore_desc",
         target_type: str = "root_domain",
     ) -> list[dict[str, str]]:
         """Backlinks pointing to a domain or URL via the Semrush Backlinks API."""
@@ -156,9 +158,11 @@ class SemrushClient:
                 "target": target,
                 "target_type": target_type,
                 "display_limit": limit,
+                "display_offset": offset,
+                "display_sort": sort,
                 "export_columns": (
                     "page_ascore,source_title,source_url,target_url,anchor,"
-                    "external_num,internal_num,first_seen,last_seen,nofollow"
+                    "external_num,internal_num,first_seen,last_seen,nofollow,sitewide"
                 ),
             },
             base_url=BACKLINK_API_BASE,
@@ -300,10 +304,14 @@ class SemrushClient:
         comp_kws = self.domain_organic_keywords(
             competitor_domain, limit=limit, sort="tr_desc"
         )
-        our_kws = self.domain_organic_keywords(
-            our_domain, limit=500, sort="tr_desc"
-        )
-        our_phrases = {row["Keyword"].lower() for row in our_kws}
+        # Our domain may have no rankings yet (new site) — treat as empty set
+        try:
+            our_kws = self.domain_organic_keywords(
+                our_domain, limit=500, sort="tr_desc"
+            )
+            our_phrases = {row["Keyword"].lower() for row in our_kws}
+        except Exception:
+            our_phrases = set()
         return [
             row for row in comp_kws
             if row["Keyword"].lower() not in our_phrases
