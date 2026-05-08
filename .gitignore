@@ -14,3 +14,4 @@ output/
 .vscode/
 playwright/.auth/
 src/research/_cache/
+.claude/
