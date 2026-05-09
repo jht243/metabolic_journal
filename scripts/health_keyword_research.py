@@ -79,7 +79,27 @@ BONE_DENSITY_SEEDS = [
     "can osteopenia be reversed",
 ]
 
-ALL_SEEDS = METABOLISM_SEEDS + HORMONE_SEEDS + RECOVERY_SEEDS + BONE_DENSITY_SEEDS
+BLOOD_TEST_SEEDS = [
+    "blood test results explained",
+    "how to read blood work",
+    "CBC blood test",
+    "comprehensive metabolic panel",
+    "mpv blood test",
+    "liver function test",
+    "kidney function blood test",
+    "thyroid blood test",
+    "A1C test",
+    "CRP blood test",
+    "iron blood test",
+    "vitamin D blood test",
+    "white blood cell count",
+    "normal lab values",
+    "how to lower a1c",
+    "what is eGFR",
+    "ferritin levels",
+]
+
+ALL_SEEDS = METABOLISM_SEEDS + HORMONE_SEEDS + RECOVERY_SEEDS + BONE_DENSITY_SEEDS + BLOOD_TEST_SEEDS
 
 DEFAULT_COMPETITORS = [
     "levelshealth.com",
@@ -119,6 +139,7 @@ def run_health_keyword_research(
                 "hormones": HORMONE_SEEDS,
                 "recovery": RECOVERY_SEEDS,
                 "bone_density": BONE_DENSITY_SEEDS,
+                "blood_tests": BLOOD_TEST_SEEDS,
             },
         },
         "seed_overviews": {},
@@ -163,6 +184,7 @@ def run_health_keyword_research(
             "metabolism" if seed in METABOLISM_SEEDS
             else "hormones" if seed in HORMONE_SEEDS
             else "bone_density" if seed in BONE_DENSITY_SEEDS
+            else "blood_tests" if seed in BLOOD_TEST_SEEDS
             else "recovery"
         )
         print(f"  [{i+1}/{len(ALL_SEEDS)}] {seed} ({category})")
