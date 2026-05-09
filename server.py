@@ -3323,14 +3323,20 @@ def indexnow_submit():
     base = settings.canonical_site_url
     host = base.replace("https://", "").replace("http://", "")
 
-    primary_entries = list(_SITEMAP_PRIMARY)
-    seo_paths = all_seo_paths()
-    for path in seo_paths:
-        primary_entries.append((path, "0.8", "weekly"))
-
-    url_list = [f"{base}{path}" for path, _, _ in primary_entries]
+    seen: set[str] = set()
+    url_list: list[str] = []
+    for path, _, _ in _SITEMAP_PRIMARY:
+        if path not in seen:
+            seen.add(path)
+            url_list.append(f"{base}{path}")
+    for path in all_seo_paths():
+        if path not in seen:
+            seen.add(path)
+            url_list.append(f"{base}{path}")
     for path, _, _ in _SITEMAP_TOOLS:
-        url_list.append(f"{base}{path}")
+        if path not in seen:
+            seen.add(path)
+            url_list.append(f"{base}{path}")
 
     payload = {
         "host": host,
