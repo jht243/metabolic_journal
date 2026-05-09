@@ -27,10 +27,10 @@ if ROOT not in sys.path:
 from src.config import settings  # noqa: E402
 from src.distribution import indexnow  # noqa: E402
 from src.models import BlogPost, LandingPage, SessionLocal, init_db  # noqa: E402
+from src.seo.cluster_topology import all_seo_paths  # noqa: E402
 
 
-# Static, evergreen routes worth submitting — keep in sync with the
-# sitemap_xml() route in server.py.
+# Static, evergreen routes — extras beyond cluster topology (see all_seo_paths).
 STATIC_PATHS: tuple[str, ...] = (
     "/",
     "/blog",
@@ -51,6 +51,10 @@ def collect_urls() -> list[tuple[str, str, int | None]]:
 
     for path in STATIC_PATHS:
         out.append((f"{base}{path}", "static", None))
+
+    # Same corpus as /sitemap-primary.xml (cluster pillar + members).
+    for path in all_seo_paths():
+        out.append((f"{base}{path}", "seo_cluster", None))
 
     init_db()
     db = SessionLocal()

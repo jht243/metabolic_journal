@@ -616,7 +616,12 @@ def build_cluster_ctx(path: str, *, limit: int = 10) -> dict:
 
 def all_seo_paths() -> list[str]:
     """Return every path registered in the cluster topology — useful for
-    sitemap generation and link auditing."""
+    sitemap generation and link auditing.
+
+    Feeds `/sitemap-primary.xml` (merged with `_SITEMAP_PRIMARY` in server.py),
+    IndexNow batch jobs, and daily URL pings. Add new landing pages here via
+    `_ANCHOR` + cluster `members` so they are discoverable by search engines.
+    """
     paths: list[str] = []
     for cluster in CLUSTERS.values():
         paths.append(cluster.pillar.path)
