@@ -27,7 +27,7 @@ services:
     runtime: python
     schedule: "0 14 * * *"
     plan: starter
-    buildCommand: "pip install --no-cache-dir -r requirements.txt"
+    buildCommand: "rm -rf /opt/render/.cache/pip && pip install --no-cache-dir -r requirements.txt"
     startCommand: "python run_daily.py"
     envVars:
       - key: PYTHON_VERSION
