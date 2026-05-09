@@ -215,6 +215,28 @@
     .share-btn.copied { color: #166534; border-color: #166534; background: #f0fdf4; }
     .share-toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--h-navy); color: var(--white); padding: 10px 20px; border-radius: 999px; font-family: var(--font-sans); font-size: 13px; font-weight: 600; box-shadow: 0 8px 24px rgba(0,0,0,0.18); opacity: 0; pointer-events: none; transition: opacity 0.2s ease, transform 0.2s ease; z-index: 9999; }
     .share-toast.is-visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ── Feedback Widget ── */
+    .feedback-widget { position: fixed; right: 24px; bottom: 24px; z-index: 9998; font-family: var(--font-sans); }
+    .feedback-pill { appearance: none; border: 1px solid rgba(12,31,63,0.12); background: var(--h-navy); color: var(--white); border-radius: 999px; padding: 10px 18px; font: 700 13px/1 var(--font-sans); letter-spacing: 0.2px; box-shadow: 0 10px 28px rgba(12,31,63,0.22); cursor: pointer; transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease; }
+    .feedback-pill:hover { background: var(--h-teal-dark); transform: translateY(-1px); box-shadow: 0 12px 32px rgba(12,31,63,0.26); }
+    .feedback-panel { position: absolute; right: 0; bottom: 52px; width: min(360px, calc(100vw - 48px)); background: var(--white); border: 1px solid var(--h-gray-light); border-radius: 8px; box-shadow: 0 18px 48px rgba(12,31,63,0.2); padding: 18px; opacity: 0; pointer-events: none; transform: translateY(8px); transition: opacity 0.18s ease, transform 0.18s ease; }
+    .feedback-widget.is-open .feedback-panel { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .feedback-panel-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+    .feedback-title { font-family: var(--font-serif); color: var(--h-navy); font-size: 18px; line-height: 1.25; margin: 0; }
+    .feedback-close { appearance: none; border: 0; background: transparent; color: var(--h-gray-text); cursor: pointer; font-size: 22px; line-height: 1; padding: 0 2px; }
+    .feedback-close:hover { color: var(--h-navy); }
+    .feedback-help { color: var(--h-gray-text); font-size: 13.5px; line-height: 1.5; margin: 0 0 12px; }
+    .feedback-form { display: grid; gap: 10px; }
+    .feedback-form textarea { width: 100%; min-height: 112px; resize: vertical; border: 1px solid #cbd5e1; border-radius: 6px; padding: 11px 12px; font: 14px/1.45 var(--font-sans); color: var(--h-dark-text); }
+    .feedback-form textarea:focus { outline: 2px solid rgba(13,148,136,0.22); border-color: var(--h-teal); }
+    .feedback-submit { justify-self: start; }
+    .feedback-status { min-height: 18px; font-size: 12.5px; line-height: 1.4; color: var(--h-gray-text); }
+    .feedback-status.is-success { color: #166534; }
+    .feedback-status.is-error { color: #b91c1c; }
+    @media (max-width: 768px) {
+      .feedback-widget { display: none; }
+    }
   </style>
 
   {% block head_extra %}{% endblock %}
@@ -259,6 +281,22 @@
 {%- endmacro %}
 
 {% block content %}{% endblock %}
+
+<div class="feedback-widget" data-feedback-widget>
+  <button type="button" class="feedback-pill" data-feedback-open aria-expanded="false" aria-controls="feedback-panel">Feedback</button>
+  <section class="feedback-panel" id="feedback-panel" aria-labelledby="feedback-title" hidden>
+    <div class="feedback-panel-header">
+      <h2 class="feedback-title" id="feedback-title">Help us make this more useful</h2>
+      <button type="button" class="feedback-close" data-feedback-close aria-label="Close feedback panel">&times;</button>
+    </div>
+    <p class="feedback-help">What would make Metabolic Journal better for you? New tools, clearer guides, missing topics, anything.</p>
+    <form class="feedback-form" data-feedback-form novalidate>
+      <textarea name="feedback" maxlength="2000" required placeholder="Tell us what you wish this site could help you do..." aria-label="Feedback"></textarea>
+      <button type="button" class="btn-primary feedback-submit" data-feedback-submit>Send feedback</button>
+      <div class="feedback-status" data-feedback-status role="status" aria-live="polite"></div>
+    </form>
+  </section>
+</div>
 
 {% block footer_action %}
 <div class="footer-action">
@@ -345,6 +383,89 @@
       }
       copyToClipboard(url).then(function() { showToast('Link copied'); trackShare('clipboard'); }).catch(function() { showToast('Could not copy link'); });
     });
+  });
+})();
+
+(function initFeedbackWidget() {
+  var desktopQuery = window.matchMedia ? window.matchMedia('(min-width: 769px)') : null;
+  if (desktopQuery && !desktopQuery.matches) return;
+
+  var widget = document.querySelector('[data-feedback-widget]');
+  if (!widget) return;
+
+  var openBtn = widget.querySelector('[data-feedback-open]');
+  var closeBtn = widget.querySelector('[data-feedback-close]');
+  var panel = widget.querySelector('#feedback-panel');
+  var form = widget.querySelector('[data-feedback-form]');
+  var textarea = form ? form.querySelector('textarea[name="feedback"]') : null;
+  var submitBtn = form ? form.querySelector('[data-feedback-submit]') : null;
+  var status = widget.querySelector('[data-feedback-status]');
+  if (!openBtn || !closeBtn || !panel || !form || !textarea || !submitBtn || !status) return;
+
+  function setStatus(message, kind) {
+    status.textContent = message || '';
+    status.classList.toggle('is-success', kind === 'success');
+    status.classList.toggle('is-error', kind === 'error');
+  }
+  function setOpen(open) {
+    widget.classList.toggle('is-open', open);
+    panel.hidden = !open;
+    openBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (open) {
+      setTimeout(function() { textarea.focus(); }, 40);
+    } else {
+      openBtn.focus();
+    }
+  }
+
+  openBtn.addEventListener('click', function() {
+    setOpen(!widget.classList.contains('is-open'));
+  });
+  closeBtn.addEventListener('click', function() {
+    setOpen(false);
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape' && widget.classList.contains('is-open')) setOpen(false);
+  });
+  function submitFeedback() {
+    var feedback = textarea.value.trim();
+    if (!feedback) {
+      setStatus('Please add a little feedback first.', 'error');
+      textarea.focus();
+      return;
+    }
+    if (feedback.length > 2000) {
+      setStatus('Feedback must be 2000 characters or fewer.', 'error');
+      textarea.focus();
+      return;
+    }
+
+    submitBtn.disabled = true;
+    setStatus('Sending...', '');
+    fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback: feedback, page_url: window.location.href })
+    }).then(function(resp) {
+      if (!resp.ok) throw new Error('feedback_failed');
+      return resp.json();
+    }).then(function() {
+      textarea.value = '';
+      setStatus('Thanks - your idea was sent.', 'success');
+      if (window._ga) window._ga('form_submit', { form_name: 'feedback', page_path: location.pathname });
+    }).catch(function() {
+      setStatus('Could not send that yet. Please try again.', 'error');
+    }).finally(function() {
+      submitBtn.disabled = false;
+    });
+  }
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitFeedback();
+  });
+  submitBtn.addEventListener('click', function(e) {
+    e.preventDefault();
+    submitFeedback();
   });
 })();
 </script>

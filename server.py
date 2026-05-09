@@ -520,6 +520,53 @@ def _send_doctor_request_notification(
         return False
 
 
+def _send_feedback_notification(
+    *,
+    feedback: str,
+    page_url: str,
+    user_agent: str,
+    submitted_at: datetime,
+) -> bool:
+    """Email the site owner when a visitor sends product feedback."""
+    from src.newsletter import send_email
+
+    recipient = "jonathan@pipelinemarketing.io"
+    site_name = "Metabolic Journal"
+    submitted_date = submitted_at.date().isoformat()
+    submitted_iso = submitted_at.isoformat()
+    subject = f"New Metabolic Journal feedback - {submitted_date}"
+    html = f"""
+    <h2>New Feedback</h2>
+    <table cellpadding="6" cellspacing="0" style="border-collapse:collapse;">
+      <tr><td><strong>Date</strong></td><td>{_xml_escape(submitted_iso)}</td></tr>
+      <tr><td><strong>Site</strong></td><td>{_xml_escape(site_name)}</td></tr>
+      <tr><td><strong>Page URL</strong></td><td>{_xml_escape(page_url or 'Not provided')}</td></tr>
+      <tr><td><strong>User Agent</strong></td><td>{_xml_escape(user_agent or 'Not provided')}</td></tr>
+    </table>
+    <p><strong>Feedback</strong></p>
+    <p>{_xml_escape(feedback)}</p>
+    """
+
+    provider = (settings.order_email_provider or settings.seo_email_provider or "resend").strip().lower()
+    from_addr = _order_from_address()
+    try:
+        result = send_email(
+            to=recipient,
+            subject=subject,
+            html_body=html,
+            provider_name=provider,
+            from_override=from_addr,
+        )
+        if result.get("success"):
+            logger.info("Feedback notification sent to %s", recipient)
+            return True
+        logger.error("Feedback notification failed: %s", result)
+        return False
+    except Exception as exc:
+        logger.exception("Failed to send feedback notification: %s", exc)
+        return False
+
+
 # ═══════════════════════════════════════════════════════════════════════
 #  HTML Stub Helper
 # ═══════════════════════════════════════════════════════════════════════
@@ -2870,6 +2917,35 @@ def api_subscribe():
     except Exception as exc:
         logger.exception("Buttondown API error: %s", exc)
         return jsonify({"ok": True, "note": "Subscription recorded."})
+
+
+# ═══════════════════════════════════════════════════════════════════════
+#  ROUTES — API: Feedback
+# ═══════════════════════════════════════════════════════════════════════
+
+@app.route("/api/feedback", methods=["POST"])
+def api_feedback():
+    """Accept desktop feedback submissions and email them to the site owner."""
+    data = request.get_json(silent=True) or {}
+    feedback = (data.get("feedback") or "").strip()
+    page_url = (data.get("page_url") or "").strip()
+
+    if not feedback:
+        return jsonify({"error": "Feedback is required."}), 400
+    if len(feedback) > 2000:
+        return jsonify({"error": "Feedback must be 2000 characters or fewer."}), 400
+
+    submitted_at = datetime.now(timezone.utc)
+    sent = _send_feedback_notification(
+        feedback=feedback,
+        page_url=page_url,
+        user_agent=request.headers.get("User-Agent", ""),
+        submitted_at=submitted_at,
+    )
+    if not sent:
+        return jsonify({"error": "Could not send feedback."}), 502
+
+    return jsonify({"ok": True})
 
 
 # ═══════════════════════════════════════════════════════════════════════
