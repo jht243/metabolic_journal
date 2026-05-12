@@ -53,6 +53,10 @@ _ANCHOR: dict[str, str] = {
     "/peptides/igf-1-lr3": "IGF-1 LR3: mechanism, risks, and what the research actually shows",
     "/peptides/wolverine-stack": "The wolverine stack: BPC-157 + TB-500 injury recovery protocol",
     "/peptides/aod-9604": "AOD-9604: the fat-loss peptide that failed Phase III — and what works instead",
+    "/compare/hgh-vs-peptides": "HGH vs peptides: costs, side effects, and which one to choose",
+    "/peptides/ghrp": "Growth hormone releasing peptides (GHRPs): GHRP-2, GHRP-6, hexarelin & ipamorelin compared",
+    "/compare/ipamorelin-hgh-frag-stack": "Ipamorelin + HGH fragment 176-191 stack: fat loss protocol and dosing",
+    "/guides/nad-longevity": "NAD+ and longevity: what the research actually shows about aging",
 
     # ── Metabolism hub + spokes ──
     "/metabolic-health": "Metabolic health — insulin resistance, blood sugar, body composition",
@@ -243,6 +247,10 @@ CLUSTERS: dict[str, Cluster] = {
             _ck("/peptides/aod-9604", "AOD-9604: the GH fragment that failed Phase III, why it's still sold, and what actually works for fat loss."),
             _ck("/compare/tesamorelin-vs-sermorelin", "Tesamorelin vs sermorelin: GH peptide differences, use cases, and which to choose."),
             _ck("/compare/sarms-vs-peptides", "SARMs vs peptides: mechanisms, legality, safety, and which approach fits your goals."),
+            _ck("/compare/hgh-vs-peptides", "HGH vs peptides: costs, risks, mechanism differences, and who should use which."),
+            _ck("/peptides/ghrp", "GHRPs compared: GHRP-2, GHRP-6, hexarelin, and ipamorelin — potency, selectivity, and side effects."),
+            _ck("/compare/ipamorelin-hgh-frag-stack", "Ipamorelin + HGH frag 176-191 stack for fat loss — dosing protocol and cycle guide."),
+            _ck("/guides/nad-longevity", "NAD+ and longevity: sirtuins, mitochondria, NMN vs NR, and what the human trials show."),
         ),
     ),
 
@@ -523,8 +531,11 @@ _PATH_TO_CLUSTER: tuple[tuple[str, str], ...] = (
     ("/compare/tesamorelin-vs-sermorelin", "peptides"),
     ("/compare/sarms-vs-peptides", "peptides"),
     ("/compare/cjc-1295-ipamorelin-stack", "peptides"),
+    ("/compare/hgh-vs-peptides", "peptides"),
+    ("/compare/ipamorelin-hgh-frag-stack", "peptides"),
     ("/faq/are-peptides-legal", "peptides"),
     ("/guides/how-to-reconstitute-peptides", "peptides"),
+    ("/guides/nad-longevity", "peptides"),
 
     # Broad prefix fallbacks (last resort)
     ("/peptides/", "peptides"),

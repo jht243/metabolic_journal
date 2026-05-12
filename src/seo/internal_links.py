@@ -47,6 +47,10 @@ def _build_link_targets():
             "nad": ["NAD+"],
             "collagen": ["collagen peptides"],
             "wolverine-stack": ["wolverine stack"],
+            "ghrp": ["GHRP", "growth hormone releasing peptide"],
+            "hgh-vs-peptides": ["HGH vs peptides"],
+            "ipamorelin-hgh-frag-stack": ["HGH fragment 176-191"],
+            "nad-longevity": ["NAD+ longevity"],
             # Conditions
             "insulin-resistance": ["insulin resistance"],
             "metabolic-syndrome": ["metabolic syndrome"],
