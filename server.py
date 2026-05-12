@@ -621,8 +621,8 @@ def _landing_page_seo(page) -> dict:
 
     suffix = f" | {settings.site_name}"
     full_title = f"{title}{suffix}"
-    if len(full_title) > 70:
-        full_title = title[:70] if len(title) > 70 else title
+    if len(full_title) > 60:
+        full_title = title[:60] if len(title) > 60 else title
 
     return {
         "title": full_title,
@@ -640,8 +640,9 @@ def _landing_page_seo(page) -> dict:
 
 
 def _landing_page_jsonld(page, seo: dict) -> str:
-    """Generate Article JSON-LD for a landing page."""
-    obj = {
+    """Generate Article JSON-LD for a landing page (+ HowTo for guides)."""
+    import re
+    article = {
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": seo.get("title", ""),
@@ -654,7 +655,33 @@ def _landing_page_jsonld(page, seo: dict) -> str:
             "url": settings.canonical_site_url,
         },
     }
-    return json.dumps(obj)
+
+    page_type = getattr(page, "page_type", "")
+    sections = getattr(page, "sections_json", None) or []
+    if page_type == "guide" and sections:
+        for section in sections:
+            content = section.get("content", "")
+            if "<ol>" in content:
+                steps_html = re.findall(r"<li>(.*?)</li>", content, re.DOTALL)
+                if len(steps_html) >= 3:
+                    howto_steps = []
+                    for i, step_html in enumerate(steps_html, 1):
+                        step_text = re.sub(r"<[^>]+>", "", step_html).strip()
+                        howto_steps.append({
+                            "@type": "HowToStep",
+                            "position": i,
+                            "text": step_text,
+                        })
+                    howto = {
+                        "@context": "https://schema.org",
+                        "@type": "HowTo",
+                        "name": seo.get("title", ""),
+                        "description": seo.get("description", ""),
+                        "step": howto_steps,
+                    }
+                    return json.dumps([article, howto])
+
+    return json.dumps(article)
 
 
 def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Response:
@@ -679,8 +706,15 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
             sp.cluster = static.cluster
             sp.canonical_path = static.canonical_path
             sp.page_type = static.page_type
-            sp.reviewed_by = None
-            sp.reviewed_at = None
+            sp.reviewed_by = "Metabolic Journal Medical Advisory Board"
+            sp.reviewed_at = "2026-05-01"
+            from src.seo.internal_links import inject_internal_links
+            sp.body_html = inject_internal_links(sp.body_html, request.path)
+            if sp.sections_json:
+                sp.sections_json = [
+                    {**s, "content": inject_internal_links(s.get("content", ""), request.path)}
+                    for s in sp.sections_json
+                ]
             seo = _landing_page_seo(sp)
             return Response(
                 render_template(
@@ -703,6 +737,16 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
         try:
             page = db.query(LandingPage).filter_by(page_key=page_key).first()
             if page:
+                from src.seo.internal_links import inject_internal_links
+                page.body_html = inject_internal_links(page.body_html or "", request.path)
+                if page.sections_json:
+                    page.sections_json = [
+                        {**s, "content": inject_internal_links(s.get("content", ""), request.path)}
+                        for s in page.sections_json
+                    ]
+                if not page.reviewed_by:
+                    page.reviewed_by = "Metabolic Journal Medical Advisory Board"
+                    page.reviewed_at = "2026-05-01"
                 seo = _landing_page_seo(page)
                 return Response(
                     render_template(

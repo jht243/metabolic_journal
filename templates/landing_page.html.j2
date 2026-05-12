@@ -29,6 +29,36 @@
 }
 </script>
 {% endif %}
+
+{# BreadcrumbList structured data #}
+{% set path_parts = page.canonical_path.strip('/').split('/') %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "{{ seo.site_url }}"
+    }{% if path_parts|length > 1 %},
+    {% for part in path_parts[:-1] %}
+    {
+      "@type": "ListItem",
+      "position": {{ loop.index + 1 }},
+      "name": {{ part|replace('-',' ')|title|tojson }},
+      "item": "{{ seo.site_url }}/{{ path_parts[:loop.index]|join('/') }}"
+    },
+    {% endfor %}{% endif %}
+    {
+      "@type": "ListItem",
+      "position": {{ path_parts|length + 1 }},
+      "name": {{ page.title|tojson }}
+    }
+  ]
+}
+</script>
 {% endblock %}
 
 {% block content %}
