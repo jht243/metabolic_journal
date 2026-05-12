@@ -241,6 +241,8 @@ CLUSTERS: dict[str, Cluster] = {
             _ck("/peptides/igf-1-lr3", "IGF-1 LR3 mechanism, hyperplasia use case, risk profile, and how it compares to GH secretagogues."),
             _ck("/peptides/wolverine-stack", "The wolverine stack — BPC-157 and TB-500 combined: injury protocol, dosing, and what to expect."),
             _ck("/peptides/aod-9604", "AOD-9604: the GH fragment that failed Phase III, why it's still sold, and what actually works for fat loss."),
+            _ck("/compare/tesamorelin-vs-sermorelin", "Tesamorelin vs sermorelin: GH peptide differences, use cases, and which to choose."),
+            _ck("/compare/sarms-vs-peptides", "SARMs vs peptides: mechanisms, legality, safety, and which approach fits your goals."),
         ),
     ),
 
