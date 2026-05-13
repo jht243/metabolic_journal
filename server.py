@@ -201,6 +201,127 @@ _LANDING_SEO_OVERRIDES = {
             "home sleep testing, weight gain, and metabolic risk."
         ),
     },
+    # ── CTR-optimized overrides for top-performing pages (May 2026 GSC data) ──
+    "/peptides/weight-loss": {
+        "title": "Best Peptides for Weight Loss in 2026 (Ranked)",
+        "description": (
+            "Evidence-based ranking of weight-loss peptides — from FDA-approved "
+            "semaglutide (14.9% avg loss) to research compounds. Compare mechanisms, "
+            "results, costs, and access."
+        ),
+    },
+    "/peptides/aod-9604": {
+        "title": "AOD-9604 Peptide: Does It Work? (2026 Evidence Review)",
+        "description": (
+            "Honest AOD-9604 review: Phase III trial results, why it failed, "
+            "what the research actually shows, and which peptides work better "
+            "for fat loss. Updated for 2026."
+        ),
+    },
+    "/peptides/igf-1-lr3": {
+        "title": "IGF-1 LR3: Mechanism, Dosing, Side Effects & Research Guide",
+        "description": (
+            "Complete IGF-1 LR3 guide covering how it differs from standard IGF-1, "
+            "the research on muscle growth and fat loss, dosing protocols, "
+            "and important safety considerations."
+        ),
+    },
+    "/compare/cjc-1295-ipamorelin-stack": {
+        "title": "CJC-1295 + Ipamorelin Stack: Protocol & Results",
+        "description": (
+            "The #1 prescribed GH peptide stack explained — how CJC-1295 and "
+            "ipamorelin synergize for 2-5x more growth hormone, exact dosing "
+            "protocol, timing, and real-world results."
+        ),
+    },
+    "/peptides/hgh": {
+        "title": "HGH Peptides vs Synthetic HGH: Complete Comparison Guide",
+        "description": (
+            "How growth hormone peptides (ipamorelin, sermorelin, CJC-1295) "
+            "compare to synthetic HGH — efficacy, safety, cost, legality, "
+            "and which approach is right for your goals."
+        ),
+    },
+    "/peptides/glp-1": {
+        "title": "GLP-1 Peptides Explained: Semaglutide, Tirzepatide & Beyond",
+        "description": (
+            "How GLP-1 receptor agonists work for weight loss and metabolic health. "
+            "Compare semaglutide vs tirzepatide vs retatrutide — mechanisms, "
+            "results, and what's coming next."
+        ),
+    },
+    "/peptides/nad": {
+        "title": "NAD+ Peptides for Longevity: NMN, NR & What Actually Works",
+        "description": (
+            "Evidence review of NAD+ precursors and peptides for aging and "
+            "cellular health. What the research shows about NMN, NR, and "
+            "NAD+ IV therapy for longevity."
+        ),
+    },
+    "/guides/how-to-reconstitute-peptides": {
+        "title": "How to Reconstitute Peptides: Guide + Calculator",
+        "description": (
+            "Clear instructions for reconstituting lyophilized peptides with "
+            "bacteriostatic water. Includes dosing calculator, mixing ratios, "
+            "storage tips, and common mistakes to avoid."
+        ),
+    },
+    "/biomarkers/testosterone-by-age": {
+        "title": "Testosterone Levels by Age: Normal vs Optimal Ranges (Chart)",
+        "description": (
+            "Detailed testosterone level chart by age for men 20-80+. "
+            "Compare your total and free T against both lab reference ranges "
+            "and optimal functional ranges. Updated 2026 data."
+        ),
+    },
+    "/symptoms/sleep-inertia": {
+        "title": "Sleep Inertia: Why You Feel Groggy Waking Up (And How to Fix It)",
+        "description": (
+            "The science behind morning grogginess explained. Learn what causes "
+            "sleep inertia, how long it lasts, and 7 evidence-based strategies "
+            "to wake up feeling alert."
+        ),
+    },
+    "/peptides/wolverine-stack": {
+        "title": "Wolverine Stack (BPC-157 + TB-500): Protocol & Recovery Guide",
+        "description": (
+            "Complete guide to the BPC-157 + TB-500 healing stack. Dosing protocol, "
+            "reconstitution, injection sites, expected timeline, and the research "
+            "behind peptide-assisted tissue repair."
+        ),
+    },
+    "/compare/aod-9604-vs-hgh-fragment": {
+        "title": "AOD-9604 vs HGH Fragment 176-191: Same Peptide?",
+        "description": (
+            "AOD-9604 and HGH Fragment 176-191 share a core sequence but differ "
+            "in structure and research outcomes. See the evidence-based comparison "
+            "of mechanisms, efficacy, and safety."
+        ),
+    },
+    "/compare/hgh-peptides-vs-hgh": {
+        "title": "HGH Peptides vs Synthetic HGH: Full Comparison",
+        "description": (
+            "Should you choose GH-releasing peptides or synthetic HGH? Compare "
+            "efficacy, safety profiles, cost, legality, and which approach fits "
+            "your goals. Evidence-based analysis."
+        ),
+    },
+    "/compare/glp1-vs-peptides": {
+        "title": "GLP-1 Drugs vs Weight-Loss Peptides Compared",
+        "description": (
+            "FDA-approved GLP-1 medications vs research peptides for weight loss. "
+            "Compare semaglutide, tirzepatide against AOD-9604, CJC-1295 stacks "
+            "— efficacy, safety, cost, and access."
+        ),
+    },
+    "/tools/insulin-resistance-calculator": {
+        "title": "Insulin Resistance Calculator: HOMA-IR & TG/HDL Ratio (Free)",
+        "description": (
+            "Free insulin resistance calculator using HOMA-IR and triglyceride-to-HDL "
+            "ratio. Enter your lab values to assess metabolic risk with clinical "
+            "interpretation of your results."
+        ),
+    },
 }
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -706,8 +827,8 @@ def _db_landing_page_or_stub(page_key: str, page_type: str, title: str) -> Respo
             sp.cluster = static.cluster
             sp.canonical_path = static.canonical_path
             sp.page_type = static.page_type
-            sp.reviewed_by = "Metabolic Journal Medical Advisory Board"
-            sp.reviewed_at = "2026-05-01"
+            sp.reviewed_by = getattr(static, "reviewed_by", None) or "Metabolic Journal Medical Advisory Board"
+            sp.reviewed_at = getattr(static, "reviewed_at", None) or "2026-05-01"
             from src.seo.internal_links import inject_internal_links
             sp.body_html = inject_internal_links(sp.body_html, request.path)
             if sp.sections_json:
