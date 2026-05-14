@@ -13,6 +13,7 @@ import hmac
 import io
 import json
 import logging
+import os
 import secrets
 import time
 from datetime import datetime, date, timezone
@@ -3399,14 +3400,13 @@ _SITEMAP_TOOLS = [
 ]
 
 
-def _build_urlset(entries: list[tuple[str, str, str]]) -> str:
+def _build_urlset(entries, lastmod_by_path: dict[str, str] | None = None) -> str:
     base = _xml_escape(settings.canonical_site_url)
-    today = date.today().isoformat()
     urls = ""
-    for path, priority, freq in entries:
+    for path, priority, freq, lastmod in _with_lastmods(entries, lastmod_by_path):
         urls += f"""<url>
   <loc>{base}{path}</loc>
-  <lastmod>{today}</lastmod>
+  <lastmod>{lastmod}</lastmod>
   <changefreq>{freq}</changefreq>
   <priority>{priority}</priority>
 </url>\n"""
@@ -3415,34 +3415,83 @@ def _build_urlset(entries: list[tuple[str, str, str]]) -> str:
 {urls}</urlset>"""
 
 
-@app.route("/sitemap.xml")
-def sitemap_index():
-    base = _xml_escape(settings.canonical_site_url)
-    today = date.today().isoformat()
-    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>{base}/sitemap-primary.xml</loc>
-    <lastmod>{today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>{base}/sitemap-content.xml</loc>
-    <lastmod>{today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>{base}/sitemap-peptides.xml</loc>
-    <lastmod>{today}</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>{base}/sitemap-tools.xml</loc>
-    <lastmod>{today}</lastmod>
-  </sitemap>
-</sitemapindex>"""
-    return Response(xml, content_type="application/xml; charset=utf-8")
+def _default_sitemap_lastmod() -> str:
+    raw = os.getenv("SITEMAP_DEFAULT_LASTMOD", "2026-05-01").strip()
+    try:
+        return date.fromisoformat(raw).isoformat()
+    except ValueError:
+        logger.warning("sitemap: invalid SITEMAP_DEFAULT_LASTMOD=%r, using fallback", raw)
+        return "2026-05-01"
 
 
-@app.route("/sitemap-primary.xml")
-def sitemap_primary():
+def _to_sitemap_date(value, fallback: str | None = None) -> str:
+    if value is None:
+        return fallback or _default_sitemap_lastmod()
+    if isinstance(value, datetime):
+        return value.date().isoformat()
+    if isinstance(value, date):
+        return value.isoformat()
+    if isinstance(value, str):
+        raw = value.strip()
+        if not raw:
+            return fallback or _default_sitemap_lastmod()
+        try:
+            return datetime.fromisoformat(raw.replace("Z", "+00:00")).date().isoformat()
+        except ValueError:
+            try:
+                return date.fromisoformat(raw[:10]).isoformat()
+            except ValueError:
+                return fallback or _default_sitemap_lastmod()
+    return fallback or _default_sitemap_lastmod()
+
+
+def _landing_page_lastmods() -> dict[str, str]:
+    try:
+        from src.models import LandingPage, SessionLocal, init_db
+        init_db()
+        db = SessionLocal()
+        try:
+            rows = (
+                db.query(
+                    LandingPage.canonical_path,
+                    LandingPage.updated_at,
+                    LandingPage.last_generated_at,
+                    LandingPage.created_at,
+                )
+                .all()
+            )
+            return {
+                (path or "").rstrip("/") or "/": _to_sitemap_date(
+                    updated_at or last_generated_at or created_at
+                )
+                for path, updated_at, last_generated_at, created_at in rows
+                if path
+            }
+        finally:
+            db.close()
+    except Exception as exc:
+        logger.warning("sitemap: could not load landing page lastmod dates: %s", exc)
+        return {}
+
+
+def _with_lastmods(entries, lastmod_by_path: dict[str, str] | None = None):
+    lastmod_by_path = lastmod_by_path or {}
+    fallback = _default_sitemap_lastmod()
+    for entry in entries:
+        if len(entry) >= 4:
+            path, priority, freq, lastmod = entry[:4]
+            yield path, priority, freq, _to_sitemap_date(lastmod, fallback)
+        else:
+            path, priority, freq = entry
+            yield path, priority, freq, lastmod_by_path.get(path, fallback)
+
+
+def _latest_lastmod(entries, lastmod_by_path: dict[str, str] | None = None) -> str:
+    dates = [lastmod for *_rest, lastmod in _with_lastmods(entries, lastmod_by_path)]
+    return max(dates) if dates else _default_sitemap_lastmod()
+
+
+def _primary_sitemap_entries() -> list[tuple[str, str, str]]:
     seo_paths = all_seo_paths()
     entries = list(_SITEMAP_PRIMARY)
     existing_paths = {path for path, _, _ in entries}
@@ -3451,24 +3500,33 @@ def sitemap_primary():
             continue
         entries.append((path, "0.8", "weekly"))
         existing_paths.add(path)
-    return Response(_build_urlset(entries), content_type="application/xml; charset=utf-8")
+    return entries
 
 
-@app.route("/sitemap-content.xml")
-def sitemap_content():
-    entries: list[tuple[str, str, str]] = []
+def _content_sitemap_entries():
+    entries: list[tuple[str, str, str, str]] = []
     adapter = app.url_map.bind("")
     try:
         from src.models import BlogPost, SessionLocal, init_db
         init_db()
         db = SessionLocal()
         try:
-            posts = db.query(BlogPost.slug).order_by(BlogPost.published_date.desc()).all()
-            for (slug,) in posts:
+            posts = (
+                db.query(
+                    BlogPost.slug,
+                    BlogPost.updated_at,
+                    BlogPost.published_date,
+                    BlogPost.created_at,
+                )
+                .order_by(BlogPost.published_date.desc())
+                .all()
+            )
+            for slug, updated_at, published_date, created_at in posts:
                 path = f"/briefing/{slug}"
                 try:
                     adapter.match(path)
-                    entries.append((path, "0.7", "weekly"))
+                    lastmod = _to_sitemap_date(updated_at or published_date or created_at)
+                    entries.append((path, "0.7", "weekly", lastmod))
                 except Exception:
                     logger.warning("sitemap: %s has no matching route, skipping", path)
         finally:
@@ -3476,18 +3534,67 @@ def sitemap_content():
     except Exception:
         pass
     if not entries:
-        entries.append(("/briefing", "0.6", "weekly"))
-    return Response(_build_urlset(entries), content_type="application/xml; charset=utf-8")
+        entries.append(("/briefing", "0.6", "weekly", _default_sitemap_lastmod()))
+    return entries
+
+
+@app.route("/sitemap.xml")
+def sitemap_index():
+    base = _xml_escape(settings.canonical_site_url)
+    landing_lastmods = _landing_page_lastmods()
+    primary_lastmod = _latest_lastmod(_primary_sitemap_entries(), landing_lastmods)
+    content_lastmod = _latest_lastmod(_content_sitemap_entries())
+    peptides_lastmod = _latest_lastmod(_SITEMAP_PEPTIDES, landing_lastmods)
+    tools_lastmod = _latest_lastmod(_SITEMAP_TOOLS, landing_lastmods)
+    xml = f"""<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>{base}/sitemap-primary.xml</loc>
+    <lastmod>{primary_lastmod}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>{base}/sitemap-content.xml</loc>
+    <lastmod>{content_lastmod}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>{base}/sitemap-peptides.xml</loc>
+    <lastmod>{peptides_lastmod}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>{base}/sitemap-tools.xml</loc>
+    <lastmod>{tools_lastmod}</lastmod>
+  </sitemap>
+</sitemapindex>"""
+    return Response(xml, content_type="application/xml; charset=utf-8")
+
+
+@app.route("/sitemap-primary.xml")
+def sitemap_primary():
+    return Response(
+        _build_urlset(_primary_sitemap_entries(), _landing_page_lastmods()),
+        content_type="application/xml; charset=utf-8",
+    )
+
+
+@app.route("/sitemap-content.xml")
+def sitemap_content():
+    return Response(_build_urlset(_content_sitemap_entries()), content_type="application/xml; charset=utf-8")
 
 
 @app.route("/sitemap-peptides.xml")
 def sitemap_peptides():
-    return Response(_build_urlset(_SITEMAP_PEPTIDES), content_type="application/xml; charset=utf-8")
+    return Response(
+        _build_urlset(_SITEMAP_PEPTIDES, _landing_page_lastmods()),
+        content_type="application/xml; charset=utf-8",
+    )
 
 
 @app.route("/sitemap-tools.xml")
 def sitemap_tools():
-    return Response(_build_urlset(_SITEMAP_TOOLS), content_type="application/xml; charset=utf-8")
+    return Response(
+        _build_urlset(_SITEMAP_TOOLS, _landing_page_lastmods()),
+        content_type="application/xml; charset=utf-8",
+    )
 
 
 @app.route("/news-sitemap.xml")

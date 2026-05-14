@@ -42,7 +42,8 @@
       "position": 1,
       "name": "Home",
       "item": "{{ seo.site_url }}"
-    }{% if path_parts|length > 1 %},
+    },
+    {% if path_parts|length > 1 %}
     {% for part in path_parts[:-1] %}
     {
       "@type": "ListItem",
