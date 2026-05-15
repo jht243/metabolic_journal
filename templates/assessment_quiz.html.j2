@@ -57,6 +57,21 @@
   .symptom-category { margin-bottom: 20px; }
   .symptom-category > .cat-label { font-size: 13px; font-weight: 700; color: var(--h-gray-text); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
 
+  .conditional-section { display: none; }
+  .conditional-section.visible { display: block; }
+
+  .field-hint { font-size: 12.5px; color: var(--h-gray-text); margin-top: 4px; line-height: 1.4; }
+
+  .family-history-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media(max-width:520px){ .family-history-grid { grid-template-columns: 1fr; } }
+
+  .supplement-note { background: rgba(13,148,136,0.05); border: 1px solid rgba(13,148,136,0.15); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: var(--h-dark-text); line-height: 1.5; }
+
+  .blood-work-info { background: var(--h-gray-bg); border-radius: 8px; padding: 16px 20px; margin-top: 12px; }
+  .blood-work-info p { font-size: 13.5px; color: var(--h-dark-text); line-height: 1.5; margin: 0 0 8px; }
+  .blood-work-info p:last-child { margin-bottom: 0; }
+  .blood-work-info strong { color: var(--h-navy); }
+
   .nav-buttons { display: flex; justify-content: space-between; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--h-gray-light); }
   .btn-back-q { background: none; border: 0; font-size: 15px; color: var(--h-gray-text); cursor: pointer; font-weight: 600; padding: 12px 0; }
   .btn-back-q:hover { color: var(--h-dark-text); }
@@ -100,6 +115,17 @@
   .specialist-cta.active { display: block; }
   .specialist-cta h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 8px; }
   .specialist-cta p { font-size: 14px; color: var(--h-gray-text); max-width: 460px; margin: 0 auto 14px; line-height: 1.5; }
+
+  .supp-section { margin-top: 28px; }
+  .supp-section h3 { font-family: var(--font-serif); font-size: 18px; color: var(--h-navy); margin-bottom: 12px; }
+  .supp-card { background: white; border: 1px solid var(--h-gray-light); border-radius: 8px; padding: 16px 20px; margin-bottom: 10px; }
+  .supp-card .supp-name { font-weight: 700; font-size: 14px; color: var(--h-navy); }
+  .supp-card .supp-reason { font-size: 13px; color: var(--h-gray-text); margin-top: 4px; line-height: 1.4; }
+  .supp-card .supp-form { font-size: 12px; color: var(--h-teal); font-weight: 600; margin-top: 6px; }
+  .trust-badges { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; margin-top: 16px; padding: 16px 20px; background: rgba(13,148,136,0.04); border: 1px solid rgba(13,148,136,0.12); border-radius: 8px; }
+  .trust-badge { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: var(--h-navy); }
+  .trust-badge .badge-icon { color: var(--h-teal); font-size: 16px; }
+  .trust-detail { font-size: 12px; color: var(--h-gray-text); margin-top: 10px; line-height: 1.5; }
 </style>
 {% endblock %}
 
@@ -114,19 +140,19 @@
     <div class="progress-labels" id="progressLabels">
       <span class="progress-label active" data-s="0">Basics</span>
       <span class="progress-label" data-s="1">Symptoms</span>
-      <span class="progress-label" data-s="2">Goals</span>
-      <span class="progress-label" data-s="3">History</span>
-      <span class="progress-label" data-s="4">Lifestyle</span>
+      <span class="progress-label" data-s="2">History</span>
+      <span class="progress-label" data-s="3">Lifestyle</span>
+      <span class="progress-label" data-s="4">Goals</span>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progressBar" style="width:20%"></div></div>
   </div>
 
-  <!-- Step 0: Demographics -->
+  <!-- ===== Step 0: About You ===== -->
   <div class="step active" data-s="0">
     <h2>About You</h2>
     <p class="step-desc">Basic info to personalize your results.</p>
     <div class="field-row">
-      <div class="field"><label>Age</label><input type="number" id="q-age" min="18" max="100" placeholder="e.g. 38"></div>
+      <div class="field"><label>Age</label><input type="number" id="q-age" min="13" max="100" placeholder="e.g. 38"></div>
       <div class="field"><label>Biological Sex</label>
         <select id="q-sex"><option value="">Select…</option><option value="male">Male</option><option value="female">Female</option></select>
       </div>
@@ -137,10 +163,10 @@
     </div>
   </div>
 
-  <!-- Step 1: Symptoms -->
+  <!-- ===== Step 1: Symptoms (expanded, age/sex conditional) ===== -->
   <div class="step" data-s="1">
     <h2>Symptoms</h2>
-    <p class="step-desc">Select everything you experience regularly.</p>
+    <p class="step-desc">Select everything you experience regularly. Sections are personalized based on your age and sex.</p>
 
     <div class="symptom-category">
       <div class="cat-label">Energy & Fatigue</div>
@@ -163,6 +189,19 @@
     </div>
 
     <div class="symptom-category">
+      <div class="cat-label">Cardiovascular</div>
+      <div class="pill-group" data-domain="cardiovascular">
+        <label><input type="checkbox" value="Chest tightness"><span>Chest tightness or pain</span></label>
+        <label><input type="checkbox" value="Shortness of breath"><span>Shortness of breath</span></label>
+        <label><input type="checkbox" value="Heart palpitations"><span>Heart palpitations</span></label>
+        <label><input type="checkbox" value="High blood pressure"><span>High blood pressure</span></label>
+        <label><input type="checkbox" value="Swollen legs"><span>Swollen legs / ankles</span></label>
+        <label><input type="checkbox" value="Dizziness"><span>Dizziness or lightheadedness</span></label>
+        <label><input type="checkbox" value="Exercise intolerance"><span>Poor exercise tolerance</span></label>
+      </div>
+    </div>
+
+    <div class="symptom-category">
       <div class="cat-label">Hormonal</div>
       <div class="pill-group" data-domain="hormonal">
         <label><input type="checkbox" value="Low sex drive"><span>Low sex drive</span></label>
@@ -171,8 +210,71 @@
         <label><input type="checkbox" value="Hair thinning"><span>Hair thinning / loss</span></label>
         <label><input type="checkbox" value="Cold intolerance"><span>Cold intolerance</span></label>
         <label><input type="checkbox" value="Dry skin"><span>Dry skin</span></label>
+      </div>
+    </div>
+
+    <!-- Menopause: shown for females age 40+ -->
+    <div class="symptom-category conditional-section" id="menopause-section">
+      <div class="cat-label">Menopause & Perimenopause</div>
+      <div class="pill-group" data-domain="hormonal">
         <label><input type="checkbox" value="Hot flashes"><span>Hot flashes</span></label>
+        <label><input type="checkbox" value="Night sweats (hormonal)"><span>Night sweats</span></label>
         <label><input type="checkbox" value="Irregular periods"><span>Irregular periods</span></label>
+        <label><input type="checkbox" value="Periods stopped"><span>Periods have stopped</span></label>
+        <label><input type="checkbox" value="Vaginal dryness"><span>Vaginal dryness</span></label>
+        <label><input type="checkbox" value="Urinary urgency"><span>Urinary urgency / frequency</span></label>
+        <label><input type="checkbox" value="Weight redistribution"><span>Weight shifting to midsection</span></label>
+        <label><input type="checkbox" value="Memory changes"><span>Memory or concentration changes</span></label>
+        <label><input type="checkbox" value="Joint stiffness"><span>Joint stiffness or aches</span></label>
+        <label><input type="checkbox" value="Sleep disruption hormonal"><span>Sleep disruption</span></label>
+      </div>
+    </div>
+
+    <!-- Female general: shown for females under 40 -->
+    <div class="symptom-category conditional-section" id="female-general-section">
+      <div class="cat-label">Menstrual & Reproductive</div>
+      <div class="pill-group" data-domain="hormonal">
+        <label><input type="checkbox" value="Irregular periods"><span>Irregular periods</span></label>
+        <label><input type="checkbox" value="Heavy periods"><span>Heavy or painful periods</span></label>
+        <label><input type="checkbox" value="Hot flashes"><span>Hot flashes</span></label>
+        <label><input type="checkbox" value="PMS symptoms"><span>Severe PMS symptoms</span></label>
+        <label><input type="checkbox" value="Acne hormonal"><span>Hormonal acne</span></label>
+      </div>
+    </div>
+
+    <!-- Male Health: shown for males age 40+ -->
+    <div class="symptom-category conditional-section" id="male-section">
+      <div class="cat-label">Male Health</div>
+      <div class="pill-group" data-domain="hormonal">
+        <label><input type="checkbox" value="Erectile difficulty"><span>Erectile difficulty</span></label>
+        <label><input type="checkbox" value="Frequent urination"><span>Frequent urination</span></label>
+        <label><input type="checkbox" value="Weak urine stream"><span>Weak urine stream</span></label>
+        <label><input type="checkbox" value="Night urination"><span>Getting up at night to urinate</span></label>
+        <label><input type="checkbox" value="Loss of muscle mass"><span>Loss of muscle mass</span></label>
+        <label><input type="checkbox" value="Gynecomastia"><span>Breast tissue enlargement</span></label>
+        <label><input type="checkbox" value="Low motivation"><span>Loss of drive / motivation</span></label>
+      </div>
+    </div>
+
+    <div class="symptom-category">
+      <div class="cat-label">Bone & Joint Health</div>
+      <div class="pill-group" data-domain="bone">
+        <label><input type="checkbox" value="Joint pain"><span>Joint pain or stiffness</span></label>
+        <label><input type="checkbox" value="Back pain"><span>Chronic back pain</span></label>
+        <label><input type="checkbox" value="Fracture history"><span>History of fractures</span></label>
+        <label><input type="checkbox" value="Height loss"><span>Loss of height</span></label>
+        <label><input type="checkbox" value="Weak grip"><span>Weak grip strength</span></label>
+        <label><input type="checkbox" value="Muscle cramps"><span>Frequent muscle cramps</span></label>
+      </div>
+    </div>
+
+    <div class="symptom-category">
+      <div class="cat-label">Digestive</div>
+      <div class="pill-group" data-domain="metabolic">
+        <label><input type="checkbox" value="Bloating"><span>Bloating</span></label>
+        <label><input type="checkbox" value="Acid reflux"><span>Acid reflux / heartburn</span></label>
+        <label><input type="checkbox" value="Constipation"><span>Constipation</span></label>
+        <label><input type="checkbox" value="Food sensitivities"><span>Food sensitivities</span></label>
       </div>
     </div>
 
@@ -196,49 +298,82 @@
         <label><input type="checkbox" value="Poor stress tolerance"><span>Poor stress tolerance</span></label>
       </div>
     </div>
+
+    <!-- Teen/Young Adult: shown for ages 13-24 -->
+    <div class="symptom-category conditional-section" id="teen-section">
+      <div class="cat-label">Young Adult Concerns</div>
+      <div class="pill-group" data-domain="recovery">
+        <label><input type="checkbox" value="Skipping meals"><span>Frequently skipping meals</span></label>
+        <label><input type="checkbox" value="Restrictive eating"><span>Restrictive eating patterns</span></label>
+        <label><input type="checkbox" value="Substance use"><span>Substance or drug use</span></label>
+        <label><input type="checkbox" value="Vaping"><span>Vaping or smoking</span></label>
+        <label><input type="checkbox" value="Energy drink dependence"><span>Heavy energy drink use</span></label>
+        <label><input type="checkbox" value="Screen sleep issues"><span>Screens disrupting sleep</span></label>
+        <label><input type="checkbox" value="Concentration issues"><span>Difficulty concentrating</span></label>
+        <label><input type="checkbox" value="Social withdrawal"><span>Social withdrawal</span></label>
+      </div>
+    </div>
   </div>
 
-  <!-- Step 2: Goals -->
+  <!-- ===== Step 2: Health History (expanded) ===== -->
   <div class="step" data-s="2">
-    <h2>Your Goals</h2>
-    <p class="step-desc">What matters most to you right now? Select all that apply.</p>
-    <div class="pill-group" id="goals-group">
-      <label><input type="checkbox" value="More energy"><span>More energy</span></label>
-      <label><input type="checkbox" value="Lose body fat"><span>Lose body fat</span></label>
-      <label><input type="checkbox" value="Build muscle"><span>Build muscle</span></label>
-      <label><input type="checkbox" value="Better sleep"><span>Better sleep</span></label>
-      <label><input type="checkbox" value="Balance hormones"><span>Balance hormones</span></label>
-      <label><input type="checkbox" value="Reduce brain fog"><span>Reduce brain fog</span></label>
-      <label><input type="checkbox" value="Improve mood"><span>Improve mood</span></label>
-      <label><input type="checkbox" value="Increase libido"><span>Increase libido</span></label>
-      <label><input type="checkbox" value="Reduce stress"><span>Reduce stress</span></label>
-      <label><input type="checkbox" value="Optimize metabolic health"><span>Optimize metabolic health</span></label>
-      <label><input type="checkbox" value="Slow aging"><span>Slow aging</span></label>
-    </div>
-  </div>
-
-  <!-- Step 3: Health History -->
-  <div class="step" data-s="3">
     <h2>Health History</h2>
-    <p class="step-desc">Context that helps interpret your results.</p>
+    <p class="step-desc">Your past and current health context helps us give better recommendations.</p>
+
     <div class="field"><label>Any diagnosed conditions?</label>
-      <textarea id="q-conditions" placeholder="e.g. hypothyroidism, pre-diabetes, PCOS, or none" rows="2"></textarea>
+      <textarea id="q-conditions" placeholder="e.g. hypothyroidism, pre-diabetes, PCOS, high cholesterol, or none" rows="2"></textarea>
     </div>
-    <div class="field"><label>Current medications or supplements?</label>
-      <textarea id="q-meds" placeholder="List anything you take regularly" rows="2"></textarea>
+
+    <div class="field"><label>Do you think you may have any undiagnosed issues?</label>
+      <textarea id="q-undiagnosed" placeholder="e.g. I suspect thyroid problems, I think my hormones are off, possible sleep apnea, or none" rows="2"></textarea>
     </div>
-    <div class="field"><label>Recent lab work?</label>
+
+    <div class="field"><label>Current prescription medications</label>
+      <textarea id="q-medications" placeholder="List any prescription medications you take regularly, including dosage if known" rows="2"></textarea>
+    </div>
+
+    <div class="field"><label>Current supplements</label>
+      <div class="supplement-note">
+        Please use the full ingredient name rather than brand names. For example, write <strong>"magnesium glycinate 400mg"</strong> instead of "Calm Magnesium," or <strong>"vitamin D3 5000 IU"</strong> instead of "Bone Builder." Brand names like "Bone Up" or "Heart Defender" make it impossible for us to know what's actually inside.
+      </div>
+      <textarea id="q-supplements" placeholder="e.g. magnesium glycinate 400mg, vitamin D3 5000 IU, omega-3 fish oil 2g, or none" rows="3"></textarea>
+    </div>
+
+    <div class="field"><label>Family history</label>
+      <p class="field-hint">Select any conditions that run in your immediate family (parents, siblings, grandparents).</p>
+      <div class="pill-group family-history-grid" id="family-history-group">
+        <label><input type="checkbox" value="Heart disease"><span>Heart disease</span></label>
+        <label><input type="checkbox" value="Diabetes"><span>Diabetes (Type 2)</span></label>
+        <label><input type="checkbox" value="Osteoporosis"><span>Osteoporosis</span></label>
+        <label><input type="checkbox" value="Cancer"><span>Cancer</span></label>
+        <label><input type="checkbox" value="High blood pressure family"><span>High blood pressure</span></label>
+        <label><input type="checkbox" value="High cholesterol family"><span>High cholesterol</span></label>
+        <label><input type="checkbox" value="Stroke"><span>Stroke</span></label>
+        <label><input type="checkbox" value="Thyroid disease"><span>Thyroid disease</span></label>
+        <label><input type="checkbox" value="Autoimmune"><span>Autoimmune conditions</span></label>
+        <label><input type="checkbox" value="Alzheimers"><span>Alzheimer's / dementia</span></label>
+        <label><input type="checkbox" value="Obesity family"><span>Obesity</span></label>
+        <label><input type="checkbox" value="Mental health family"><span>Depression / anxiety</span></label>
+      </div>
+    </div>
+
+    <div class="field"><label>Recent blood work</label>
       <div class="radio-pills">
         <label><input type="radio" name="labs" value="none"><span>None</span></label>
         <label><input type="radio" name="labs" value="6mo"><span>Within 6 months</span></label>
         <label><input type="radio" name="labs" value="1yr"><span>Within a year</span></label>
         <label><input type="radio" name="labs" value="older"><span>Over a year ago</span></label>
       </div>
+      <div class="blood-work-info">
+        <p><strong>Most standard blood tests only scratch the surface.</strong> A typical panel checks basic CBC, glucose, and maybe a lipid panel — but misses critical markers that reveal early risk factors.</p>
+        <p>We can provide a much more comprehensive panel that includes fasting insulin, HbA1c, full thyroid (TSH, free T3, free T4), hormones, inflammatory markers, and more — giving you a complete picture of your metabolic health.</p>
+        <p>If you have recent lab results, we can analyze what you already have, identify what's missing, and recommend additional tests you may need.</p>
+      </div>
     </div>
   </div>
 
-  <!-- Step 4: Lifestyle -->
-  <div class="step" data-s="4">
+  <!-- ===== Step 3: Lifestyle ===== -->
+  <div class="step" data-s="3">
     <h2>Lifestyle</h2>
     <p class="step-desc">Daily habits that affect your metabolic and hormonal health.</p>
 
@@ -282,7 +417,30 @@
     </div>
   </div>
 
-  <!-- Results (hidden until submit) -->
+  <!-- ===== Step 4: Goals (moved to last) ===== -->
+  <div class="step" data-s="4">
+    <h2>Your Goals</h2>
+    <p class="step-desc">Now that you've reviewed your health picture — what matters most to you? Select all that apply.</p>
+    <div class="pill-group" id="goals-group">
+      <label><input type="checkbox" value="Resolve my symptoms"><span>Resolve the symptoms I selected</span></label>
+      <label><input type="checkbox" value="More energy"><span>More energy</span></label>
+      <label><input type="checkbox" value="Lose body fat"><span>Lose body fat</span></label>
+      <label><input type="checkbox" value="Build muscle"><span>Build muscle</span></label>
+      <label><input type="checkbox" value="Better sleep"><span>Better sleep</span></label>
+      <label><input type="checkbox" value="Balance hormones"><span>Balance hormones</span></label>
+      <label><input type="checkbox" value="Reduce brain fog"><span>Reduce brain fog</span></label>
+      <label><input type="checkbox" value="Improve mood"><span>Improve mood</span></label>
+      <label><input type="checkbox" value="Increase libido"><span>Increase libido</span></label>
+      <label><input type="checkbox" value="Reduce stress"><span>Reduce stress</span></label>
+      <label><input type="checkbox" value="Optimize metabolic health"><span>Optimize metabolic health</span></label>
+      <label><input type="checkbox" value="Slow aging"><span>Slow aging</span></label>
+      <label><input type="checkbox" value="Improve bone health"><span>Improve bone health</span></label>
+      <label><input type="checkbox" value="Heart health"><span>Improve heart health</span></label>
+      <label><input type="checkbox" value="Get comprehensive blood work"><span>Get comprehensive blood work</span></label>
+    </div>
+  </div>
+
+  <!-- ===== Results (hidden until submit) ===== -->
   <div class="results-section" id="resultsSection">
     <div class="score-hero">
       <div class="score-number" id="totalScore" style="color:var(--h-teal)">—</div>
@@ -294,6 +452,20 @@
     <div class="rec-section">
       <h3>Recommended Next Steps</h3>
       <ul class="rec-list" id="recList"></ul>
+    </div>
+
+    <div class="supp-section" id="suppSection" style="display:none">
+      <h3>Supplement Recommendations</h3>
+      <p style="font-size:14px; color:var(--h-gray-text); margin-bottom:16px; line-height:1.5;">Based on your symptoms and risk factors, these supplements may support your health goals.</p>
+      <div id="suppCards"></div>
+      <div class="trust-badges">
+        <div class="trust-badge"><span class="badge-icon">✓</span> GMP Certified</div>
+        <div class="trust-badge"><span class="badge-icon">✓</span> ISO 17025 Lab Tested</div>
+        <div class="trust-badge"><span class="badge-icon">✓</span> Third-Party Verified</div>
+      </div>
+      <div class="trust-detail">
+        We only recommend products that are <strong>GMP certified</strong> (Good Manufacturing Practices) — meaning the manufacturing facility has been audited by a third party and follows strict guidelines for quality, sanitation, and consistency. All products are tested by <strong>ISO 17025-accredited laboratories</strong>, the international standard for technical competence in testing. This means every product is verified for purity, potency, and absence of contaminants like heavy metals. Our supplements are cleaner, purer, and more effective than what you'll find on most store shelves.
+      </div>
     </div>
 
     <div class="specialist-cta" id="specialistCta">
@@ -331,6 +503,25 @@
   var nav=document.getElementById('navButtons');
   var results=document.getElementById('resultsSection');
 
+  function getAge(){ return parseInt(document.getElementById('q-age').value)||0; }
+  function getSex(){ return document.getElementById('q-sex').value; }
+
+  function updateConditionalSections(){
+    var age=getAge(), sex=getSex();
+    var menopause=document.getElementById('menopause-section');
+    var femaleGeneral=document.getElementById('female-general-section');
+    var male=document.getElementById('male-section');
+    var teen=document.getElementById('teen-section');
+
+    menopause.classList.toggle('visible', sex==='female' && age>=40);
+    femaleGeneral.classList.toggle('visible', sex==='female' && age<40);
+    male.classList.toggle('visible', sex==='male' && age>=40);
+    teen.classList.toggle('visible', age>=13 && age<=24);
+  }
+
+  document.getElementById('q-age').addEventListener('change', updateConditionalSections);
+  document.getElementById('q-sex').addEventListener('change', updateConditionalSections);
+
   function show(){
     steps.forEach(function(s,i){s.classList.toggle('active',i===cur)});
     labels.forEach(function(l,i){
@@ -343,12 +534,12 @@
     btnN.textContent=cur===total-1?'Get My Results':'Continue →';
   }
 
-  var stepNames=['symptoms_metabolic','symptoms_hormonal','symptoms_recovery','lifestyle','stress_sleep'];
+  var stepNames=['symptoms','health_history','lifestyle','goals'];
   btnN.addEventListener('click',function(){
+    if(cur===0) updateConditionalSections();
     if(cur<total-1){
       cur++;show();window.scrollTo({top:0,behavior:'smooth'});
-      /* Decision: "Where do users drop off in the assessment quiz?" */
-      if(window._ga) window._ga('funnel_step',{funnel_name:'assessment_quiz',step_number:String(cur+1),step_label:stepNames[cur]||''});
+      if(window._ga) window._ga('funnel_step',{funnel_name:'assessment_quiz',step_number:String(cur+1),step_label:stepNames[cur-1]||''});
     }
     else{computeResults();}
   });
@@ -364,20 +555,41 @@
   function radioVal(name){var r=document.querySelector('input[name="'+name+'"]:checked');return r?r.value:'';}
 
   function computeResults(){
-    var metabolicSymptoms=0,hormonalSymptoms=0,recoverySymptoms=0;
+    var age=getAge(), sex=getSex();
+    var metabolicSymptoms=0,hormonalSymptoms=0,recoverySymptoms=0,cardioSymptoms=0,boneSymptoms=0;
+
     document.querySelectorAll('.pill-group[data-domain="metabolic"] input:checked').forEach(function(){metabolicSymptoms++});
     document.querySelectorAll('.pill-group[data-domain="hormonal"] input:checked').forEach(function(){hormonalSymptoms++});
     document.querySelectorAll('.pill-group[data-domain="recovery"] input:checked').forEach(function(){recoverySymptoms++});
+    document.querySelectorAll('.pill-group[data-domain="cardiovascular"] input:checked').forEach(function(){cardioSymptoms++});
+    document.querySelectorAll('.pill-group[data-domain="bone"] input:checked').forEach(function(){boneSymptoms++});
 
     var exercise=parseInt(radioVal('exercise'))||0;
     var sleepVal=parseInt(radioVal('sleep'))||0;
     var stressVal=parseInt(radioVal('stress'))||0;
 
+    var familyHistory=checked('#family-history-group input');
+    var hasCardioFamily=familyHistory.indexOf('Heart disease')!==-1||familyHistory.indexOf('High blood pressure family')!==-1||familyHistory.indexOf('Stroke')!==-1||familyHistory.indexOf('High cholesterol family')!==-1;
+    var hasDiabetesFamily=familyHistory.indexOf('Diabetes')!==-1;
+    var hasBoneFamily=familyHistory.indexOf('Osteoporosis')!==-1;
+
     var metScore=Math.max(0,100-metabolicSymptoms*12-Math.max(0,2-exercise)*8);
+    if(hasDiabetesFamily) metScore=Math.max(0,metScore-8);
+
     var hormScore=Math.max(0,100-hormonalSymptoms*10);
+
     var recScore=Math.max(0,100-recoverySymptoms*11-(3-Math.min(sleepVal,3))*10-stressVal*8);
 
-    var overall=Math.round((metScore+hormScore+recScore)/3);
+    var cardioScore=Math.max(0,100-cardioSymptoms*14);
+    if(hasCardioFamily) cardioScore=Math.max(0,cardioScore-10);
+    if(age>=50) cardioScore=Math.max(0,cardioScore-5);
+
+    var boneScore=Math.max(0,100-boneSymptoms*15);
+    if(hasBoneFamily) boneScore=Math.max(0,boneScore-10);
+    if(sex==='female'&&age>=50) boneScore=Math.max(0,boneScore-8);
+
+    var scores=[metScore,hormScore,recScore,cardioScore,boneScore];
+    var overall=Math.round(scores.reduce(function(a,b){return a+b},0)/scores.length);
 
     var domains=[
       {name:'Metabolic Health',score:metScore,color:'#059669',
@@ -391,7 +603,15 @@
       {name:'Sleep & Recovery',score:recScore,color:'#2563eb',
        detail:recScore>=70?'Your recovery capacity appears solid. Consider HRV tracking to optimize training and stress management.':
               recScore>=40?'Recovery is compromised. Focus on sleep hygiene fundamentals and consider a 4-point salivary cortisol test.':
-              'Major recovery deficit. Poor sleep and high stress compound metabolic and hormonal issues. A sleep study may be warranted if snoring is present.'}
+              'Major recovery deficit. Poor sleep and high stress compound metabolic and hormonal issues. A sleep study may be warranted if snoring is present.'},
+      {name:'Cardiovascular Health',score:cardioScore,color:'#dc2626',
+       detail:cardioScore>=70?'Cardiovascular risk appears low based on your symptoms. Continue maintaining heart-healthy habits and get regular blood pressure checks.':
+              cardioScore>=40?'Some cardiovascular concerns noted. Consider a comprehensive lipid panel, blood pressure monitoring, and discuss with your doctor.':
+              'Multiple cardiovascular warning signs. We strongly recommend a cardiac workup including advanced lipid panel, hs-CRP, and possibly a cardiac calcium score.'},
+      {name:'Bone & Joint Health',score:boneScore,color:'#ea580c',
+       detail:boneScore>=70?'Bone and joint health appears stable. Ensure adequate vitamin D, calcium, and weight-bearing exercise.':
+              boneScore>=40?'Some bone and joint concerns. A DEXA scan may be warranted, along with checking vitamin D, calcium, and magnesium levels.':
+              'Significant bone and joint symptoms. We recommend a DEXA scan, comprehensive mineral panel, and evaluation for osteoporosis risk factors.'}
     ];
 
     var scoreColor=overall>=65?'#059669':overall>=40?'#d97706':'#dc2626';
@@ -412,28 +632,77 @@
     }
     if(hormScore<60){
       recs.push('Request a comprehensive hormone panel: total/free testosterone, TSH, free T3/T4, AM cortisol, DHEA-S');
-      recs.push('If female with irregular cycles, add estradiol, progesterone, and SHBG');
+      if(sex==='female') recs.push('Add estradiol, progesterone, and SHBG to your hormone panel');
     }
     if(recScore<60){
       recs.push('Implement a strict wind-down routine: no screens 60 min before bed, bedroom at 65–68°F, consistent wake time');
       recs.push('Consider a 4-point salivary cortisol test if you feel "wired but tired"');
     }
+    if(cardioScore<60){
+      recs.push('Get an advanced lipid panel including Lp(a), ApoB, and hs-CRP — standard cholesterol tests miss key risk factors');
+      if(age>=45) recs.push('Consider a coronary artery calcium (CAC) score to assess plaque buildup');
+    }
+    if(boneScore<60){
+      recs.push('Request a DEXA scan to measure bone mineral density — especially important for women over 50 and anyone with family history of osteoporosis');
+      recs.push('Check your vitamin D, calcium, and magnesium levels — deficiencies are common and directly affect bone strength');
+    }
     if(sleepVal<2) recs.push('Your sleep duration is below the 7–9 hour recommendation — this alone can drive weight gain, insulin resistance, and low testosterone');
     if(stressVal>=2) recs.push('High chronic stress elevates cortisol, which directly impairs insulin sensitivity, testosterone, and sleep architecture');
     if(exercise<1) recs.push('Even 3 sessions of 30-minute walks per week significantly improve insulin sensitivity and hormone levels');
+    if(hasDiabetesFamily) recs.push('With diabetes in your family history, regular fasting insulin and glucose monitoring is especially important for early detection');
+    if(hasCardioFamily) recs.push('Family history of cardiovascular disease increases your risk — proactive screening with advanced lipid markers is recommended');
     if(recs.length===0) recs.push('Your profile looks strong — maintain current habits and retest annually');
 
     var recHtml='';
     recs.forEach(function(r){recHtml+='<li><span class="rec-icon">→</span><span>'+r+'</span></li>'});
     document.getElementById('recList').innerHTML=recHtml;
 
-    /* Decision: "What % complete the assessment, and what's their health profile?" */
+    // Supplement recommendations based on symptoms and risk factors
+    var supps=[];
+    if(metScore<70||hasDiabetesFamily){
+      supps.push({name:'Berberine',form:'Berberine HCl 500mg',reason:'Supports healthy blood sugar levels and insulin sensitivity — shown in studies to be as effective as some prescription medications for glucose management.'});
+      supps.push({name:'Chromium',form:'Chromium picolinate 200mcg',reason:'Essential trace mineral that helps improve insulin receptor function and glucose metabolism.'});
+    }
+    if(hormScore<70){
+      supps.push({name:'Magnesium',form:'Magnesium glycinate 400mg',reason:'Supports over 300 enzymatic processes including hormone production. Glycinate form is better absorbed and gentler on the stomach than oxide.'});
+      supps.push({name:'Vitamin D3 + K2',form:'Vitamin D3 5000 IU + K2 (MK-7) 100mcg',reason:'Most people are deficient. Vitamin D is crucial for hormone production, immune function, and bone health. K2 ensures calcium goes to bones, not arteries.'});
+    }
+    if(recScore<70){
+      supps.push({name:'Magnesium L-Threonate',form:'Magnesium L-threonate 2000mg',reason:'The only form of magnesium shown to cross the blood-brain barrier. Supports sleep quality, relaxation, and cognitive function.'});
+      supps.push({name:'L-Theanine',form:'L-Theanine 200mg',reason:'Amino acid found in tea that promotes relaxation without drowsiness. Helps reduce stress and improve sleep onset.'});
+    }
+    if(cardioScore<70||hasCardioFamily){
+      supps.push({name:'Omega-3 Fish Oil',form:'EPA 1000mg + DHA 500mg (triglyceride form)',reason:'Supports heart health, reduces inflammation, and improves lipid markers. Triglyceride form is better absorbed than ethyl ester.'});
+      supps.push({name:'CoQ10',form:'Ubiquinol (CoQ10) 200mg',reason:'Essential for heart muscle energy production. Levels decline with age and are further depleted by statin medications.'});
+    }
+    if(boneScore<70||hasBoneFamily){
+      supps.push({name:'Calcium',form:'Calcium citrate 500mg (split doses)',reason:'Citrate form is better absorbed than carbonate, especially in older adults. Split dosing improves absorption.'});
+      supps.push({name:'Vitamin D3 + K2',form:'Vitamin D3 5000 IU + K2 (MK-7) 100mcg',reason:'Critical for calcium absorption and bone mineralization. K2 directs calcium into bones and teeth rather than soft tissues.'});
+      supps.push({name:'Collagen Peptides',form:'Hydrolyzed collagen peptides 10g',reason:'Supports joint cartilage, bone matrix, and connective tissue. Studies show improvement in joint pain and bone density.'});
+    }
+    if(age>=13&&age<=24){
+      supps.push({name:'Multivitamin',form:'High-quality whole-food multivitamin',reason:'Young adults often have nutritional gaps from inconsistent eating. A comprehensive multivitamin covers baseline micronutrient needs.'});
+      supps.push({name:'Iron',form:'Iron bisglycinate 25mg (if deficient)',reason:'Iron deficiency is common in teens and young adults, especially females. Bisglycinate form minimizes digestive side effects. Get tested before supplementing.'});
+    }
+    // Deduplicate by name
+    var seen={}, uniqueSupps=[];
+    supps.forEach(function(s){ if(!seen[s.name]){seen[s.name]=true;uniqueSupps.push(s);} });
+
+    if(uniqueSupps.length>0){
+      var suppHtml='';
+      uniqueSupps.forEach(function(s){
+        suppHtml+='<div class="supp-card"><div class="supp-name">'+s.name+'</div><div class="supp-reason">'+s.reason+'</div><div class="supp-form">Recommended form: '+s.form+'</div></div>';
+      });
+      document.getElementById('suppCards').innerHTML=suppHtml;
+      document.getElementById('suppSection').style.display='block';
+    }
+
     if(window._ga) window._ga('tool_used',{tool_name:'assessment_quiz',overall_score:overall.toString(),weakest_domain:domains.reduce(function(a,b){return a.score<=b.score?a:b}).name});
 
     var lowest=domains.reduce(function(a,b){return a.score<=b.score?a:b});
-    var specialistConcern=lowest.name==='Metabolic Health'?'metabolic':lowest.name==='Hormonal Health'?'hormones':'sleep';
-    if(metScore<60||hormScore<60||recScore<60){
-      var ctx='overall:'+overall+';metabolic:'+metScore+';hormones:'+hormScore+';sleep-recovery:'+recScore;
+    var specialistConcern=lowest.name==='Metabolic Health'?'metabolic':lowest.name==='Hormonal Health'?'hormones':lowest.name==='Cardiovascular Health'?'cardiovascular':lowest.name==='Bone & Joint Health'?'bone-health':'sleep';
+    if(metScore<60||hormScore<60||recScore<60||cardioScore<60||boneScore<60){
+      var ctx='overall:'+overall+';metabolic:'+metScore+';hormones:'+hormScore+';sleep-recovery:'+recScore+';cardiovascular:'+cardioScore+';bone:'+boneScore;
       var href='/book?concern='+encodeURIComponent(specialistConcern)+'&source=assessment-quiz&result_context='+encodeURIComponent(ctx);
       document.getElementById('specialistCtaLink').setAttribute('href',href);
       document.getElementById('specialistCta').classList.add('active');
@@ -454,6 +723,14 @@
       links.push({href:'/guides/recovery',label:'Guide',title:'Sleep & Recovery Guide'});
       links.push({href:'/tools/sleep-score',label:'Tool',title:'Sleep Recovery Score'});
       links.push({href:'/chronic-fatigue',label:'Article',title:'Chronic Fatigue: Root Causes'});
+    }
+    if(cardioScore<70){
+      links.push({href:'/guides/heart-health',label:'Guide',title:'Heart Health Guide'});
+      links.push({href:'/tools/heart-risk',label:'Tool',title:'Cardiovascular Risk Calculator'});
+    }
+    if(boneScore<70){
+      links.push({href:'/guides/bone-health',label:'Guide',title:'Bone Health Guide'});
+      links.push({href:'/osteoporosis',label:'Article',title:'Osteoporosis Prevention & Treatment'});
     }
     if(links.length===0){
       links.push({href:'/guides',label:'Guides',title:'All Health Guides'});
