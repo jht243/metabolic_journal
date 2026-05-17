@@ -74,8 +74,8 @@ class Settings(BaseSettings):
 
     # ── SEO / Site Identity ─────────────────────────────────────────
     site_url: str = "https://themetabolicjournal.com"
-    site_name: str = "Metabolic Health"
-    site_owner_org: str = "Metabolic Health"
+    site_name: str = "The Metabolic Journal"
+    site_owner_org: str = "The Metabolic Journal"
     site_locale: str = "en_US"
 
     @property

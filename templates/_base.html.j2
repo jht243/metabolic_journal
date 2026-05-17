@@ -12,17 +12,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   {% set _seo = seo|default({}) %}
-  <title>{{ _seo.title|default(site_name|default('REPLACE_ME_SITE_NAME')) }}</title>
+  {% set _site_name = site_name|default('The Metabolic Journal') %}
+  {% set _site_url = site_url|default('https://themetabolicjournal.com') %}
+  {% set _site_icon = _site_url ~ '/static/site-icon-512.png' %}
+  <title>{{ _seo.title|default(_site_name) }}</title>
   <meta name="description" content="{{ _seo.description|default('') }}">
   {% if _seo.keywords %}<meta name="keywords" content="{{ _seo.keywords }}">{% endif %}
-  <meta name="author" content="{{ _seo.site_name|default(site_name|default('REPLACE_ME_SITE_NAME')) }}">
+  <meta name="author" content="{{ _seo.site_name|default(_site_name) }}">
+  <meta name="application-name" content="{{ _site_name }}">
+  <meta name="apple-mobile-web-app-title" content="{{ _site_name }}">
+  <meta name="theme-color" content="#0c1f3f">
   <meta name="robots" content="{{ _seo.robots|default('index, follow, max-image-preview:large, max-snippet:-1') }}">
   <link rel="canonical" href="{{ _seo.canonical|default('') }}">
   <link rel="alternate" hreflang="en" href="{{ _seo.canonical|default('') }}">
   <link rel="alternate" hreflang="x-default" href="{{ _seo.canonical|default('') }}">
+  <link rel="icon" href="/static/favicon.ico" sizes="any">
+  <link rel="icon" href="/static/site-icon.svg" type="image/svg+xml">
+  <link rel="icon" href="/static/site-icon-48.png" type="image/png" sizes="48x48">
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png" sizes="180x180">
+  <link rel="manifest" href="/static/site.webmanifest">
 
   <meta property="og:type" content="{{ _seo.og_type|default('website') }}">
-  <meta property="og:site_name" content="{{ _seo.site_name|default(site_name|default('REPLACE_ME_SITE_NAME')) }}">
+  <meta property="og:site_name" content="{{ _seo.site_name|default(_site_name) }}">
   <meta property="og:locale" content="{{ _seo.locale|default('en_US') }}">
   <meta property="og:url" content="{{ _seo.canonical|default('') }}">
   <meta property="og:title" content="{{ _seo.title|default('') }}">
@@ -45,6 +56,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 
+  <script type="application/ld+json">{{ {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": _site_name,
+    "alternateName": "Metabolic Journal",
+    "url": _site_url
+  } | tojson | safe }}</script>
+  <script type="application/ld+json">{{ {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": _site_name,
+    "url": _site_url,
+    "logo": _site_icon
+  } | tojson | safe }}</script>
   {% if jsonld %}
   <script type="application/ld+json">{{ jsonld | safe }}</script>
   {% endif %}
@@ -74,8 +99,8 @@
     .top-nav { background-color: var(--h-navy); color: var(--white); padding: 12px 0; font-family: var(--font-sans); }
     .top-nav-inner { max-width: 1140px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
     .nav-brand { font-family: var(--font-serif); font-size: 1.25rem; font-weight: 700; letter-spacing: 0.3px; color: var(--white); text-decoration: none; display: flex; align-items: center; gap: 10px; line-height: 1; }
-    .nav-brand .brand-icon { width: 28px; height: 28px; background: var(--h-teal); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .nav-brand .brand-icon svg { width: 16px; height: 16px; fill: var(--white); }
+    .nav-brand .brand-icon { width: 30px; height: 30px; background: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .nav-brand .brand-icon svg { width: 22px; height: 22px; display: block; }
     .nav-links { display: flex; align-items: center; gap: 22px; font-size: 0.82rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; line-height: 1; }
     .nav-links a { color: var(--white); text-decoration: none; transition: opacity 0.2s; display: inline-flex; align-items: center; }
     .nav-links a:hover { opacity: 0.8; }
@@ -247,9 +272,16 @@
   <div class="top-nav-inner">
     <a class="nav-brand" href="/">
       <span class="brand-icon">
-        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+        <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <g fill="none" stroke="#1264b0" stroke-width="30" stroke-linejoin="round">
+            <path d="M118 112h86c53 0 96 43 96 96v22h-86c-53 0-96-43-96-96z"/>
+            <path d="M394 112h-86c-53 0-96 43-96 96v22h86c53 0 96-43 96-96z"/>
+            <path d="M118 400h86c53 0 96-43 96-96v-22h-86c-53 0-96 43-96 96z"/>
+            <path d="M394 400h-86c-53 0-96-43-96-96v-22h86c53 0 96 43 96 96z"/>
+          </g>
+        </svg>
       </span>
-      {{ site_name|default('REPLACE_ME_SITE_NAME') }}
+      {{ _site_name }}
     </a>
     <button type="button" class="nav-toggle" aria-label="Open menu" aria-expanded="false" aria-controls="primary-nav">
       <span class="nav-toggle-bar"></span>
@@ -307,7 +339,7 @@
 {% endblock %}
 
 <footer class="site-footer">
-  &copy; {{ current_year|default(2026) }} {{ site_name|default('REPLACE_ME_SITE_NAME') }} ·
+  &copy; {{ current_year|default(2026) }} {{ _site_name }} ·
   <a href="/about">About</a>
   <a href="/programs">Programs</a>
   <a href="/faq">FAQ</a>
