@@ -286,6 +286,7 @@
         <label><input type="checkbox" value="Unrefreshed"><span>Wake up unrefreshed</span></label>
         <label><input type="checkbox" value="Night sweats"><span>Night sweats</span></label>
         <label><input type="checkbox" value="Snoring"><span>Snoring / breathing pauses</span></label>
+        <label><input type="checkbox" value="Frequent colds"><span>Frequent colds</span></label>
       </div>
     </div>
 
@@ -569,9 +570,12 @@
     var stressVal=parseInt(radioVal('stress'))||0;
 
     var familyHistory=checked('#family-history-group input');
+    var symptoms=checked('.step[data-s="1"] input[type="checkbox"]');
     var hasCardioFamily=familyHistory.indexOf('Heart disease')!==-1||familyHistory.indexOf('High blood pressure family')!==-1||familyHistory.indexOf('Stroke')!==-1||familyHistory.indexOf('High cholesterol family')!==-1;
     var hasDiabetesFamily=familyHistory.indexOf('Diabetes')!==-1;
     var hasBoneFamily=familyHistory.indexOf('Osteoporosis')!==-1;
+    var hasCancerFamily=familyHistory.indexOf('Cancer')!==-1;
+    var hasFrequentColds=symptoms.indexOf('Frequent colds')!==-1;
 
     var metScore=Math.max(0,100-metabolicSymptoms*12-Math.max(0,2-exercise)*8);
     if(hasDiabetesFamily) metScore=Math.max(0,metScore-8);
@@ -651,6 +655,8 @@
     if(exercise<1) recs.push('Even 3 sessions of 30-minute walks per week significantly improve insulin sensitivity and hormone levels');
     if(hasDiabetesFamily) recs.push('With diabetes in your family history, regular fasting insulin and glucose monitoring is especially important for early detection');
     if(hasCardioFamily) recs.push('Family history of cardiovascular disease increases your risk — proactive screening with advanced lipid markers is recommended');
+    if(hasCancerFamily) recs.push('Family history of cancer is worth discussing with your clinician so screening timing, genetics, and lifestyle risk factors can be personalized');
+    if(hasFrequentColds) recs.push('Frequent colds can signal immune strain or nutrient gaps — check vitamin D, CBC with differential, zinc status, sleep quality, and chronic stress load');
     if(recs.length===0) recs.push('Your profile looks strong — maintain current habits and retest annually');
 
     var recHtml='';
@@ -670,6 +676,11 @@
     if(recScore<70){
       supps.push({name:'Magnesium L-Threonate',form:'Magnesium L-threonate 2000mg',reason:'The only form of magnesium shown to cross the blood-brain barrier. Supports sleep quality, relaxation, and cognitive function.'});
       supps.push({name:'L-Theanine',form:'L-Theanine 200mg',reason:'Amino acid found in tea that promotes relaxation without drowsiness. Helps reduce stress and improve sleep onset.'});
+    }
+    if(hasFrequentColds){
+      supps.push({name:'Vitamin D3 + K2',form:'Vitamin D3 5000 IU + K2 (MK-7) 100mcg',reason:'Vitamin D supports innate immune defense and is commonly low. Test 25-OH vitamin D and dose to maintain an optimal range rather than guessing long-term.'});
+      supps.push({name:'Zinc',form:'Zinc picolinate 15-30mg',reason:'Zinc supports immune cell signaling and mucosal defenses. Use moderate doses and avoid long-term high-dose zinc without copper monitoring.'});
+      supps.push({name:'Vitamin C',form:'Vitamin C 500-1000mg',reason:'Supports antioxidant defenses and immune cell function, especially during periods of high stress, poor sleep, or frequent upper-respiratory infections.'});
     }
     if(cardioScore<70||hasCardioFamily){
       supps.push({name:'Omega-3 Fish Oil',form:'EPA 1000mg + DHA 500mg (triglyceride form)',reason:'Supports heart health, reduces inflammation, and improves lipid markers. Triglyceride form is better absorbed than ethyl ester.'});
