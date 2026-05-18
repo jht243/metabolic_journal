@@ -1413,28 +1413,38 @@ _PROGRAM_DATA = {
     "hormones": {
         "name": "Hormone Health Guide",
         "slug": "hormones",
-        "description": "Learn how testosterone, estrogen, thyroid, and cortisol work together — and what to do when they don't. Covers lab testing, optimal ranges, common misdiagnoses, and evidence-based approaches. Grounded in Endocrine Society guidelines.",
+        "description": "Understand what hormones do, how testosterone, estrogen, thyroid, and cortisol affect daily health, and when symptoms may deserve a closer medical look.",
         "body_html": """
 <h2>Understanding Your Hormones: The Master Regulators of Health</h2>
 
-<p>Hormones are chemical messengers that regulate nearly every physiological process in your body — from metabolism and mood to muscle mass, bone density, and cognitive function. When even one hormone drifts outside its optimal range, the downstream effects can be profound, often mimicking other conditions and leading to years of misdiagnosis.</p>
+<p>Hormones are substances made by organs called endocrine glands. Each hormone helps regulate one or more processes in the body: insulin helps regulate blood sugar, thyroid hormones help regulate energy and metabolism, and testosterone supports libido, muscle, bone, mood, and immune function.</p>
+
+<p>Hormones need to be present in the right amounts. Too much or too little can cause symptoms, so the body uses feedback systems to adjust hormone production up or down. This guide starts with the basics, then moves into the deeper details — lab testing, free versus bound hormones, optimal ranges, and common treatment decisions.</p>
+
+<h3>Start With the Big Picture</h3>
+
+<ul>
+<li><strong>Male hormones:</strong> Testosterone and related androgens — hormones in the testosterone family — affect sex drive, erectile function, muscle mass, bone strength, mood, red blood cell production, and immune function.</li>
+<li><strong>Female hormones:</strong> Estrogen, progesterone, and testosterone affect menstrual cycles, fertility, libido, mood, sleep, bone density, muscle, and the menopause transition.</li>
+<li><strong>Thyroid hormones:</strong> T4 and T3 affect energy, body temperature, heart rate, digestion, hair and skin, mood, and how quickly cells use fuel.</li>
+</ul>
 
 <p>This guide provides a comprehensive, evidence-based framework for understanding hormone health. Whether you're a man experiencing unexplained fatigue, a woman navigating perimenopause, or anyone trying to decode confusing lab results, you'll find actionable information grounded in current endocrinology research and clinical guidelines from the Endocrine Society, the American Thyroid Association (ATA), and the North American Menopause Society (NAMS).</p>
 
 <blockquote>
-<p><strong>Key insight:</strong> Hormones don't operate in isolation. Thyroid dysfunction affects testosterone. Cortisol dysregulation impairs thyroid conversion. SHBG changes alter how much testosterone and estrogen are bioavailable. Understanding these connections is what separates effective treatment from symptom chasing.</p>
+<p><strong>Key insight:</strong> Hormones do not operate in isolation. Thyroid problems can affect testosterone. Stress hormones can affect thyroid signaling. Sex hormone-binding globulin (SHBG), a liver-made carrier protein, changes how much testosterone and estrogen are bioavailable — meaning available for tissues to use. Understanding these connections is what separates effective treatment from symptom chasing.</p>
 </blockquote>
 
 <h2>Signs of Low Testosterone in Men</h2>
 
-<p>Testosterone deficiency (hypogonadism) affects an estimated 20-40% of men over 45, yet the majority remain undiagnosed. The Endocrine Society's 2018 clinical practice guidelines define testosterone deficiency as total testosterone consistently below 300 ng/dL combined with symptoms — but many men experience meaningful symptoms well above this threshold.</p>
+<p>Testosterone is the best-known androgen, a family of hormones involved in male sexual development and many adult functions in both men and women. Testosterone deficiency (hypogonadism) affects an estimated 20-40% of men over 45, yet the majority remain undiagnosed. The Endocrine Society's 2018 clinical practice guidelines define testosterone deficiency as total testosterone consistently below 300 ng/dL combined with symptoms — but many men experience meaningful symptoms well above this threshold.</p>
 
 <h3>Classic Symptoms of Low Testosterone</h3>
 
 <ul>
 <li><strong>Fatigue and reduced vitality</strong> — not just tiredness, but a pervasive lack of drive and energy that doesn't improve with sleep</li>
 <li><strong>Reduced muscle mass and strength</strong> — difficulty maintaining muscle despite consistent training</li>
-<li><strong>Increased body fat</strong> — particularly visceral abdominal fat, which further suppresses testosterone via aromatase activity</li>
+<li><strong>Increased body fat</strong> — particularly visceral abdominal fat, where aromatase, an enzyme that can convert testosterone into estrogen, can further suppress testosterone balance</li>
 <li><strong>Low libido and erectile dysfunction</strong> — often the symptom that finally prompts testing</li>
 <li><strong>Cognitive decline</strong> — brain fog, difficulty concentrating, impaired memory</li>
 <li><strong>Mood changes</strong> — irritability, depressed mood, reduced motivation</li>
@@ -1444,30 +1454,32 @@ _PROGRAM_DATA = {
 
 <h3>Why Total Testosterone Alone Is Misleading</h3>
 
-<p>Approximately 98% of circulating testosterone is bound — either tightly to sex hormone-binding globulin (SHBG) or loosely to albumin. Only free testosterone (about 2-3% of total) is bioavailable and able to activate androgen receptors. A man with a total testosterone of 550 ng/dL but elevated SHBG may have less bioavailable testosterone than someone with a total of 400 ng/dL and low SHBG.</p>
+<p>Approximately 98% of circulating testosterone is bound — either tightly to sex hormone-binding globulin (SHBG) or loosely to albumin. Only free testosterone (about 2-3% of total) is bioavailable, meaning available for tissues to use. It works by activating androgen receptors, which are docking sites on cells that respond to testosterone and related hormones. A man with a total testosterone of 550 ng/dL but elevated SHBG may have less bioavailable testosterone than someone with a total of 400 ng/dL and low SHBG.</p>
 
 <div class="callout-box">
 <h3>Action Step: The Minimum Male Hormone Panel</h3>
-<p>Request these labs (drawn between 7-10 AM, fasting): Total testosterone, free testosterone (equilibrium dialysis, not analog), SHBG, estradiol (sensitive assay), LH, FSH, prolactin, and a CBC. This distinguishes primary (testicular) from secondary (pituitary) hypogonadism and identifies aromatization issues.</p>
+<p>Request these labs (drawn between 7-10 AM, fasting): Total testosterone, free testosterone (equilibrium dialysis, not analog), SHBG, estradiol (sensitive assay), LH, FSH, prolactin, and a CBC. This distinguishes primary (testicular) from secondary (pituitary) hypogonadism and identifies aromatization issues, where testosterone is being converted into estradiol.</p>
 </div>
 
 <h3>Testosterone in Women</h3>
 
-<p>Women produce testosterone too — about 1/10th to 1/20th of male levels — and it plays critical roles in libido, energy, bone density, and cognitive function. Testosterone deficiency in women is vastly underdiagnosed because most standard panels don't include it, and the reference ranges used by many labs are unreliable at low concentrations.</p>
+<p>Women need testosterone for many of the same reasons men do: muscle mass, bone strength, libido, immune function, mood, energy, and cognitive function. Low testosterone in women can be missed because many standard panels do not include it, and measuring low female levels accurately requires the right assay and an experienced clinician.</p>
 
-<p>Optimal total testosterone for premenopausal women is typically 15-70 ng/dL, with free testosterone of 1.0-6.5 pg/mL. Post-menopausal women who report loss of libido, persistent fatigue, or loss of muscle tone despite adequate estrogen therapy may benefit from testosterone assessment using a sensitive assay (LC-MS/MS).</p>
+<p>The specific numbers matter less for most readers than the principle: testing should be interpreted in context, with symptoms, menstrual or menopause status, medications, and assay quality all considered. Post-menopausal women who report loss of libido, persistent fatigue, or loss of muscle tone despite adequate estrogen therapy may benefit from testosterone assessment using a sensitive assay (LC-MS/MS).</p>
 
 <h2>Thyroid Problems: Why TSH Alone Isn't Enough</h2>
 
-<p>Thyroid dysfunction is one of the most common — and most commonly missed — endocrine disorders. The standard screening approach of testing only TSH (thyroid-stimulating hormone) misses a significant percentage of thyroid problems because it assumes that the hypothalamic-pituitary-thyroid axis is functioning normally and that T4-to-T3 conversion is adequate.</p>
+<p>Thyroid dysfunction is one of the most common — and most commonly missed — endocrine disorders. Hypothyroidism means the body does not have enough active thyroid hormone for its needs, most often because the thyroid gland is not producing enough hormone. Worldwide, iodine deficiency is the leading cause; in the United States and other iodine-sufficient regions, Hashimoto's thyroiditis — an autoimmune condition that slowly damages thyroid cells — is the leading cause.</p>
+
+<p>The standard screening approach of testing only TSH (thyroid-stimulating hormone) can still miss some thyroid problems because it assumes that the hypothalamic-pituitary-thyroid axis is functioning normally and that the body is converting and using thyroid hormone appropriately.</p>
 
 <h3>Understanding Thyroid Physiology</h3>
 
-<p>The thyroid gland produces primarily T4 (thyroxine), which is a storage hormone. T4 must be converted to T3 (triiodothyronine) — the active form — by deiodinase enzymes in peripheral tissues. This conversion requires adequate selenium, zinc, and iron, and is impaired by cortisol excess, inflammation, caloric restriction, and certain medications.</p>
+<p>The thyroid gland produces primarily T4 (thyroxine), along with smaller amounts of T3 (triiodothyronine). T4 is often described as a storage hormone because much of it must be converted to T3 — the more active form — by deiodinase enzymes in peripheral tissues. This conversion is not the main cause of most hypothyroidism, but it can influence symptoms and lab patterns. It requires adequate selenium, zinc, and iron, and can be impaired by cortisol excess, inflammation, caloric restriction, and certain medications.</p>
 
 <h3>When TSH Is Normal But You Still Feel Hypothyroid</h3>
 
-<p>Several clinical scenarios produce hypothyroid symptoms despite a "normal" TSH (0.45-4.5 mIU/L on most lab ranges):</p>
+<p>Several clinical scenarios can produce hypothyroid symptoms despite a "normal" TSH (0.45-4.5 mIU/L on most lab ranges). These are not the most common causes of hypothyroidism, but they are reasons a symptomatic patient may need more than a TSH-only screen:</p>
 
 <ul>
 <li><strong>Poor T4-to-T3 conversion</strong> — TSH may be normal because T4 is adequate, but active T3 is low</li>
@@ -1987,32 +1999,32 @@ _PROGRAM_DATA = {
 </blockquote>
 """,
         "targets": [
-            "Low testosterone (men: fatigue, reduced muscle mass, low libido, erectile dysfunction)",
-            "Thyroid dysfunction (hypothyroidism symptoms: fatigue, weight gain, cold intolerance, brain fog, hair loss)",
-            "Cortisol dysregulation (anxiety, insomnia, weight gain, impaired stress recovery)",
-            "Perimenopause symptoms (hot flashes, night sweats, mood changes, irregular periods — affects women typically starting in mid-40s)",
-            "Menopause-related changes (vasomotor symptoms affect ~80% of women)",
+            "Low testosterone symptoms in men: fatigue, reduced muscle mass, low libido, and erectile dysfunction",
+            "Thyroid symptoms such as fatigue, weight gain, cold intolerance, brain fog, and hair loss",
+            "Cortisol rhythm problems linked with anxiety, insomnia, weight gain, and poor stress recovery",
+            "Perimenopause symptoms such as hot flashes, night sweats, mood changes, and irregular periods",
+            "Menopause-related changes in sleep, temperature regulation, bone health, and body composition",
             "Low libido and sexual dysfunction in men and women",
             "Brain fog and cognitive changes linked to hormonal shifts",
         ],
         "process": [
-            "How hormones interact — the thyroid-cortisol-testosterone axis explained",
-            "The full hormone panel: total/free testosterone, estradiol, DHEA-S, SHBG, TSH, free T3/T4, cortisol, FSH, LH",
+            "How major hormone systems affect one another — explained in plain language before the technical details",
+            "Which hormone labs doctors may use for testosterone, thyroid, cortisol, estrogen, progesterone, and SHBG",
             "Why single-marker screening (TSH alone, total testosterone alone) misses dysfunction",
-            "Optimal vs. standard reference ranges — age-adjusted and gender-specific",
+            "How to think about normal vs. optimal ranges without getting lost in units",
             "Evidence-based approaches: lifestyle, nutrition, supplementation, and when HRT makes sense",
             "How to find the right endocrinologist or hormone specialist",
         ],
         "biomarkers": [
-            "Total testosterone (men optimal 500-900 ng/dL; women 15-70 ng/dL)",
-            "Free testosterone (men optimal 9-25 pg/mL; often low even when total is 'normal')",
-            "Estradiol / E2 (varies by menstrual phase; postmenopause <30 pg/mL)",
-            "TSH (optimal 1.0-2.5 mIU/L; standard range 0.4-4.5 but subclinical hypothyroidism often missed)",
-            "Free T3 (optimal 3.0-4.0 pg/mL; the active thyroid hormone)",
-            "Free T4 (optimal 1.1-1.5 ng/dL)",
-            "DHEA-S (age-dependent; declines ~2-3% per year after age 30)",
-            "SHBG (Sex Hormone Binding Globulin — high SHBG reduces bioavailable testosterone)",
-            "AM Cortisol (optimal 10-18 μg/dL morning; low suggests adrenal insufficiency, high suggests chronic stress response)",
+            "Total testosterone (overall testosterone production)",
+            "Free testosterone (the portion available for tissues to use)",
+            "Estradiol / E2 (a primary estrogen; interpretation varies by cycle phase and menopause status)",
+            "TSH (the pituitary signal asking the thyroid to make hormone)",
+            "Free T3 (the more active thyroid hormone)",
+            "Free T4 (the main hormone produced by the thyroid gland)",
+            "DHEA-S (an adrenal androgen precursor)",
+            "SHBG (Sex Hormone Binding Globulin — affects how much sex hormone is available to tissues)",
+            "AM Cortisol (a morning snapshot of the stress-hormone system)",
         ],
         "who_for": [
             "Unexplained fatigue not resolved by improving sleep or nutrition",
@@ -2026,7 +2038,7 @@ _PROGRAM_DATA = {
         "faq": [
             {"q": "Is this about hormone replacement therapy (HRT)?", "a": "Not exclusively. This guide covers the full picture — from understanding your lab results to lifestyle interventions to when HRT may be appropriate. We explain the evidence for and against HRT so you can have an informed conversation with your doctor."},
             {"q": "Is this relevant for both men and women?", "a": "Yes. Hormone panels and optimal ranges are gender-specific, and the guide covers both. Men's sections emphasize testosterone, SHBG, and estradiol. Women's sections include estradiol, progesterone, FSH, and menstrual cycle timing."},
-            {"q": "My doctor tested TSH and said my thyroid is fine. Could something still be off?", "a": "Yes. TSH alone misses subclinical thyroid dysfunction. A complete thyroid picture requires TSH plus free T3 and free T4. You can have a 'normal' TSH with low free T3 — a common cause of fatigue and weight gain that standard screening misses."},
+            {"q": "My doctor tested TSH and said my thyroid is fine. Could something still be off?", "a": "Yes. TSH alone can miss some thyroid patterns. A fuller thyroid picture often includes TSH plus free T4, free T3, and thyroid antibodies. Most hypothyroidism comes from low thyroid gland output — worldwide often iodine deficiency, and in the U.S. often Hashimoto's thyroiditis — but some symptomatic patients also have conversion or medication-related issues that a TSH-only screen may not clarify."},
             {"q": "Do I need to see a doctor after reading this?", "a": "It depends on what you find. The guide helps you understand what's normal, what's optimal, and what may need medical attention. If your symptoms are significant, we recommend connecting with a specialist — and we can help match you with one."},
         ],
     },
