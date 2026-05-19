@@ -283,12 +283,63 @@ _LANDING_SEO_OVERRIDES = {
             "storage, and mistakes to avoid."
         ),
     },
+    "/faq/are-peptides-legal": {
+        "title": "Are Peptides Legal? FDA Status & Access Rules",
+        "description": (
+            "Plain-English peptide legality guide covering FDA status, "
+            "prescriptions, compounding pharmacies, research chemicals, "
+            "and what access rules mean for patients."
+        ),
+    },
+    "/lab-testing": {
+        "title": "Lab Testing Guide: Hormones, Metabolic Markers & Ranges",
+        "description": (
+            "Lab testing guide for hormones, metabolic health, inflammation, "
+            "thyroid markers, blood sugar, and optimal vs normal ranges."
+        ),
+    },
     "/biomarkers/cortisol-levels": {
         "title": "Cortisol Levels: Normal Range Chart, Symptoms & Testing",
         "description": (
             "Cortisol levels guide with normal ranges, AM vs PM testing, "
             "high and low cortisol symptoms, saliva vs blood vs urine tests, "
             "and what results mean."
+        ),
+    },
+    "/biomarkers/bone-density-t-score": {
+        "title": "Bone Density T-Score Chart: Osteopenia & Osteoporosis",
+        "description": (
+            "Bone density T-score chart explaining normal bone density, "
+            "osteopenia, osteoporosis, DEXA results, fracture risk, and "
+            "when to retest."
+        ),
+    },
+    "/biomarkers/crp-levels": {
+        "title": "CRP Levels: Normal Range, High CRP & Inflammation",
+        "description": (
+            "CRP levels guide with normal and high ranges, hs-CRP testing, "
+            "inflammation causes, cardiovascular risk, and what results mean."
+        ),
+    },
+    "/biomarkers/iron-levels": {
+        "title": "Iron Levels: Ferritin, Serum Iron & Normal Ranges",
+        "description": (
+            "Iron levels guide covering ferritin, serum iron, transferrin "
+            "saturation, anemia patterns, high iron, low iron, and testing."
+        ),
+    },
+    "/biomarkers/vitamin-d-levels": {
+        "title": "Vitamin D Levels Chart: Deficiency, Normal & Optimal",
+        "description": (
+            "Vitamin D levels chart explaining deficiency, insufficiency, "
+            "normal and optimal ranges, testing, symptoms, dosage, and retesting."
+        ),
+    },
+    "/biomarkers/free-testosterone": {
+        "title": "Free Testosterone Levels: Normal Ranges & Symptoms",
+        "description": (
+            "Free testosterone guide with normal ranges, symptoms of low free T, "
+            "SHBG context, testing, and how free T differs from total testosterone."
         ),
     },
     "/biomarkers/testosterone-by-age": {
@@ -355,12 +406,69 @@ _LANDING_SEO_OVERRIDES = {
             "— efficacy, safety, cost, and access."
         ),
     },
+    "/compare/tesamorelin-vs-sermorelin": {
+        "title": "Tesamorelin vs Sermorelin: Benefits, Risks & Cost",
+        "description": (
+            "Compare tesamorelin and sermorelin by FDA status, GH mechanism, "
+            "visceral-fat evidence, anti-aging claims, side effects, and cost."
+        ),
+    },
+    "/compare/sarms-vs-peptides": {
+        "title": "SARMs vs Peptides: Safety, Legality & Results Compared",
+        "description": (
+            "SARMs vs peptides comparison covering mechanisms, legality, "
+            "safety risks, muscle growth, fat loss, recovery, and which claims "
+            "are evidence-based."
+        ),
+    },
     "/peptides/ghrp": {
         "title": "GHRP Peptides Compared: GHRP-2, GHRP-6, Ipamorelin",
         "description": (
             "Compare GHRP peptides including GHRP-2, GHRP-6, hexarelin, "
             "and ipamorelin by GH release, appetite effects, cortisol, "
             "prolactin, dosing, and safety."
+        ),
+    },
+    "/peptides/collagen": {
+        "title": "Collagen Peptides: Benefits, Dosage & Evidence",
+        "description": (
+            "Collagen peptides guide covering skin, joints, tendons, bone "
+            "health, dosing, types of collagen, RCT evidence, and safety."
+        ),
+    },
+    "/peptides/epithalon": {
+        "title": "Epithalon Peptide: Longevity Evidence, Risks & Dosage",
+        "description": (
+            "Epithalon peptide guide covering telomere and longevity claims, "
+            "human and animal evidence, dosing ranges, safety risks, and access."
+        ),
+    },
+    "/peptides/healing": {
+        "title": "Peptides for Healing: BPC-157, TB-500 & Recovery",
+        "description": (
+            "Compare healing peptides including BPC-157, TB-500, and related "
+            "recovery protocols by mechanism, injury use cases, evidence, and risks."
+        ),
+    },
+    "/peptides/ipamorelin": {
+        "title": "Ipamorelin Peptide: Benefits, Dosage, Risks & Results",
+        "description": (
+            "Ipamorelin peptide guide covering growth hormone release, benefits, "
+            "dosage, side effects, lab monitoring, CJC-1295 stacks, and results."
+        ),
+    },
+    "/peptides/muscle-growth": {
+        "title": "Peptides for Muscle Growth: Best Options & Risks",
+        "description": (
+            "Peptides for muscle growth compared by evidence, GH/IGF-1 pathway, "
+            "recovery effects, safety risks, legal status, and realistic results."
+        ),
+    },
+    "/peptides/semax": {
+        "title": "Semax Peptide: Nootropic Benefits, Risks & Evidence",
+        "description": (
+            "Semax peptide guide covering focus, BDNF, neuroprotection claims, "
+            "research evidence, dosage ranges, safety risks, and access."
         ),
     },
     "/labs/blood-test-results": {
@@ -377,6 +485,41 @@ _LANDING_SEO_OVERRIDES = {
             "A1C test guide with normal, prediabetes, and diabetes ranges, "
             "estimated average glucose chart, symptoms, and evidence-based "
             "ways to lower A1C."
+        ),
+    },
+    "/labs/cbc-blood-test": {
+        "title": "CBC Blood Test: Normal Ranges, Markers & Abnormal Flags",
+        "description": (
+            "CBC blood test guide covering WBC, RBC, hemoglobin, hematocrit, "
+            "platelets, normal ranges, abnormal flags, and what results can mean."
+        ),
+    },
+    "/labs/comprehensive-metabolic-panel": {
+        "title": "Comprehensive Metabolic Panel: CMP Ranges & Results",
+        "description": (
+            "Comprehensive metabolic panel guide covering glucose, kidney, liver, "
+            "electrolyte, protein, calcium, and albumin markers with normal ranges."
+        ),
+    },
+    "/labs/thyroid-panel": {
+        "title": "Thyroid Panel: TSH, T3, T4, Antibodies & Ranges",
+        "description": (
+            "Thyroid panel guide explaining TSH, free T4, free T3, reverse T3, "
+            "thyroid antibodies, normal ranges, and symptoms."
+        ),
+    },
+    "/guides/bone-density-menopause": {
+        "title": "Bone Density After Menopause: Testing, Risks & Treatment",
+        "description": (
+            "Guide to bone density after menopause, including DEXA testing, "
+            "osteopenia and osteoporosis risks, exercise, nutrition, and treatment."
+        ),
+    },
+    "/guides/exercises-bone-density": {
+        "title": "Best Exercises for Bone Density: Strength, Impact & Safety",
+        "description": (
+            "Best exercises for bone density, including strength training, "
+            "impact work, balance, safety modifications, and what to avoid."
         ),
     },
     "/guides/calcium-rich-foods-bones": {
@@ -3544,12 +3687,12 @@ def _build_urlset(entries, lastmod_by_path: dict[str, str] | None = None) -> str
 
 
 def _default_sitemap_lastmod() -> str:
-    raw = os.getenv("SITEMAP_DEFAULT_LASTMOD", "2026-05-01").strip()
+    raw = os.getenv("SITEMAP_DEFAULT_LASTMOD", "2026-05-19").strip()
     try:
         return date.fromisoformat(raw).isoformat()
     except ValueError:
         logger.warning("sitemap: invalid SITEMAP_DEFAULT_LASTMOD=%r, using fallback", raw)
-        return "2026-05-01"
+        return "2026-05-19"
 
 
 def _to_sitemap_date(value, fallback: str | None = None) -> str:
@@ -3574,6 +3717,26 @@ def _to_sitemap_date(value, fallback: str | None = None) -> str:
 
 
 def _landing_page_lastmods() -> dict[str, str]:
+    lastmods: dict[str, str] = {}
+    try:
+        from scripts.generate_seo_pages import PAGES as _STATIC_PAGES
+
+        fallback = _default_sitemap_lastmod()
+        lastmods.update(
+            {
+                path: _to_sitemap_date(
+                    getattr(page, "reviewed_at", None) or fallback,
+                    fallback,
+                )
+                for path, page in _STATIC_PAGES.items()
+            }
+        )
+    except Exception as exc:
+        logger.warning("sitemap: could not load static landing page lastmods: %s", exc)
+
+    if os.getenv("SITEMAP_USE_DB_LASTMODS", "").strip().lower() not in {"1", "true", "yes"}:
+        return lastmods
+
     try:
         from src.models import LandingPage, SessionLocal, init_db
         init_db()
@@ -3588,18 +3751,19 @@ def _landing_page_lastmods() -> dict[str, str]:
                 )
                 .all()
             )
-            return {
+            lastmods.update({
                 (path or "").rstrip("/") or "/": _to_sitemap_date(
                     updated_at or last_generated_at or created_at
                 )
                 for path, updated_at, last_generated_at, created_at in rows
                 if path
-            }
+            })
+            return lastmods
         finally:
             db.close()
     except Exception as exc:
         logger.warning("sitemap: could not load landing page lastmod dates: %s", exc)
-        return {}
+        return lastmods
 
 
 def _with_lastmods(entries, lastmod_by_path: dict[str, str] | None = None):

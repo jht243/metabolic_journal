@@ -2925,7 +2925,7 @@ _register(
 <p><code>Injection volume (mL) × 100 = Units to draw on syringe</code></p>
 <p><strong>Step 1: Calculate your concentration</strong></p>
 <p><code>Total peptide in vial (mcg) ÷ BAC water added (mL) = Concentration (mcg/mL)</code></p>
-<h4>Worked Example 1: <a href="/peptides/bpc-157">BPC-157</a> 250 mcg dose</h4>
+<h3>Worked Example 1: <a href="/peptides/bpc-157">BPC-157</a> 250 mcg dose</h3>
 <ul>
 <li>Vial: 5 mg (5,000 mcg) BPC-157</li>
 <li>BAC water added: 2 mL</li>
@@ -2934,7 +2934,7 @@ _register(
 <li>Injection volume: 250 ÷ 2,500 = 0.1 mL</li>
 <li>Syringe units: 0.1 × 100 = <strong>10 units on insulin syringe</strong></li>
 </ul>
-<h4>Worked Example 2: Ipamorelin 200 mcg dose (from an <a href="/compare/cjc-1295-ipamorelin-stack">Ipamorelin + CJC-1295 stack</a>)</h4>
+<h3>Worked Example 2: Ipamorelin 200 mcg dose (from an <a href="/compare/cjc-1295-ipamorelin-stack">Ipamorelin + CJC-1295 stack</a>)</h3>
 <ul>
 <li>Vial: 2 mg (2,000 mcg) Ipamorelin</li>
 <li>BAC water added: 2 mL</li>
@@ -2943,7 +2943,7 @@ _register(
 <li>Injection volume: 200 ÷ 1,000 = 0.2 mL</li>
 <li>Syringe units: 0.2 × 100 = <strong>20 units on insulin syringe</strong></li>
 </ul>
-<h4>Worked Example 3: PT-141 (Bremelanotide) 1.75 mg dose</h4>
+<h3>Worked Example 3: PT-141 (Bremelanotide) 1.75 mg dose</h3>
 <ul>
 <li>Vial: 10 mg (10,000 mcg) PT-141</li>
 <li>BAC water added: 2 mL</li>
