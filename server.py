@@ -340,6 +340,39 @@ GZIP_MIME_PREFIXES = (
 GZIP_MIN_BYTES = 500
 
 
+@app.before_request
+def _serve_from_nav_cache():
+    """Serve cached HTML for static nav pages to reduce TTFB."""
+    path = _normalize_cache_path(request.path)
+    if path in _NAV_CACHE_PATHS and request.method == "GET":
+        cached = _serve_nav_page_cache(path)
+        if cached is not None:
+            return Response(cached, content_type="text/html; charset=utf-8")
+
+
+@app.after_request
+def _populate_nav_cache(response: Response) -> Response:
+    """Cache HTML responses for nav pages on first render."""
+    if request.method == "GET" and response.status_code == 200:
+        path = _normalize_cache_path(request.path)
+        if path in _NAV_CACHE_PATHS:
+            ct = (response.content_type or "").lower()
+            if "text/html" in ct and "Content-Encoding" not in response.headers:
+                _store_nav_page_cache(path, response.get_data(as_text=True))
+    return response
+
+
+@app.after_request
+def _static_cache_headers(response: Response) -> Response:
+    """Set long cache headers for immutable static assets (fonts, icons)."""
+    if request.path.startswith("/static/"):
+        if request.path.endswith((".woff2", ".woff", ".ttf")):
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        elif request.path.endswith((".ico", ".svg", ".png", ".webp")):
+            response.headers["Cache-Control"] = "public, max-age=604800"
+    return response
+
+
 @app.after_request
 def _gzip_response(response: Response) -> Response:
     """Gzip-compress eligible responses when the client advertises support."""
@@ -412,6 +445,7 @@ def _get_report_html() -> str | None:
 # ═══════════════════════════════════════════════════════════════════════
 
 _NAV_CACHE_PATHS = frozenset({
+    "/",
     "/briefing",
     "/programs",
     "/tools",
@@ -419,6 +453,8 @@ _NAV_CACHE_PATHS = frozenset({
     "/faq",
     "/about",
     "/pricing",
+    "/assessment",
+    "/how-it-works",
 })
 _NAV_PAGE_CACHE: dict[str, dict] = {}
 _NAV_PAGE_CACHE_TTL_SECONDS = 90
