@@ -88,6 +88,12 @@
     <span class="cluster-pill {{ page.cluster }}">{{ page.cluster|replace('_',' ')|title }}</span>
     {% endif %}
     <h1 style="font-family:var(--font-serif); font-size:36px; color:var(--h-navy); margin:12px 0 10px; line-height:1.2;">{{ page.title }}</h1>
+    {% if page.reviewed_by or page.reviewed_at %}
+    <p style="font-size:13px; color:var(--h-gray-text); margin:0 0 12px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+      {% if page.reviewed_by %}<span><strong style="color:var(--h-dark-text);">Medically reviewed</strong> by {{ page.reviewed_by }}</span>{% endif %}
+      {% if page.reviewed_at %}<span>Last reviewed {{ (page.reviewed_at|string)[:10] }}</span>{% endif %}
+    </p>
+    {% endif %}
     {% if page.subtitle %}
     <p style="font-family:var(--font-serif); font-style:italic; color:var(--h-gray-text); font-size:18px; margin-bottom:16px;">{{ page.subtitle }}</p>
     {% endif %}

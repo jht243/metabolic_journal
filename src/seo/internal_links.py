@@ -23,8 +23,12 @@ def _build_link_targets():
     # Map of keywords → path, sorted longest-first to prefer specific matches
     entries: list[tuple[str, str]] = []
 
+    selected_tool_targets = {"/tools/insulin-resistance-calculator"}
+
     for path, anchor in _ANCHOR.items():
-        if path.startswith("/tools/") or path.startswith("/programs/"):
+        if path.startswith("/programs/"):
+            continue
+        if path.startswith("/tools/") and path not in selected_tool_targets:
             continue
 
         slug = path.rstrip("/").split("/")[-1]
@@ -73,6 +77,13 @@ def _build_link_targets():
             "sleep-inertia": ["sleep inertia"],
             "brain-fog": ["brain fog"],
             "perimenopause": ["perimenopause"],
+            # Tools
+            "insulin-resistance-calculator": [
+                "insulin resistance calculator",
+                "HOMA-IR",
+                "TG/HDL ratio",
+                "triglyceride-to-HDL ratio",
+            ],
         }
 
         if slug in slug_phrases:

@@ -203,76 +203,100 @@ _LANDING_SEO_OVERRIDES = {
         ),
     },
     # ── CTR-optimized overrides for top-performing pages (May 2026 GSC data) ──
-    "/peptides/weight-loss": {
-        "title": "Best Peptides for Weight Loss in 2026 (Ranked)",
+    "/peptide-therapy": {
+        "title": "Peptide Therapy: Benefits, Safety, FDA Status & Costs",
         "description": (
-            "Evidence-based ranking of weight-loss peptides — from FDA-approved "
-            "semaglutide (14.9% avg loss) to research compounds. Compare mechanisms, "
-            "results, costs, and access."
+            "Learn what peptide therapy is, common benefits, safety risks, "
+            "FDA and legal status, typical costs, and what to ask before "
+            "starting treatment."
+        ),
+    },
+    "/peptides": {
+        "title": "Peptides: Types, Benefits, Safety & FDA Status",
+        "description": (
+            "Compare peptide types, potential benefits, safety concerns, "
+            "FDA status, legal access, and the evidence behind popular "
+            "options like GLP-1s and GH peptides."
+        ),
+    },
+    "/peptides/weight-loss": {
+        "title": "Peptides for Weight Loss: Which Ones Actually Work?",
+        "description": (
+            "Evidence-based weight-loss peptide guide comparing GLP-1s, "
+            "tesamorelin, AOD-9604, and GH peptide stacks by results, "
+            "safety, access, and cost."
         ),
     },
     "/peptides/aod-9604": {
-        "title": "AOD-9604 Peptide: Does It Work? (2026 Evidence Review)",
+        "title": "AOD-9604 Peptide: Evidence, Safety & Trial Failure",
         "description": (
-            "Honest AOD-9604 review: Phase III trial results, why it failed, "
-            "what the research actually shows, and which peptides work better "
-            "for fat loss. Updated for 2026."
+            "Honest AOD-9604 review covering weight-loss trial failures, "
+            "mechanism, safety concerns, current evidence, and better-studied "
+            "fat-loss alternatives."
         ),
     },
     "/peptides/igf-1-lr3": {
-        "title": "IGF-1 LR3: Mechanism, Dosing, Side Effects & Research Guide",
+        "title": "IGF-1 LR3 Peptide: Benefits, Risks & Evidence",
         "description": (
-            "Complete IGF-1 LR3 guide covering how it differs from standard IGF-1, "
-            "the research on muscle growth and fat loss, dosing protocols, "
-            "and important safety considerations."
+            "IGF-1 LR3 peptide guide covering potential benefits, serious "
+            "risks, research evidence, how it differs from standard IGF-1, "
+            "and safety considerations."
         ),
     },
     "/compare/cjc-1295-ipamorelin-stack": {
-        "title": "CJC-1295 + Ipamorelin Stack: Protocol & Results",
+        "title": "CJC-1295 + Ipamorelin Stack: Dose, Results & Side Effects",
         "description": (
-            "The #1 prescribed GH peptide stack explained — how CJC-1295 and "
-            "ipamorelin synergize for 2-5x more growth hormone, exact dosing "
-            "protocol, timing, and real-world results."
+            "CJC-1295 plus ipamorelin stack guide covering dosing, timing, "
+            "expected results, side effects, lab monitoring, and who should "
+            "avoid GH peptide therapy."
         ),
     },
     "/peptides/hgh": {
-        "title": "HGH Peptides vs Synthetic HGH: Complete Comparison Guide",
+        "title": "HGH Peptides: Ipamorelin, CJC-1295 & Sermorelin Compared",
         "description": (
-            "How growth hormone peptides (ipamorelin, sermorelin, CJC-1295) "
-            "compare to synthetic HGH — efficacy, safety, cost, legality, "
-            "and which approach is right for your goals."
+            "Compare HGH peptides including ipamorelin, CJC-1295, sermorelin, "
+            "and tesamorelin by mechanism, benefits, safety, cost, legality, "
+            "and access."
         ),
     },
     "/peptides/glp-1": {
-        "title": "GLP-1 Peptides Explained: Semaglutide, Tirzepatide & Beyond",
+        "title": "GLP-1 Peptides: Semaglutide, Tirzepatide & Retatrutide",
         "description": (
-            "How GLP-1 receptor agonists work for weight loss and metabolic health. "
-            "Compare semaglutide vs tirzepatide vs retatrutide — mechanisms, "
-            "results, and what's coming next."
+            "Compare GLP-1 peptides and medications including semaglutide, "
+            "tirzepatide, and retatrutide by weight-loss results, side effects, "
+            "mechanism, and access."
         ),
     },
     "/peptides/nad": {
-        "title": "NAD+ Peptides for Longevity: NMN, NR & What Actually Works",
+        "title": "NAD+ Therapy: Benefits, Risks, NMN vs NR Compared",
         "description": (
-            "Evidence review of NAD+ precursors and peptides for aging and "
-            "cellular health. What the research shows about NMN, NR, and "
-            "NAD+ IV therapy for longevity."
+            "Evidence review of NAD+ therapy, NMN, NR, and IV NAD+ for "
+            "energy, aging, and cellular health, including benefits, risks, "
+            "costs, and what actually works."
         ),
     },
     "/guides/how-to-reconstitute-peptides": {
-        "title": "How to Reconstitute Peptides: Guide + Calculator",
+        "title": "Peptide Reconstitution Calculator + Mixing Guide",
         "description": (
-            "Clear instructions for reconstituting lyophilized peptides with "
-            "bacteriostatic water. Includes dosing calculator, mixing ratios, "
-            "storage tips, and common mistakes to avoid."
+            "Use a peptide reconstitution calculator to convert vial size, "
+            "BAC water, dose, and syringe units. Includes mixing steps, "
+            "storage, and mistakes to avoid."
+        ),
+    },
+    "/biomarkers/cortisol-levels": {
+        "title": "Cortisol Levels: Normal Range Chart, Symptoms & Testing",
+        "description": (
+            "Cortisol levels guide with normal ranges, AM vs PM testing, "
+            "high and low cortisol symptoms, saliva vs blood vs urine tests, "
+            "and what results mean."
         ),
     },
     "/biomarkers/testosterone-by-age": {
-        "title": "Testosterone Levels by Age: Normal vs Optimal Ranges (Chart)",
+        "title": "Testosterone Levels by Age: Normal & Optimal Chart",
         "description": (
-            "Detailed testosterone level chart by age for men 20-80+. "
-            "Compare your total and free T against both lab reference ranges "
-            "and optimal functional ranges. Updated 2026 data."
+            "Testosterone levels by age chart for men, including total and "
+            "free T, normal lab ranges, optimal ranges, symptoms, and when "
+            "to test."
         ),
     },
     "/symptoms/sleep-inertia": {
@@ -284,11 +308,11 @@ _LANDING_SEO_OVERRIDES = {
         ),
     },
     "/peptides/wolverine-stack": {
-        "title": "Wolverine Stack (BPC-157 + TB-500): Protocol & Recovery Guide",
+        "title": "Wolverine Stack: BPC-157 + TB-500 Protocol & Risks",
         "description": (
-            "Complete guide to the BPC-157 + TB-500 healing stack. Dosing protocol, "
-            "reconstitution, injection sites, expected timeline, and the research "
-            "behind peptide-assisted tissue repair."
+            "BPC-157 plus TB-500 wolverine stack guide covering recovery "
+            "protocols, dosing, injection timing, expected timeline, research, "
+            "and safety risks."
         ),
     },
     "/compare/aod-9604-vs-hgh-fragment": {
@@ -307,6 +331,22 @@ _LANDING_SEO_OVERRIDES = {
             "your goals. Evidence-based analysis."
         ),
     },
+    "/compare/hgh-vs-peptides": {
+        "title": "HGH vs Peptides: Cost, Safety, Results Compared",
+        "description": (
+            "Compare synthetic HGH and GH-releasing peptides by cost, results, "
+            "side effects, IGF-1 response, insulin resistance risk, legality, "
+            "and who each option fits."
+        ),
+    },
+    "/compare/ipamorelin-hgh-frag-stack": {
+        "title": "Ipamorelin + HGH Fragment Stack: Dosing, Results & Risks",
+        "description": (
+            "Ipamorelin plus HGH fragment 176-191 stack guide covering fat-loss "
+            "mechanisms, dosing, timing, expected results, side effects, and "
+            "monitoring."
+        ),
+    },
     "/compare/glp1-vs-peptides": {
         "title": "GLP-1 Drugs vs Weight-Loss Peptides Compared",
         "description": (
@@ -315,15 +355,63 @@ _LANDING_SEO_OVERRIDES = {
             "— efficacy, safety, cost, and access."
         ),
     },
+    "/peptides/ghrp": {
+        "title": "GHRP Peptides Compared: GHRP-2, GHRP-6, Ipamorelin",
+        "description": (
+            "Compare GHRP peptides including GHRP-2, GHRP-6, hexarelin, "
+            "and ipamorelin by GH release, appetite effects, cortisol, "
+            "prolactin, dosing, and safety."
+        ),
+    },
+    "/labs/blood-test-results": {
+        "title": "How to Read Blood Test Results: Markers, Ranges & Flags",
+        "description": (
+            "Learn how to read blood test results across CBC, CMP, lipids, "
+            "thyroid, A1C, iron, inflammation, reference ranges, and abnormal "
+            "flags."
+        ),
+    },
+    "/labs/a1c-test": {
+        "title": "A1C Test Chart: Normal, Prediabetes & Diabetes Ranges",
+        "description": (
+            "A1C test guide with normal, prediabetes, and diabetes ranges, "
+            "estimated average glucose chart, symptoms, and evidence-based "
+            "ways to lower A1C."
+        ),
+    },
+    "/guides/calcium-rich-foods-bones": {
+        "title": "Calcium-Rich Foods Chart: Best Sources for Bone Health",
+        "description": (
+            "Calcium-rich foods chart with dairy and non-dairy sources, "
+            "daily targets, bioavailability, vitamin D and K2 context, and "
+            "bone-health tips."
+        ),
+    },
     "/tools/insulin-resistance-calculator": {
         "title": "Insulin Resistance Calculator: HOMA-IR & TG/HDL Ratio (Free)",
         "description": (
-            "Free insulin resistance calculator using HOMA-IR and triglyceride-to-HDL "
-            "ratio. Enter your lab values to assess metabolic risk with clinical "
-            "interpretation of your results."
+            "Free insulin resistance calculator using HOMA-IR and TG/HDL ratio. "
+            "Enter fasting glucose, insulin, triglycerides, and HDL to assess "
+            "metabolic risk."
         ),
     },
 }
+
+_TOOL_SEO_OVERRIDES = {
+    slug: override
+    for path, override in _LANDING_SEO_OVERRIDES.items()
+    if path.startswith("/tools/") and (slug := path.rsplit("/", 1)[-1])
+}
+
+
+def _title_with_site_suffix(title: str, max_length: int = 60) -> str:
+    """Append the site name only when it fits cleanly in SERP-length titles."""
+    clean_title = (title or settings.site_name).strip()
+    suffix = f" | {settings.site_name}"
+    full_title = f"{clean_title}{suffix}"
+    if len(full_title) <= max_length:
+        return full_title
+    return clean_title
 
 # ═══════════════════════════════════════════════════════════════════════
 #  Gzip After-Request Middleware
@@ -777,13 +865,8 @@ def _landing_page_seo(page) -> dict:
     raw_section = (getattr(page, "page_type", "") or "Health").title()
     section = "Guide" if raw_section == "Hub" else raw_section
 
-    suffix = f" | {settings.site_name}"
-    full_title = f"{title}{suffix}"
-    if len(full_title) > 60:
-        full_title = title[:60] if len(title) > 60 else title
-
     return {
-        "title": full_title,
+        "title": _title_with_site_suffix(title),
         "description": description,
         "keywords": ", ".join(keywords) if keywords else "",
         "canonical": canonical,
@@ -2952,7 +3035,9 @@ def _tool_page_seo(tool: dict) -> dict:
     """Build SERP metadata for interactive calculator pages."""
     base = settings.canonical_site_url
     canonical = f"{base}/tools/{tool['slug']}"
-    description = (tool.get("description") or "").strip()
+    override = _TOOL_SEO_OVERRIDES.get(tool["slug"], {})
+    title = (override.get("title") or tool["name"]).strip()
+    description = (override.get("description") or tool.get("description") or "").strip()
     if len(description) > 160:
         description = description[:157].rsplit(" ", 1)[0].rstrip(" ,.;:") + "..."
 
@@ -2963,13 +3048,8 @@ def _tool_page_seo(tool: dict) -> dict:
         "metabolic health tool",
     ]
 
-    suffix = f" | {settings.site_name}"
-    full_title = f"{tool['name']}{suffix}"
-    if len(full_title) > 70:
-        full_title = tool["name"][:70] if len(tool["name"]) > 70 else tool["name"]
-
     return {
-        "title": full_title,
+        "title": _title_with_site_suffix(title, max_length=70),
         "description": description,
         "keywords": ", ".join(keywords),
         "canonical": canonical,
