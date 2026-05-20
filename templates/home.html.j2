@@ -199,12 +199,17 @@
 </section>
 {% endif %}
 
-<section class="newsletter">
+<section class="newsletter" id="newsletter">
   <h2>Get Smarter About Your Health</h2>
   <p>Weekly research breakdowns on metabolism, hormones, and recovery — evidence only, no hype.</p>
   <form class="newsletter-form" action="/subscribe" method="post">
     <input type="email" name="email" placeholder="Your email address" required aria-label="Email address">
     <button type="submit" class="btn-primary">Subscribe</button>
   </form>
+  {% if request.args.get('subscribe') == 'success' %}
+  <p style="color:#d1fae5; font-size:14px; margin:14px 0 0;">You're subscribed. Check your inbox for the next weekly breakdown.</p>
+  {% elif request.args.get('subscribe') == 'invalid' %}
+  <p style="color:#fecaca; font-size:14px; margin:14px 0 0;">Please enter a valid email address.</p>
+  {% endif %}
 </section>
 {% endblock %}

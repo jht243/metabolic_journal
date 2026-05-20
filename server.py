@@ -3386,36 +3386,63 @@ def admin_regen_report():
 #  ROUTES — API: Newsletter Subscribe
 # ═══════════════════════════════════════════════════════════════════════
 
-@app.route("/api/subscribe", methods=["POST"])
-def api_subscribe():
-    """Accept a newsletter signup and forward to Buttondown."""
-    data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "").strip().lower()
-    if not email or "@" not in email:
-        return jsonify({"error": "A valid email is required."}), 400
+def _subscribe_request_data() -> dict:
+    """Return subscription form data from JSON or standard HTML form posts."""
+    if request.is_json:
+        data = request.get_json(silent=True) or {}
+        return data if isinstance(data, dict) else {}
+    return request.form.to_dict()
 
+
+def _send_buttondown_subscribe(email: str, tags: list[str]) -> tuple[bool, str | None]:
     api_key = (settings.buttondown_api_key or "").strip()
     if not api_key:
         logger.warning("Subscribe request ignored: BUTTONDOWN_API_KEY not set")
-        return jsonify({"ok": True, "note": "Subscription recorded locally."})
+        return True, "Subscription recorded locally."
 
     try:
         resp = httpx.post(
             BUTTONDOWN_API_URL,
-            json={"email": email, "tags": ["website"]},
+            json={"email_address": email, "tags": tags},
             headers={"Authorization": f"Token {api_key}"},
             timeout=10,
         )
         if resp.status_code in (200, 201):
             logger.info("Subscribed %s via Buttondown", email)
-            return jsonify({"ok": True})
+            return True, None
         if resp.status_code == 409:
-            return jsonify({"ok": True, "note": "Already subscribed."})
+            return True, "Already subscribed."
         logger.warning("Buttondown returned %s: %s", resp.status_code, resp.text[:300])
-        return jsonify({"ok": True, "note": "Subscription may be pending."})
+        return True, "Subscription may be pending."
     except Exception as exc:
         logger.exception("Buttondown API error: %s", exc)
-        return jsonify({"ok": True, "note": "Subscription recorded."})
+        return True, "Subscription recorded."
+
+
+@app.route("/api/subscribe", methods=["POST"])
+def api_subscribe():
+    """Accept a newsletter signup and forward to Buttondown."""
+    data = _subscribe_request_data()
+    email = (data.get("email") or "").strip().lower()
+    if not email or "@" not in email:
+        return jsonify({"error": "A valid email is required."}), 400
+
+    ok, note = _send_buttondown_subscribe(email, ["website"])
+    payload = {"ok": ok}
+    if note:
+        payload["note"] = note
+    return jsonify(payload)
+
+
+@app.route("/subscribe", methods=["POST"])
+def subscribe_form():
+    """Handle the homepage newsletter CTA when JavaScript is unavailable."""
+    email = (request.form.get("email") or "").strip().lower()
+    if not email or "@" not in email:
+        return redirect("/?subscribe=invalid#newsletter")
+
+    _send_buttondown_subscribe(email, ["website"])
+    return redirect("/?subscribe=success#newsletter")
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -3504,7 +3531,7 @@ def api_lead_magnet():
         try:
             httpx.post(
                 BUTTONDOWN_API_URL,
-                json={"email": email, "tags": ["website", tag]},
+                json={"email_address": email, "tags": ["website", tag]},
                 headers={"Authorization": f"Token {api_key}"},
                 timeout=10,
             )
