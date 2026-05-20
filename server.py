@@ -267,6 +267,14 @@ _LANDING_SEO_OVERRIDES = {
             "mechanism, and access."
         ),
     },
+    "/peptides/retatrutide": {
+        "title": "Retatrutide Peptide: Weight Loss Results, Risks & Status",
+        "description": (
+            "Retatrutide peptide guide covering triple-agonist mechanism, "
+            "Phase 2 weight-loss results, side effects, FDA approval status, "
+            "and how it compares with GLP-1 drugs."
+        ),
+    },
     "/peptides/nad": {
         "title": "NAD+ Therapy: Benefits, Risks, NMN vs NR Compared",
         "description": (
@@ -304,6 +312,29 @@ _LANDING_SEO_OVERRIDES = {
             "Cortisol levels guide with normal ranges, AM vs PM testing, "
             "high and low cortisol symptoms, saliva vs blood vs urine tests, "
             "and what results mean."
+        ),
+    },
+    "/guides/how-to-get-ozempic-for-weight-loss": {
+        "title": "How to Get Prescribed Ozempic for Weight Loss Safely",
+        "description": (
+            "Learn how to get prescribed Ozempic for weight loss safely, "
+            "including eligibility, Wegovy vs Ozempic, insurance hurdles, "
+            "baseline labs, and alternatives."
+        ),
+    },
+    "/guides/how-much-deep-sleep-do-you-need": {
+        "title": "How Much Deep Sleep Do You Need? Stages, Tips & Fixes",
+        "description": (
+            "Find out how much deep sleep adults need, what N3 sleep does, "
+            "how trackers estimate deep sleep, and practical ways to improve "
+            "sleep quality."
+        ),
+    },
+    "/guides/is-6-hours-of-sleep-enough": {
+        "title": "Is 6 Hours of Sleep Enough? Health Risks & Recovery Fixes",
+        "description": (
+            "Is 6 hours of sleep enough? Learn why most adults need 7+ hours, "
+            "health risks of short sleep, warning signs, and recovery steps."
         ),
     },
     "/biomarkers/bone-density-t-score": {
@@ -494,6 +525,30 @@ _LANDING_SEO_OVERRIDES = {
             "platelets, normal ranges, abnormal flags, and what results can mean."
         ),
     },
+    "/labs/mchc-blood-test": {
+        "title": "MCHC Blood Test: Meaning, High, Low & Normal Range",
+        "description": (
+            "MCHC blood test guide explaining mean corpuscular hemoglobin "
+            "concentration, normal range, low MCHC, high MCHC, anemia patterns, "
+            "and next labs."
+        ),
+    },
+    "/labs/mcv-blood-test": {
+        "title": "MCV Blood Test: High, Low, Normal Range & Causes Chart",
+        "description": (
+            "MCV blood test guide explaining mean corpuscular volume, normal "
+            "range, high MCV, low MCV, microcytic and macrocytic anemia causes, "
+            "and next labs."
+        ),
+    },
+    "/labs/hct-blood-test": {
+        "title": "HCT Blood Test: Hematocrit Levels, High & Low Results",
+        "description": (
+            "HCT blood test guide explaining hematocrit levels, normal ranges, "
+            "low HCT, high HCT, anemia, dehydration, sleep apnea, and TRT "
+            "monitoring."
+        ),
+    },
     "/labs/comprehensive-metabolic-panel": {
         "title": "Comprehensive Metabolic Panel: CMP Ranges & Results",
         "description": (
@@ -506,6 +561,13 @@ _LANDING_SEO_OVERRIDES = {
         "description": (
             "Thyroid panel guide explaining TSH, free T4, free T3, reverse T3, "
             "thyroid antibodies, normal ranges, and symptoms."
+        ),
+    },
+    "/labs/luteinizing-hormone": {
+        "title": "Luteinizing Hormone Test: LH Levels, High & Low Results",
+        "description": (
+            "Luteinizing hormone test guide explaining LH levels, high LH, "
+            "low LH, ovulation, menopause, fertility, and testosterone signaling."
         ),
     },
     "/guides/bone-density-menopause": {
@@ -3947,10 +4009,10 @@ Sitemap: {base}/sitemap.xml
 #  IndexNow — instant search engine notification
 # ═══════════════════════════════════════════════════════════════════════
 
-_INDEXNOW_KEY = "4cc1bd5a92d14002ba49f4f01765fd34"
+_INDEXNOW_KEY = "dc557f6bfced447aa1a71771d8a0d24a"
 
 
-@app.route("/4cc1bd5a92d14002ba49f4f01765fd34.txt")
+@app.route("/dc557f6bfced447aa1a71771d8a0d24a.txt")
 def indexnow_key_file():
     return Response(_INDEXNOW_KEY, content_type="text/plain; charset=utf-8")
 

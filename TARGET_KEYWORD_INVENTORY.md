@@ -1,6 +1,6 @@
 # The Metabolic Journal Target Keyword Inventory
 
-Generated: 2026-05-18
+Generated: 2026-05-19
 
 This list includes keywords the site is actually targeting with existing content. Keywords are grouped by the URL that should rank for them.
 
@@ -9,6 +9,7 @@ This list includes keywords the site is actually targeting with existing content
 | Target URL | Primary Keyword | Supporting Keywords |
 |---|---|---|
 | `/guides/glp1-plateau` | GLP-1 plateau | Ozempic plateau; Mounjaro plateau; semaglutide weight loss stall; Wegovy stopped working; weight loss plateau on Ozempic; tirzepatide plateau |
+| `/guides/how-to-get-ozempic-for-weight-loss` | how to get prescribed Ozempic for weight loss | Ozempic prescription; who qualifies for Ozempic; Ozempic for weight loss; how to get Ozempic; get prescribed Ozempic; Ozempic weight loss prescription |
 | `/guides/lose-belly-fat` | lose belly fat | how to lose belly fat; belly fat loss; reduce stomach fat; abdominal fat loss; get rid of belly fat; lower belly fat |
 | `/guides/ozempic-weight-loss` | Ozempic weight loss | semaglutide weight loss; Ozempic results; Wegovy results; Ozempic side effects; how much weight can you lose on Ozempic; Ozempic before and after |
 | `/guides/reverse-insulin-resistance` | reverse insulin resistance | how to reverse insulin resistance naturally; insulin resistance diet; insulin resistance exercise; insulin resistance supplements; cure insulin resistance |
@@ -30,7 +31,7 @@ This list includes keywords the site is actually targeting with existing content
 
 | Target URL | Primary Keyword | Supporting Keywords |
 |---|---|---|
-| `/biomarkers/cortisol-levels` | cortisol levels | normal cortisol levels; cortisol test; salivary cortisol; cortisol reference range; morning cortisol levels; cortisol blood test |
+| `/biomarkers/cortisol-levels` | cortisol levels | normal cortisol levels; cortisol test; salivary cortisol; cortisol reference range; morning cortisol levels; cortisol blood test; high cortisol levels |
 | `/causes` | causes of low testosterone | what causes low testosterone; low testosterone causes; low libido causes; hormonal imbalance causes; why is my testosterone low; does masturbation cause low testosterone; causes of hormonal imbalance |
 | `/causes/low-libido` | low libido causes | low sex drive; low libido hormones; causes of low sex drive; decreased sexual desire; hypoactive sexual desire |
 | `/causes/low-testosterone` | causes of low testosterone | why is my testosterone low; low testosterone causes; what causes low T; testosterone decline; reasons for low testosterone |
@@ -47,16 +48,16 @@ This list includes keywords the site is actually targeting with existing content
 | `/guides/calcium-rich-foods-bones` | calcium rich foods | high calcium foods; calcium foods for bones; calcium for bone health; good sources of calcium; foods that build bone density; calcium supplements; milk and bone health |
 | `/guides/exercises-bone-density` | weight bearing exercises | exercises for bone density; best exercises for bone density; bone density exercises; weight bearing exercise for osteopenia; exercises for osteoporosis; resistance training bone density; LIFTMOR trial |
 | `/guides/hormonal-weight-gain` | hormonal weight gain | hormones and weight gain; which hormones cause weight gain; hormonal belly fat; unexplained weight gain hormones; weight loss hormones |
-| `/guides/increase-testosterone` | increase testosterone naturally | boost testosterone; natural testosterone; how to raise testosterone; how to increase testosterone in women; vitamin d supplement for testosterone; testosterone boosting foods; exercises to increase testosterone |
+| `/guides/increase-testosterone` | increase testosterone naturally | boost testosterone; natural testosterone; natural testosterone booster; how to raise testosterone; how to increase testosterone in women; vitamin d supplement for testosterone; testosterone boosting foods; exercises to increase testosterone |
 | `/guides/lower-cortisol` | lower cortisol naturally | how to reduce cortisol; cortisol reduction; cortisol detox; cortisol detox diet; stress hormone; natural cortisol management; cortisol lowering supplements |
 | `/guides/menopause-weight-gain` | menopause weight gain | weight gain during menopause; menopausal belly fat; menopause weight loss; hormonal weight gain menopause; how to lose weight during menopause |
 | `/guides/reverse-osteopenia` | reverse osteopenia | how to reverse osteopenia; osteopenia treatment; improve bone density; osteopenia exercise; can osteopenia be reversed; bone density improvement; osteopenia reversal |
 | `/hormone-imbalance` | hormone imbalance | hormone imbalance symptoms; hormonal imbalance treatment; signs of hormone imbalance; endocrine dysfunction; hormone testing |
 | `/hormone-optimization` | hormone optimization | testosterone; thyroid; cortisol; hormone imbalance; hormone testing; endocrine health |
 | `/hormone-optimization/menopause` | menopause fatigue | menopause weight gain; menopause belly fat; menopause brain fog; menopause insomnia; menopause supplements; does hrt help with weight loss; menopause bone loss; bone density menopause |
-| `/hormone-optimization/perimenopause` | perimenopause | perimenopause symptoms; perimenopause fatigue; lack of energy perimenopause; perimenopause weight gain; perimenopause supplements; supplements for perimenopause |
+| `/hormone-optimization/perimenopause` | perimenopause | perimenopause symptoms; perimenopause fatigue; perimenopause test; lack of energy perimenopause; perimenopause weight gain; perimenopause supplements; supplements for perimenopause |
 | `/labs/hormone-testing` | hormone testing | hormone blood test; hormone panel; at home testosterone test; when to test hormones; hormone lab tests; comprehensive hormone panel; hormone testing for women; hormone testing for men |
-| `/low-testosterone` | low testosterone | low T symptoms; testosterone deficiency; male hypogonadism; testosterone levels by age; low testosterone treatment |
+| `/low-testosterone` | low testosterone | low T symptoms; testosterone deficiency; male hypogonadism; testosterone levels by age; low testosterone treatment; signs of high testosterone in a man |
 | `/symptoms/brain-fog` | brain fog | brain fog causes; hormonal brain fog; brain fog thyroid; brain fog menopause; anemia brain fog; difficulty concentrating hormones; cognitive dysfunction hormones |
 | `/symptoms/high-cortisol` | high cortisol symptoms | cortisol levels; signs of high cortisol; stress hormone; cortisol and weight gain; how to lower cortisol |
 | `/symptoms/perimenopause` | perimenopause symptoms | perimenopause age; signs of perimenopause; perimenopause treatment; hormone changes perimenopause; perimenopause weight gain |
@@ -74,6 +75,8 @@ This list includes keywords the site is actually targeting with existing content
 | `/conditions/upper-airway-resistance` | upper airway resistance syndrome | UARS; UARS symptoms; UARS vs sleep apnea; UARS diagnosis; sleep disordered breathing |
 | `/guides/burnout-recovery` | burnout recovery | burnout symptoms; how to recover from burnout; burnout treatment; burnout physiology; burnout cortisol; occupational burnout |
 | `/guides/cortisol-and-sleep` | cortisol and sleep | high cortisol insomnia; cortisol rhythm; cortisol test; cortisol awakening response; cortisol sleep disruption |
+| `/guides/how-much-deep-sleep-do-you-need` | how much deep sleep do you need | deep sleep by age; how to get more deep sleep; normal deep sleep percentage; deep sleep amount; deep sleep stages |
+| `/guides/is-6-hours-of-sleep-enough` | is 6 hours of sleep enough | 6 hours sleep; is 6 hours enough sleep; minimum sleep needed; sleeping 6 hours; how much sleep do adults need |
 | `/guides/low-hrv` | low HRV | heart rate variability; HRV score; how to improve HRV; what is HRV; HRV by age; low heart rate variability |
 | `/guides/poor-sleep-quality` | poor sleep quality | how to improve sleep quality; bad sleep quality causes; sleep quality test; deep sleep improvement; fix sleep quality |
 | `/sleep-recovery` | sleep recovery | poor sleep quality; chronic fatigue; HRV; heart rate variability; cortisol and sleep; waking up tired |
@@ -95,21 +98,25 @@ This list includes keywords the site is actually targeting with existing content
 | `/biomarkers/fasting-insulin` | fasting insulin | fasting insulin levels; optimal fasting insulin; HOMA-IR; insulin resistance test; fasting insulin normal range |
 | `/biomarkers/free-testosterone` | free testosterone | free testosterone levels; free testosterone levels in women; free testosterone levels in females; free vs total testosterone; low free testosterone; free testosterone normal range; SHBG testosterone |
 | `/biomarkers/heart-rate-variability` | heart rate variability | HRV; HRV score; what is HRV; HRV by age; how to measure HRV; HRV meaning; low HRV causes |
-| `/biomarkers/iron-levels` | iron blood test | ferritin levels; iron deficiency; 5 weird signs of iron deficiency; symptoms of dying from anemia; low iron saturation; iron saturation; ferritin blood test; iron panel; TIBC; iron deficiency anemia; iron blood test results |
+| `/biomarkers/iron-levels` | iron blood test | ferritin levels; iron deficiency; how to increase ferritin levels; what does iron do for the body; heme iron; do eggs have iron; 5 weird signs of iron deficiency; symptoms of dying from anemia; low iron saturation; iron saturation; ferritin blood test; iron panel; TIBC; iron deficiency anemia; iron blood test results |
 | `/biomarkers/mpv-blood-test` | mpv blood test | what is mpv in blood test; mpv blood test low; mpv blood test high; mpv high; mpv low; mean platelet volume high; mean platelet volume low; low mpv; high mpv blood test; low mpv blood test; mpv platelet volume; what is blood work mpv; low mean platelet volume |
 | `/biomarkers/shbg` | SHBG | sex hormone binding globulin; high SHBG; low SHBG; SHBG levels; sex hormone binding globulin high female; high sex hormone binding globulin in females; SHBG and testosterone; SHBG blood test |
-| `/biomarkers/testosterone-by-age` | testosterone levels by age | testosterone levels by age chart; normal testosterone levels; testosterone range by age; average testosterone by age; testosterone decline age; low testosterone age chart |
+| `/biomarkers/testosterone-by-age` | testosterone levels by age | testosterone levels by age chart; testosterone levels; normal testosterone levels; testosterone range by age; average testosterone by age; testosterone decline age; low testosterone age chart |
 | `/biomarkers/vitamin-d-levels` | vitamin D blood test | vitamin D deficiency; 14 signs of vitamin d deficiency; vitamin D levels; best vitamin d supplement; vitamin d benefits; vitamin d blood test; vitamin d normal range; vitamin d deficiency symptoms; 25 hydroxy vitamin d; vitamin d 25 hydroxy blood test |
-| `/biomarkers/wbc-count` | white blood cell count | wbc blood test; normal wbc count; normal white blood cell count; wbc normal range; low white blood cell count; low wbc; low wbc count in blood; wbc low; how to increase white blood cells; what is a dangerous white blood cell count; what is wbc in blood test; high wbc; neutrophils normal range |
+| `/biomarkers/wbc-count` | white blood cell count | wbc blood test; wbc count; wbc meaning; normal wbc count; normal white blood cell count; wbc normal range; low white blood cell count; low wbc; low wbc count; low wbc causes; low wbc count in blood; wbc low; high wbc count; how to increase white blood cells; what is a dangerous white blood cell count; what is wbc in blood test; high wbc; neutrophils normal range |
 | `/lab-testing` | lab testing | hormone panel; metabolic labs; optimal lab ranges; functional lab ranges; fasting insulin test; comprehensive blood panel |
 | `/labs` | hormone testing | lab tests for hormones; hormone testing for women; metabolic health lab tests; insulin resistance test; blood test for hormones; hormone panel; at home hormone test; how to test testosterone |
 | `/labs/a1c-test` | A1C test | A1C levels chart; how to lower a1c; normal a1c level; a1c calculator; a1c test results; what is a1c; a1c prediabetes; hemoglobin a1c; a1c normal range; blood sugar levels chart; a1c to glucose conversion |
-| `/labs/blood-test-results` | blood test results explained | how to read blood work; understanding blood test results; blood work interpretation; normal blood test ranges; what do blood test numbers mean; blood test results meaning; how to interpret blood work; lab results explained; normal lab values |
+| `/labs/blood-test-results` | blood test results explained | how to read a blood test; how to read blood work; understanding blood test results; blood work interpretation; normal blood test ranges; what do blood test numbers mean; blood test results meaning; how to interpret blood work; lab results explained; normal lab values |
 | `/labs/cbc-blood-test` | CBC blood test | complete blood count; cbc blood test results; what is cbc blood test; rbc blood test; blood analysis cbc; cbc with differential; cbc test; what does cbc stand for; cbc blood work |
 | `/labs/comprehensive-metabolic-panel` | comprehensive metabolic panel | CMP blood test; basic metabolic panel; BMP blood test; metabolic panel; cmp vs bmp; what is a comprehensive metabolic panel; metabolic panel test; cmp test; 14 tests in a comprehensive metabolic panel; complete metabolic panel; metabolic panel blood test; cmp labs |
 | `/labs/dexa-scan` | DEXA scan | dexa scan cost; dexa scan near me; bone density test; dexa scan results; T-score; bone density scan; dexa scan body fat; what is a dexa scan; bone mineral density test |
+| `/labs/hct-blood-test` | hct blood test | hematocrit; high hematocrit; low hematocrit; hct normal range; hematocrit blood test; hct levels |
 | `/labs/kidney-function-test` | kidney function blood test | eGFR meaning; what is eGFR; creatinine levels; when to worry about creatinine levels; chronic kidney disease stages; kidney disease stages; stages of kidney disease; ckd stage 3a; BUN blood test; kidney function test; creatinine urine; egfr blood test |
 | `/labs/liver-function-test` | liver function test | ALT blood test; AST blood test; elevated liver enzymes; sgpt in blood report; what is alt in blood test; liver function test results; high alt blood test; alt blood test low; sgot blood test; hepatic function panel; liver panel; lft; alt normal range |
+| `/labs/luteinizing-hormone` | luteinizing hormone | LH hormone; LH blood test; high LH; low LH; LH levels; luteinizing hormone test; luteinizing hormone levels |
+| `/labs/mchc-blood-test` | mchc blood test | MCHC levels; high MCHC; low MCHC; MCHC normal range; mean corpuscular hemoglobin concentration; MCHC blood test meaning |
+| `/labs/mcv-blood-test` | mcv blood test | high MCV; low MCV; MCV normal range; macrocytosis; mean corpuscular volume; MCV blood test meaning |
 | `/labs/thyroid-panel` | thyroid blood test | TSH blood test; blood test for thyroid tsh; free t4; t4 free; free t4 blood test; t4 free blood test; tsh w/reflex to ft4; tsh with reflex to free t4; low tsh; low tsh means; what does the thyroid do; thyroid panel; thyroid test results |
 
 ## Peptides Pages
@@ -143,12 +150,13 @@ This list includes keywords the site is actually targeting with existing content
 | `/peptides/igf-1-lr3` | igf-1 lr3 | igf 1 lr3; igf lr3; igf-1 long r3; igf1 lr3 dosage; igf-1 lr3 vs igf-1; igf 1 lr3 bodybuilding; what is igf-1 lr3 |
 | `/peptides/ipamorelin` | ipamorelin | ipamorelin dosage; what is ipamorelin; cjc-1295 ipamorelin; ipamorelin cjc 1295; ipamorelin benefits; ipamorelin side effects; does cjc 1295 ipamorelin work |
 | `/peptides/muscle-growth` | peptides for muscle growth | best peptides for muscle growth; peptides bodybuilding; muscle growth peptides; peptides vs sarms; sarms vs peptides; peptides for lean mass |
-| `/peptides/nad` | nad+ benefits | nad peptide; nad+ injections; nad therapy; nad+ anti-aging; nmn vs nr; iv nad+; nad+ and aging; nad injections before and after |
+| `/peptides/nad` | nad+ benefits | nad peptide; nad supplement; nad plus; what is nad+; nad+ injections; nad therapy; nad+ anti-aging; nmn vs nr; iv nad+; nad+ and aging; nad injections before and after |
+| `/peptides/retatrutide` | retatrutide peptide | reta peptide; retatrutide weight loss; retatrutide vs semaglutide; retatrutide vs tirzepatide; retatrutide dosage; retatrutide side effects; GLP-1 GIP glucagon triple agonist |
 | `/peptides/selank` | selank | selank peptide; selank dosage; selank benefits; selank anxiety; nootropic peptides; what does selank do; selank nasal spray |
 | `/peptides/semax` | semax | semax peptide; semax nootropic; semax benefits; semax dosage; n-acetyl semax; nootropic peptides; semax nasal spray |
 | `/peptides/sermorelin` | sermorelin | sermorelin therapy; sermorelin benefits; sermorelin dosage; what is sermorelin; sermorelin vs hgh; sermorelin anti aging; sermorelin side effects |
 | `/peptides/skin` | peptides for skin | skin peptides; ghk-cu copper peptide; best peptide for skin; collagen peptides skin; matrixyl peptide; injectable peptides skin; peptides skin anti-aging |
 | `/peptides/tb-500` | tb-500 | tb 500; tb500; thymosin beta-4; tb-500 peptide; wolverine stack; tb-500 dosage; tb-500 vs bpc-157; bpc 157 tb500 blend |
-| `/peptides/tesamorelin` | tesamorelin | tesamorelin dosage; tesamorelin vs sermorelin; tesamorelin for bodybuilding; tesamorelin dosage for bodybuilding; egrifta peptide |
+| `/peptides/tesamorelin` | tesamorelin | tesamorelin peptide; tesamorelin dosage; tesamorelin vs sermorelin; tesamorelin for bodybuilding; tesamorelin dosage for bodybuilding; egrifta peptide |
 | `/peptides/weight-loss` | peptides for weight loss | weight loss peptides; best peptide for weight loss; peptide weight loss; glp-1 peptides; semaglutide peptide; tesamorelin weight loss; peptides belly fat |
 | `/peptides/wolverine-stack` | wolverine stack | wolverine peptide stack; bpc 157 tb 500 stack; bpc-157 tb-500 protocol; wolverine stack peptides; bpc 157 and tb 500 together; best peptide stack for healing; bpc tb500 |
