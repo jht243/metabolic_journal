@@ -4017,6 +4017,11 @@ def indexnow_key_file():
     return Response(_INDEXNOW_KEY, content_type="text/plain; charset=utf-8")
 
 
+@app.route("/4cc1bd5a92d14002ba49f4f01765fd34.txt")
+def indexnow_legacy_key_file():
+    return Response("4cc1bd5a92d14002ba49f4f01765fd34", content_type="text/plain; charset=utf-8")
+
+
 @app.route("/indexnow-submit", methods=["POST"])
 def indexnow_submit():
     """Submit all important URLs to IndexNow (Bing, Yandex, Naver)."""
